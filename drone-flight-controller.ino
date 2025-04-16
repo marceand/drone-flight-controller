@@ -1,8 +1,12 @@
-#include <RC_Channels.h>
-#include <PIDController.h>
-#include <InertialSensor.h>
 #include "sbus.h"
 #include <Wire.h>
+
+#include "src/RC_Channels/RC_Channels.h"
+#include "src/InertialSensor/InertialSensor.h"
+#include "src/KalmanFilter/RollPitchAngleKF.h"
+#include "src/Controller/RateController.h"
+#include "src/Controller/AngleController.h"
+#include "src/Copter.h"
 
 #define MOTOR_STOP 1000
 #define MOTOR_MAX_SPEED 1999
@@ -21,41 +25,51 @@ typedef struct
 } motors_t;
 
 RC_Channels rc(&Serial2);
-InertialSensor sensor;
-PIDController pid;
+InertialSensor inertialSensor;
+RateController rateController;
+AngleController angleController;
+RollPitchAngleKF rollPitchAngleKF;
+
+Copter copter(rc,
+                           inertialSensor,
+                           rateController,
+                           angleController,
+                           rollPitchAngleKF);
 
 unsigned long loopTimer = micros();
 
 void runPid()
 {
-    rc.read();
-    float desiredRoll = rc.getDesiredRollRate();
-    float desiredPitch = rc.getDesiredPitchRate();
-    float desiredYaw = rc.getDesiredYawRate();
-    float throttle = rc.getThrottleInPWM();
+    // rc.read();
+    // float desiredRollAngle = rc.getDesiredRollAngle();
+    // float desiredPitchAngle = rc.getDesiredPitchAngle();
+    // float desiredYawRate = rc.getDesiredYawRate();
+    // float throttleInPWM = rc.getThrottleInPWM();
 
-    Serial.print("Roll:");
-    Serial.print(rc.getRollInPWM());
-    Serial.print("\t");
+    // Serial.print("Roll:");
+    // Serial.print(rc.getRollInPWM());
+    // Serial.print("\t");
 
-    Serial.print("Pitch:");
-    Serial.print(rc.getPitchInPWM());
-    Serial.print("\t");
+    // Serial.print("Pitch:");
+    // Serial.print(rc.getPitchInPWM());
+    // Serial.print("\t");
 
-    Serial.print("Yaw:");
-    Serial.print(rc.getYawInPWM());
-    Serial.print("\t");
+    // Serial.print("Yaw:");
+    // Serial.print(rc.getYawInPWM());
+    // Serial.print("\t");
 
-    Serial.print("Throttle:");
-    Serial.println(rc.getThrottleInPWM());
+    // Serial.print("Throttle:");
+    // Serial.println(rc.getThrottleInPWM());
 
-    sensor.read();
+    // inertialSensor.read();
 
-    float rollInput = pid.computeRollPID(desiredRoll, sensor.getCalibGyroX());
-    float pitchInput = pid.computePitchPID(desiredPitch, sensor.getCalibGyroY());
-    float yawInput = pid.computeYawPID(desiredYaw, sensor.getCalibGyroZ());
+    
 
-    runMotors(throttle, rollInput, pitchInput, yawInput);
+    // float rollInput = pid.computeRollPID(desiredRollRate, inertialSensor.getCalibGyroX());
+    // float pitchInput = pid.computePitchPID(desiredPitchRate, inertialSensor.getCalibGyroY());
+    // float yawInput = pid.computeYawPID(desiredYawRate, inertialSensor.getCalibGyroZ());
+
+    // runMotors(throttleInPWM, rollInput, pitchInput, yawInput);
 }
 
 void runMotors(uint16_t throttle, float roll, float pitch, float yaw)
@@ -115,21 +129,14 @@ void setup()
     Wire.begin();
     delay(250);
 
-    sensor.begin();
-
-    pid.setGains(0.5, 1.0, 0.05);
-    pid.setTimeStep(0.004);
-    pid.setIntegralLimit(400);
-    pid.setOutputLimit(400);
-
-    rc.begin();
+    copter.init();
 
     // rcCheck();
 }
 
 void loop()
 {
-    runPid();
+    copter.run();
     while (micros() - loopTimer < LOOP_250_HZ)
         ;
     loopTimer = micros();
