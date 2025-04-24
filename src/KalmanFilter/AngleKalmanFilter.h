@@ -3,7 +3,8 @@
 class AngleKalmanFilter
 {
 public:
-    void setParams(float dt, float processUncertainty, float measurementUncertainty){
+    void setParameters(float dt, float processUncertainty, float measurementUncertainty)
+    {
         _dt = dt;
         _process_uncertainty = processUncertainty;
         _measurement_uncertainty = measurementUncertainty;

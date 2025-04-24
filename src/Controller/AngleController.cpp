@@ -1,31 +1,39 @@
 #include "AngleController.h"
+#include "../Parameters/Parameters.h"
+#include "../Parameters/ParamNames.h"
 
-void AngleController::setRollGains(float P, float I, float D)
+void AngleController::setParameters()
 {
-    _rollPID.setGains(P, I, D);
-}
+    float roll_p_gain;
+    float roll_i_gain;
+    float roll_d_gain;
+    Parameters::getFloat(ParamNames::CONTROLLER_ANGLE_ROLL_P_GAIN, roll_p_gain);
+    Parameters::getFloat(ParamNames::CONTROLLER_ANGLE_ROLL_I_GAIN, roll_i_gain);
+    Parameters::getFloat(ParamNames::CONTROLLER_ANGLE_ROLL_D_GAIN, roll_d_gain);
+    _rollPID.setGains(roll_p_gain, roll_i_gain, roll_d_gain);
 
-void AngleController::setPitchGains(float P, float I, float D)
-{
-    _pitchPID.setGains(P, I, D);
-}
+    float pitch_p_gain;
+    float pitch_i_gain;
+    float pitch_d_gain;
+    Parameters::getFloat(ParamNames::CONTROLLER_ANGLE_PITCH_P_GAIN, pitch_p_gain);
+    Parameters::getFloat(ParamNames::CONTROLLER_ANGLE_PITCH_I_GAIN, pitch_i_gain);
+    Parameters::getFloat(ParamNames::CONTROLLER_ANGLE_PITCH_D_GAIN, pitch_d_gain);
+    _pitchPID.setGains(pitch_p_gain, pitch_i_gain, pitch_d_gain);
 
-void AngleController::setTimeStep(float dt)
-{
-    _rollPID.setTimeStep(dt);
-    _pitchPID.setTimeStep(dt);
-}
+    float time_step;
+    Parameters::getFloat(ParamNames::PID_TIME_STEP, time_step);
+    _rollPID.setTimeStep(time_step);
+    _pitchPID.setTimeStep(time_step);
 
-void AngleController::setOutputLimit(float limit)
-{
-    _rollPID.setOutputLimit(limit);
-    _pitchPID.setOutputLimit(limit);
-}
+    float output_limit;
+    Parameters::getFloat(ParamNames::PID_OUTPUT_LIMIT, output_limit);
+    _rollPID.setOutputLimit(output_limit);
+    _pitchPID.setOutputLimit(output_limit);
 
-void AngleController::setIntegralLimit(float limit)
-{
-    _rollPID.setIntegralLimit(limit);
-    _pitchPID.setIntegralLimit(limit);
+    float integral_limit;
+    Parameters::getFloat(ParamNames::PID_INTEGRAL_LIMIT, integral_limit);
+    _rollPID.setIntegralLimit(integral_limit);
+    _pitchPID.setIntegralLimit(integral_limit);
 }
 
 float AngleController::computeRollPID(float desired, float actual)

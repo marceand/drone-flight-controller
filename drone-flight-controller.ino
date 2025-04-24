@@ -6,6 +6,7 @@
 #include "src/KalmanFilter/RollPitchAngleKF.h"
 #include "src/Controller/RateController.h"
 #include "src/Controller/AngleController.h"
+#include "src/Parameters/Parameters.h"
 #include "src/Copter.h"
 
 #define MOTOR_STOP 1000
@@ -30,11 +31,12 @@ RateController rateController;
 AngleController angleController;
 RollPitchAngleKF rollPitchAngleKF;
 
-Copter copter(rc,
-                           inertialSensor,
-                           rateController,
-                           angleController,
-                           rollPitchAngleKF);
+Copter copter(
+    rc,
+    inertialSensor,
+    rateController,
+    angleController,
+    rollPitchAngleKF);
 
 unsigned long loopTimer = micros();
 
@@ -62,8 +64,6 @@ void runPid()
     // Serial.println(rc.getThrottleInPWM());
 
     // inertialSensor.read();
-
-    
 
     // float rollInput = pid.computeRollPID(desiredRollRate, inertialSensor.getCalibGyroX());
     // float pitchInput = pid.computePitchPID(desiredPitchRate, inertialSensor.getCalibGyroY());

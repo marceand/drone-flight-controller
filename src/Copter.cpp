@@ -2,28 +2,11 @@
 
 void Copter::init(void)
 {
-
     _inertialSensor.init();
 
-    _rateController.setParams();
-    _angleController.setParams();
-    _rollPitchAngleKF.setParams();
-
-    // _rateController.setRollGains(float P, float I, float D);
-    // _rateController.setPitchGains(float P, float I, float D);
-    // _rateController.setYawGains(float P, float I, float D);
-    // _rateController.setTimeStep(float dt);
-    // _rateController.setOutputLimit(float limit);
-    // _rateController.setIntegralLimit(float limit);
-
-    // _angleController.setRollGains(float P, float I, float D);
-    // _angleController.setPitchGains(float P, float I, float D);
-    // _angleController.setTimeStep(float dt);
-    // _angleController.setOutputLimit(float limit);
-    // _angleController.setIntegralLimit(float limit);
-
-    // _rollPitchAngleKF.setPitchParams();
-    // _rollPitchAngleKF.setRollParams();
+    _rateController.setParameters();
+    _angleController.setParameters();
+    _rollPitchAngleKF.setParameters();
 
     _rc.init();
 }
