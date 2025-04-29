@@ -2,38 +2,39 @@
 
 void Copter::init(void)
 {
-    _inertialSensor.init();
+    _battMonitor.init();
+    // _inertialSensor.init();
 
-    _rateController.setParameters();
-    _angleController.setParameters();
-    _rollPitchAngleKF.setParameters();
+    // _rateController.setParameters();
+    // _angleController.setParameters();
+    // _rollPitchAngleKF.setParameters();
 
-    _rc.init();
+    // _rc.init();
 }
 
 void Copter::run(void)
 {
-    _rc.read();
-    float desiredRollAngle = _rc.getDesiredRollAngle();
-    float desiredPitchAngle = _rc.getDesiredPitchAngle();
-    float desiredYawRate = _rc.getDesiredYawRate();
-    float throttleInput = _rc.getThrottleInPWM();
+    // _rc.read();
+    // float desiredRollAngle = _rc.getDesiredRollAngle();
+    // float desiredPitchAngle = _rc.getDesiredPitchAngle();
+    // float desiredYawRate = _rc.getDesiredYawRate();
+    // float throttleInput = _rc.getThrottleInPWM();
 
-    _inertialSensor.read();
+    // _inertialSensor.read();
 
-    float rollRate = _inertialSensor.getCalibGyroX();
-    float pitchRate = _inertialSensor.getCalibGyroY();
-    float yawRate = _inertialSensor.getCalibGyroZ();
-    float rollAngle = _inertialSensor.getRollAngle();
-    float pitchAngle = _inertialSensor.getPitchAngle();
+    // float rollRate = _inertialSensor.getCalibGyroX();
+    // float pitchRate = _inertialSensor.getCalibGyroY();
+    // float yawRate = _inertialSensor.getCalibGyroZ();
+    // float rollAngle = _inertialSensor.getRollAngle();
+    // float pitchAngle = _inertialSensor.getPitchAngle();
 
-    float rollAngleKF = _rollPitchAngleKF.calculateRoll(rollRate, rollAngle);
-    float pitchAngleKF = _rollPitchAngleKF.calculatePitch(pitchRate, pitchAngle);
+    // float rollAngleKF = _rollPitchAngleKF.calculateRoll(rollRate, rollAngle);
+    // float pitchAngleKF = _rollPitchAngleKF.calculatePitch(pitchRate, pitchAngle);
 
-    float desiredRollRate = _angleController.computeRollPID(desiredRollAngle, rollAngleKF);
-    float desiredPitchRate = _angleController.computePitchPID(desiredPitchAngle, pitchAngleKF);
+    // float desiredRollRate = _angleController.computeRollPID(desiredRollAngle, rollAngleKF);
+    // float desiredPitchRate = _angleController.computePitchPID(desiredPitchAngle, pitchAngleKF);
 
-    float rollInput = _rateController.computeRollPID(desiredRollRate, rollRate);
-    float pitchInput = _rateController.computePitchPID(desiredPitchRate, pitchRate);
-    float yawInput = _rateController.computeYawPID(desiredYawRate, yawRate);
+    // float rollInput = _rateController.computeRollPID(desiredRollRate, rollRate);
+    // float pitchInput = _rateController.computePitchPID(desiredPitchRate, pitchRate);
+    // float yawInput = _rateController.computeYawPID(desiredYawRate, yawRate);
 }

@@ -7,6 +7,7 @@
 #include "src/Controller/RateController.h"
 #include "src/Controller/AngleController.h"
 #include "src/Parameters/Parameters.h"
+#include "src/BatteryMonitor/BatteryMonitor.h"
 #include "src/Copter.h"
 
 #define MOTOR_STOP 1000
@@ -30,13 +31,15 @@ InertialSensor inertialSensor;
 RateController rateController;
 AngleController angleController;
 RollPitchAngleKF rollPitchAngleKF;
+BatteryMonitor battMonitor;
 
 Copter copter(
     rc,
     inertialSensor,
     rateController,
     angleController,
-    rollPitchAngleKF);
+    rollPitchAngleKF,
+    battMonitor);
 
 unsigned long loopTimer = micros();
 
