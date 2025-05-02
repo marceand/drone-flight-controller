@@ -1,5 +1,8 @@
 #pragma once
 
+#include "../HAL/BatteryReader.h"
+#include "../HAL/LEDIndicator.h"
+
 class BatteryMonitor
 {
 public:
@@ -7,13 +10,11 @@ public:
     void monitor();
 
 private:
-    float _voltage;
-    float _current;
+    BatteryReader _batteryReader;
+    LEDIndicator _LEDIndicator;
     float _current_consumed = 0.0f;
     float _batt_remaining_percentage;
     float _batt_capacity_default = 1300.0f;
     float _batt_capacity_initial;
-
-    void readVoltage();
-    void readCurrent();
+    float calculateBatteryCapacity(float voltage);
 };
