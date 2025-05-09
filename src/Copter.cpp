@@ -38,3 +38,19 @@ void Copter::run(void)
     // float pitchInput = _rateController.computePitchPID(desiredPitchRate, pitchRate);
     // float yawInput = _rateController.computeYawPID(desiredYawRate, yawRate);
 }
+
+void Copter::check_esc_calibration()
+{
+    // read the radio until get input
+    _rc.read();
+
+    // check for calibration mode
+    // check for maxium throthtle
+    // block until we restart
+    // while (1)
+    // {
+    //     hal.scheduler->delay(5);
+    // }
+
+    float throttle = _rc.getThrottleInPWM();
+}

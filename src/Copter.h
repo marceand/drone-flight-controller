@@ -32,4 +32,5 @@ private:
     AngleController &_angleController;
     RollPitchAngleKF &_rollPitchAngleKF;
     BatteryMonitor &_battMonitor;
+    void check_esc_calibration();
 };
