@@ -10,5 +10,5 @@ public:
     void disableGreenLED();
 
 private:
-    bool is_initialised = false;
+    bool is_initialized = false;
 };

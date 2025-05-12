@@ -6,11 +6,11 @@
 
 void LEDIndicator::init()
 {
-    if (is_initialised)
+    if (is_initialized)
     {
         return;
     }
-    is_initialised = true;
+    is_initialized = true;
 
     pinMode(RED_LED_PIN, OUTPUT);
     pinMode(GREEN_LED_PIN, OUTPUT);

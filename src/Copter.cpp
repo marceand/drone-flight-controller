@@ -1,5 +1,7 @@
 #include "Copter.h"
 
+#define ESC_CALIBRATION_HIGH_THROTTLE 1800
+
 void Copter::init(void)
 {
     _battMonitor.init();
@@ -41,16 +43,38 @@ void Copter::run(void)
 
 void Copter::check_esc_calibration()
 {
-    // read the radio until get input
-    _rc.read();
+    uint8_t i = 0;
+    while (i++ < 100)
+    {
+        delay(20);
+        _rc.read();
+    }
 
-    // check for calibration mode
-    // check for maxium throthtle
-    // block until we restart
-    // while (1)
-    // {
-    //     hal.scheduler->delay(5);
-    // }
+    if (_storage.check_for_esc_calibration())
+    {
+        if (_rc.getThrottleInPWM() >= ESC_CALIBRATION_HIGH_THROTTLE)
+        {
+            _storage.set_check_esc_calibration(false);
+            while (1)
+            {
+                delay(5);
+            }
+        }
+    }
+    else
+    {
+        if (_rc.getThrottleInPWM() >= ESC_CALIBRATION_HIGH_THROTTLE)
+        {
+            _storage.set_check_esc_calibration(true);
+            _motors.setArm(true);
 
-    float throttle = _rc.getThrottleInPWM();
+            while (1)
+            {
+                _rc.read();
+                delay(10);
+                float throttleInput = _rc.getThrottleInPWM();
+                _motors.calibrateESC(throttleInput);
+            }
+        }
+    }
 }
