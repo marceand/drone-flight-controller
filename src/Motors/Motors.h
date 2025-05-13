@@ -6,6 +6,7 @@ class Motors
 {
 public:
     Motors(ESCOutput &ESCOutput) : _escOutput(ESCOutput) {};
+    void init();
     bool isArmed()
     {
         return _armed;

@@ -7,7 +7,8 @@
 #include "Controller/AngleController.h"
 #include "BatteryMonitor/BatteryMonitor.h"
 #include "Motors/Motors.h"
-#include "Storage/PersistentStorage.h"
+#include "HAL/PersistentStorage.h"
+#include "HAL/LEDIndicator.h"
 
 class Copter
 {
@@ -19,14 +20,18 @@ public:
            RollPitchAngleKF &rollPitchAngleKF,
            BatteryMonitor &battMonitor,
            Motors &motors,
-           PersistentStorage storage) : _rc(rc),
-                                        _inertialSensor(inertialSensor),
-                                        _rateController(rateController),
-                                        _angleController(angleController),
-                                        _rollPitchAngleKF(rollPitchAngleKF),
-                                        _battMonitor(battMonitor),
-                                        _motors(motors),
-                                        _storage(storage) {}
+           PersistentStorage &storage,
+           LEDIndicator &led) : _rc(rc),
+                                _inertialSensor(inertialSensor),
+                                _rateController(rateController),
+                                _angleController(angleController),
+                                _rollPitchAngleKF(rollPitchAngleKF),
+                                _battMonitor(battMonitor),
+                                _motors(motors),
+                                _storage(storage),
+                                _ledIndicator(led)
+    {
+    }
 
     void init(void);
     void run(void);
@@ -40,5 +45,6 @@ private:
     BatteryMonitor &_battMonitor;
     Motors &_motors;
     PersistentStorage &_storage;
+    LEDIndicator &_ledIndicator;
     void check_esc_calibration();
 };

@@ -1,7 +1,7 @@
 #include "ESCOutput.h"
 #include <Arduino.h>
 
-void ESCOutput::inits()
+void ESCOutput::init()
 {
     if (is_initalized)
     {

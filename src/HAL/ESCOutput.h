@@ -9,7 +9,7 @@
 class ESCOutput
 {
 public:
-    void inits();
+    void init();
     void update_motor_1_speed(float input);
     void update_motor_2_speed(float input);
     void update_motor_3_speed(float input);

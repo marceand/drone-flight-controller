@@ -38,5 +38,4 @@ void PersistentStorage::load()
 void PersistentStorage::save()
 {
     EEPROM.put(0, _config);
-    EEPROM.commit();
 }

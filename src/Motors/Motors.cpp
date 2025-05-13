@@ -7,6 +7,11 @@
 #define SAFE_MAX_THROTTLE 1800
 #define SAFE_MIN_THROTTLE 1050
 
+void Motors::init()
+{
+    _escOutput.init();
+}
+
 void Motors::runMotors(float throttleInput, float rollInput, float pitchInput, float yawInput)
 {
     float motor_1_output;
@@ -48,7 +53,7 @@ void Motors::setArm(bool arm)
 
 void Motors::updateMotorOutputs(float motor_1_output, float motor_2_output, float motor_3_output, float motor_4_output)
 {
-    if (isArmed)
+    if (isArmed())
     {
         _escOutput.update_motor_1_speed(motor_1_output);
         _escOutput.update_motor_2_speed(motor_2_output);

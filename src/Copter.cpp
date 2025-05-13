@@ -4,14 +4,18 @@
 
 void Copter::init(void)
 {
-    _battMonitor.init();
+    _ledIndicator.init();
+    _storage.init();
+    _motors.init();
+    _rc.init();
+    //_battMonitor.init();
     // _inertialSensor.init();
 
     // _rateController.setParameters();
     // _angleController.setParameters();
     // _rollPitchAngleKF.setParameters();
 
-    // _rc.init();
+    check_esc_calibration();
 }
 
 void Copter::run(void)
@@ -43,6 +47,8 @@ void Copter::run(void)
 
 void Copter::check_esc_calibration()
 {
+    _ledIndicator.enableRedLED();
+
     uint8_t i = 0;
     while (i++ < 100)
     {
@@ -50,10 +56,14 @@ void Copter::check_esc_calibration()
         _rc.read();
     }
 
+    _ledIndicator.disableRedLED();
+
     if (_storage.check_for_esc_calibration())
     {
+
         if (_rc.getThrottleInPWM() >= ESC_CALIBRATION_HIGH_THROTTLE)
         {
+            _ledIndicator.enableGreenLED();
             _storage.set_check_esc_calibration(false);
             while (1)
             {
@@ -67,6 +77,8 @@ void Copter::check_esc_calibration()
         {
             _storage.set_check_esc_calibration(true);
             _motors.setArm(true);
+            _ledIndicator.enableGreenLED();
+            _ledIndicator.enableRedLED();
 
             while (1)
             {
