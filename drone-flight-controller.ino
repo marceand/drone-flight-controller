@@ -11,6 +11,7 @@
 #include "src/HAL/ESCOutput.h"
 #include "src/HAL/PersistentStorage.h"
 #include "src/HAL/LEDIndicator.h"
+#include "src/Barometer/Barometer_BMP280.h"
 
 #define WIRE_CLK_FREQ 400000 // 400Khz
 #define SERIAL_BAUD_RATE 57600
@@ -27,6 +28,7 @@ BatteryMonitor battMonitor(led);
 ESCOutput escOutput;
 Motors motors(escOutput);
 PersistentStorage storage;
+Barometer_BMP280 barometer;
 
 Copter copter(
     rc,
@@ -51,15 +53,30 @@ void setup()
     Wire.begin();
     delay(250);
 
-    copter.init();
+    // copter.init();
+    barometer.init();
 
     // rcCheck();
 }
 
 void loop()
 {
-    copter.run();
-    while (micros() - loopTimer < LOOP_250_HZ)
-        ;
-    loopTimer = micros();
+    barometer.read();
+    float reference_altitude = barometer.get_reference_altitude_in_cm();
+    float pressure_altitude = barometer.get_pressure_altitude_in_cm();
+    float relative_altitude = barometer.get_relative_altitude_in_cm();
+    Serial.print("Reference: ");
+    Serial.print(reference_altitude);
+    Serial.print("cm \t");
+    Serial.print("Pressure: ");
+    Serial.print(pressure_altitude);
+    Serial.print("cm \t");
+    Serial.print("Relative: ");
+    Serial.print(relative_altitude);
+    Serial.println("cm");
+    delay(1000);
+    // copter.run();
+    // while (micros() - loopTimer < LOOP_250_HZ)
+    //     ;
+    // loopTimer = micros();
 }
