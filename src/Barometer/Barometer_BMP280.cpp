@@ -127,16 +127,16 @@ void Barometer_BMP280::updatePressure(int32_t adc_P)
 
 void Barometer_BMP280::calculate_reference_altitude()
 {
-    int reading_length = 2000;
+    int sample_length = 2000;
     float altitude_sum = 0.0;
-    for (int i = 0; i < reading_length; i++)
+    for (int i = 0; i < sample_length; i++)
     {
         read();
         altitude_sum = altitude_sum + get_pressure_altitude_in_cm();
         delay(1);
     }
 
-    _reference_altitude = altitude_sum / reading_length;
+    _reference_altitude = altitude_sum / sample_length;
 }
 
 float Barometer_BMP280::calculate_pressure_altitude(float pressure_in_hPa)
