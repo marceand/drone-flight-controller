@@ -44,6 +44,7 @@ void InertialSensor::read()
     _rawGyro.gyroZ = scaleGyroReading((float)gyroZ);
 
     calculateAngles();
+    calculateVerticalAcceleration();
 }
 
 void InertialSensor::startGyroPowerMode(void)
@@ -150,4 +151,13 @@ void InertialSensor::calculateAngles(void)
 {
     _roll_angle = atan(_rawAccel.accelY / sqrt(_rawAccel.accelX * _rawAccel.accelX + _rawAccel.accelZ * _rawAccel.accelZ)) * 1 / (3.142 / 180);
     _pitch_angle = -atan(_rawAccel.accelX / sqrt(_rawAccel.accelY * _rawAccel.accelY + _rawAccel.accelZ * _rawAccel.accelZ)) * 1 / (3.142 / 180);
+}
+
+void InertialSensor::calculateVerticalAcceleration()
+{
+    float accel_z_inertial = -sin(_pitch_angle * (3.142 / 180)) * _rawAccel.accelX +
+                             cos(_pitch_angle * (3.142 / 180)) * sin(_roll_angle * (3.142 / 180)) * _rawAccel.accelY +
+                             cos(_pitch_angle * (3.142 / 180)) * cos(_roll_angle * (3.142 / 180)) * _rawAccel.accelZ;
+
+    _vertical_acceleration = (accel_z_inertial - 1.0) * 9.81 * 100; // cm/s^2
 }

@@ -42,6 +42,7 @@ public:
     float getTemperature() { return _temperature; }
     float getRollAngle() { return _roll_angle; }
     float getPitchAngle() { return _pitch_angle; }
+    float getVerticalAcceleration() { return _vertical_acceleration; }
 
 private:
     struct gyro_t
@@ -66,6 +67,7 @@ private:
     float _temperature = 0.0;
     float _roll_angle = 0.0;
     float _pitch_angle = 0.0;
+    float _vertical_acceleration = 0.0;
     void startGyroPowerMode(void);
     void setGyroLowPassFilter(void);
     void setGyroSensitivity(void);
@@ -76,4 +78,5 @@ private:
     float scaleGyroReading(float reading);
     float scaleAccelReading(float reading);
     void calculateAngles(void);
+    void calculateVerticalAcceleration();
 };

@@ -42,6 +42,7 @@ Copter copter(
     led);
 
 unsigned long loopTimer = micros();
+float vertical_velocity;
 
 void setup()
 {
@@ -53,28 +54,41 @@ void setup()
     Wire.begin();
     delay(250);
 
+    inertialSensor.init();
+    vertical_velocity = 0.0;
     // copter.init();
-    barometer.init();
+    // barometer.init();
 
     // rcCheck();
 }
 
 void loop()
 {
-    barometer.read();
-    float reference_altitude = barometer.get_reference_altitude_in_cm();
-    float pressure_altitude = barometer.get_pressure_altitude_in_cm();
-    float relative_altitude = barometer.get_relative_altitude_in_cm();
-    Serial.print("Reference: ");
-    Serial.print(reference_altitude);
-    Serial.print("cm \t");
-    Serial.print("Pressure: ");
-    Serial.print(pressure_altitude);
-    Serial.print("cm \t");
-    Serial.print("Relative: ");
-    Serial.print(relative_altitude);
-    Serial.println("cm");
-    delay(1000);
+
+    inertialSensor.read();
+    vertical_velocity = inertialSensor.getVerticalAcceleration() * 0.004;
+    Serial.print(vertical_velocity);
+    Serial.println();
+
+    // delay(20);
+    while (micros() - loopTimer < LOOP_250_HZ)
+        ;
+    loopTimer = micros();
+
+    // barometer.read();
+    // float reference_altitude = barometer.get_reference_altitude_in_cm();
+    // float pressure_altitude = barometer.get_pressure_altitude_in_cm();
+    // float relative_altitude = barometer.get_relative_altitude_in_cm();
+    // Serial.print("Reference: ");
+    // Serial.print(reference_altitude);
+    // Serial.print("cm \t");
+    // Serial.print("Pressure: ");
+    // Serial.print(pressure_altitude);
+    // Serial.print("cm \t");
+    // Serial.print("Relative: ");
+    // Serial.print(relative_altitude);
+    // Serial.println("cm");
+    // delay(1000);
     // copter.run();
     // while (micros() - loopTimer < LOOP_250_HZ)
     //     ;
