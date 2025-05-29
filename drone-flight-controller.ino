@@ -12,6 +12,7 @@
 #include "src/HAL/PersistentStorage.h"
 #include "src/HAL/LEDIndicator.h"
 #include "src/Barometer/Barometer_BMP280.h"
+#include "src/KalmanFilter/AltitudeVelocityKF.h"
 
 #define WIRE_CLK_FREQ 400000 // 400Khz
 #define SERIAL_BAUD_RATE 57600
@@ -29,6 +30,7 @@ ESCOutput escOutput;
 Motors motors(escOutput);
 PersistentStorage storage;
 Barometer_BMP280 barometer;
+AltitudeVelocityKF altitudeVelocityKF;
 
 Copter copter(
     rc,
@@ -42,7 +44,7 @@ Copter copter(
     led);
 
 unsigned long loopTimer = micros();
-float vertical_velocity;
+float vel = 0.0f;
 
 void setup()
 {
@@ -55,20 +57,48 @@ void setup()
     delay(250);
 
     inertialSensor.init();
-    vertical_velocity = 0.0;
+    barometer.init();
+    altitudeVelocityKF.setParameters();
+
     // copter.init();
-    // barometer.init();
 
     // rcCheck();
 }
 
 void loop()
 {
-
     inertialSensor.read();
-    vertical_velocity = inertialSensor.getVerticalAcceleration() * 0.004;
-    Serial.print(vertical_velocity);
-    Serial.println();
+    barometer.read();
+    float vertical_acceleration = inertialSensor.getVerticalAcceleration();
+    float relative_altitude = barometer.get_relative_altitude_in_cm();
+
+    altitudeVelocityKF.calculate_altitude_velocity(relative_altitude, vertical_acceleration);
+
+    // Serial.print(altitudeVelocityKF.getAltitude());
+    // Serial.print("\t");
+    // Serial.print(altitudeVelocityKF.getVerticalVelocity());
+    // Serial.println("\t");
+
+    // Serial.print("Gain-Alt: ");
+    // Serial.print(altitudeVelocityKF.getGainAltitude(), 6);
+    // Serial.print("\t");
+    // Serial.print("Gain-Vel: ");
+    // Serial.print(altitudeVelocityKF.getGainVelocity(), 6);
+    // Serial.println("\t");
+
+    Serial.print("relative_altitude: ");
+    Serial.print(relative_altitude);
+    Serial.print("cm \t");
+    Serial.print("Vertical velocity: ");
+    vel = vel + vertical_acceleration * 0.004; // convert to cm/s
+    Serial.print(vel);
+    Serial.print("cm/s \t");
+    Serial.print("Altitude: ");
+    Serial.print(altitudeVelocityKF.getAltitude());
+    Serial.print("cm \t");
+    Serial.print("Velocity: ");
+    Serial.print(altitudeVelocityKF.getVerticalVelocity());
+    Serial.println("cm/s");
 
     // delay(20);
     while (micros() - loopTimer < LOOP_250_HZ)
