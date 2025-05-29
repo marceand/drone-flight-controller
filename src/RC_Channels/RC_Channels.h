@@ -23,10 +23,27 @@
 
 #define DESIRED_GYRO_FACTOR 0.15f
 #define DESIRED_ANGLE_FACTOR 0.10f
-
+#define DESIRED_VELOCITY_FACTOR 0.3f
 
 class RC_Channels
 {
+public:
+    RC_Channels(HardwareSerial *serial) : _sbus_rx(serial)
+    {
+    }
+    void init();
+    void read();
+    uint16_t getRollInPWM() { return _pwm_channels.roll; }
+    uint16_t getPitchInPWM() { return _pwm_channels.pitch; }
+    uint16_t getThrottleInPWM() { return _pwm_channels.throttle; }
+    uint16_t getYawInPWM() { return _pwm_channels.yaw; }
+    float getDesiredRollRate() { return computeDesiredRate(_pwm_channels.roll); }
+    float getDesiredPitchRate() { return computeDesiredRate(_pwm_channels.pitch); }
+    float getDesiredYawRate() { return computeDesiredRate(_pwm_channels.yaw); }
+    float getDesiredRollAngle() { return computeDesiredAngle(_pwm_channels.roll); }
+    float getDesiredPitchAngle() { return computeDesiredAngle(_pwm_channels.pitch); }
+    float getDesiredThrottleVelocity() { return computeDesiredVelocity(_pwm_channels.throttle); }
+
 private:
     struct pwm_channels_t
     {
@@ -36,38 +53,10 @@ private:
         uint16_t yaw;
     };
 
-    struct desired_rates_t
-    {
-        float roll;
-        float pitch;
-        float yaw;
-    };
-
-    struct desired_angles_t
-    {
-        float roll;
-        float pitch;
-    };
-
     pwm_channels_t _pwm_channels = {RC_CHANNEL_DEFAULT_VAL, RC_CHANNEL_DEFAULT_VAL, RC_CHANNEL_DEFAULT_VAL, RC_CHANNEL_DEFAULT_VAL};
-    desired_rates_t _desired_rates = {0.0, 0.0, 0.0};
-    desired_angles_t _desired_angles = {0.0, 0.0};
     bfs::SbusRx _sbus_rx;
     uint16_t mapSbusToPWM(uint16_t sbusValue);
     float computeDesiredRate(uint16_t inputInPWM);
     float computeDesiredAngle(uint16_t inputInPWM);
-
-public:
-    RC_Channels(HardwareSerial *serial) : _sbus_rx(serial) {}
-    void init();
-    void read();
-    uint16_t getRollInPWM() { return _pwm_channels.roll; }
-    uint16_t getPitchInPWM() { return _pwm_channels.pitch; }
-    uint16_t getThrottleInPWM() { return _pwm_channels.throttle; }
-    uint16_t getYawInPWM() { return _pwm_channels.yaw; }
-    float getDesiredRollRate() { return _desired_rates.roll; }
-    float getDesiredPitchRate() { return _desired_rates.pitch; }
-    float getDesiredYawRate() { return _desired_rates.yaw; }
-    float getDesiredRollAngle() { return _desired_angles.roll; }
-    float getDesiredPitchAngle() { return _desired_angles.pitch; }
+    float computeDesiredVelocity(uint16_t inputInPWM);
 };

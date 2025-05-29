@@ -20,11 +20,11 @@ void Copter::init(void)
 
 void Copter::run(void)
 {
-    // _rc.read();
-    // float desiredRollAngle = _rc.getDesiredRollAngle();
-    // float desiredPitchAngle = _rc.getDesiredPitchAngle();
-    // float desiredYawRate = _rc.getDesiredYawRate();
-    // float throttleInput = _rc.getThrottleInPWM();
+    _rc.read();
+    float desiredRollAngle = _rc.getDesiredRollAngle();
+    float desiredPitchAngle = _rc.getDesiredPitchAngle();
+    float desiredYawRate = _rc.getDesiredYawRate();
+    float throttleInput = _rc.getThrottleInPWM();
 
     // _inertialSensor.read();
 

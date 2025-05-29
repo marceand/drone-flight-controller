@@ -74,18 +74,6 @@ void loop()
 
     altitudeVelocityKF.calculate_altitude_velocity(relative_altitude, vertical_acceleration);
 
-    // Serial.print(altitudeVelocityKF.getAltitude());
-    // Serial.print("\t");
-    // Serial.print(altitudeVelocityKF.getVerticalVelocity());
-    // Serial.println("\t");
-
-    // Serial.print("Gain-Alt: ");
-    // Serial.print(altitudeVelocityKF.getGainAltitude(), 6);
-    // Serial.print("\t");
-    // Serial.print("Gain-Vel: ");
-    // Serial.print(altitudeVelocityKF.getGainVelocity(), 6);
-    // Serial.println("\t");
-
     Serial.print("relative_altitude: ");
     Serial.print(relative_altitude);
     Serial.print("cm \t");

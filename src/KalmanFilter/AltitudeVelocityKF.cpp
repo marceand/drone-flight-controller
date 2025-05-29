@@ -24,8 +24,6 @@ void AltitudeVelocityKF::calculate_altitude_velocity(float barometer_altitude, f
       P = F * P * ~F + Q;
       L = H * P * ~H + R;
       K = P * (~H) * Inverse(L);
-      _gain_altitude = K(0, 0);
-      _gain_velocity = K(1, 0);
       M = {barometer_altitude};
       S = S + K * (M - H * S);
       P = (I - K * H) * P;

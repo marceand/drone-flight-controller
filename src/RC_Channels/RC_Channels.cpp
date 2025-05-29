@@ -27,6 +27,11 @@ float RC_Channels::computeDesiredAngle(uint16_t inputInPWM)
     return DESIRED_ANGLE_FACTOR * (inputInPWM - RC_MID_CHANNEL_VALUE);
 }
 
+float RC_Channels::computeDesiredVelocity(uint16_t inputInPWM)
+{
+    return DESIRED_VELOCITY_FACTOR * (inputInPWM - RC_MID_CHANNEL_VALUE);
+}
+
 void RC_Channels::init()
 {
     _sbus_rx.Begin();
@@ -47,12 +52,5 @@ void RC_Channels::read()
         _pwm_channels.pitch = constrain(pitchValue, RC_MIN_CHANNEL_VALUE, RC_MAX_CHANNEL_VALUE);
         _pwm_channels.throttle = constrain(throttleValue, RC_MIN_CHANNEL_VALUE, RC_MAX_CHANNEL_VALUE);
         _pwm_channels.yaw = constrain(yawValue, RC_MIN_CHANNEL_VALUE, RC_MAX_CHANNEL_VALUE);
-
-        // uint16_t constrainThrottle = constrain(throttleValue, RC_MIN_CHANNEL_VALUE, RC_MAX_CHANNEL_VALUE);
-        // _pwm_channels.throttle = constrainThrottle > RC_MAX_THROTTLE ? RC_MAX_THROTTLE : constrainThrottle;
-
-        _desired_rates.roll = computeDesiredRate(_pwm_channels.roll);
-        _desired_rates.pitch = computeDesiredRate(_pwm_channels.pitch);
-        _desired_rates.yaw = computeDesiredRate(_pwm_channels.yaw);
     }
 }

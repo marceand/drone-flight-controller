@@ -18,15 +18,6 @@ public:
         return _vertical_velocity;
     }
 
-    float getGainAltitude()
-    {
-        return _gain_altitude;
-    }
-    float getGainVelocity()
-    {
-        return _gain_velocity;
-    }
-
 private:
     float _altitude;
     float _vertical_velocity;
