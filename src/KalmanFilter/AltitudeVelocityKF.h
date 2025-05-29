@@ -8,7 +8,7 @@ class AltitudeVelocityKF
 {
 public:
     void setParameters();
-    void calculate_altitude_velocity(float barometer_altitude, float vertical_acceleration);
+    float calculateVerticalVelocity(float barometer_altitude, float vertical_acceleration);
     float getAltitude()
     {
         return _altitude;

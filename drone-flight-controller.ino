@@ -72,7 +72,7 @@ void loop()
     float vertical_acceleration = inertialSensor.getVerticalAcceleration();
     float relative_altitude = barometer.get_relative_altitude_in_cm();
 
-    altitudeVelocityKF.calculate_altitude_velocity(relative_altitude, vertical_acceleration);
+    altitudeVelocityKF.calculateVerticalVelocity(relative_altitude, vertical_acceleration);
 
     Serial.print("relative_altitude: ");
     Serial.print(relative_altitude);

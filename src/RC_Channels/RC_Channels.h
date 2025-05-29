@@ -13,8 +13,6 @@
 #define RC_MIN_CHANNEL_VALUE 1000
 #define RC_MAX_CHANNEL_VALUE 2000
 #define RC_MID_CHANNEL_VALUE 1500
-#define RC_MAX_THROTTLE 1800
-#define RC_MIN_THROTTLE 1050
 
 #define MIN_PWM 1000
 #define MAX_PWM 2000
@@ -37,6 +35,7 @@ public:
     uint16_t getPitchInPWM() { return _pwm_channels.pitch; }
     uint16_t getThrottleInPWM() { return _pwm_channels.throttle; }
     uint16_t getYawInPWM() { return _pwm_channels.yaw; }
+    float getMidThrottle() { return RC_MID_CHANNEL_VALUE; }
     float getDesiredRollRate() { return computeDesiredRate(_pwm_channels.roll); }
     float getDesiredPitchRate() { return computeDesiredRate(_pwm_channels.pitch); }
     float getDesiredYawRate() { return computeDesiredRate(_pwm_channels.yaw); }

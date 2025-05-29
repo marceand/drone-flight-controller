@@ -9,6 +9,9 @@
 #include "Motors/Motors.h"
 #include "HAL/PersistentStorage.h"
 #include "HAL/LEDIndicator.h"
+#include "Barometer/Barometer_BMP280.h"
+#include "KalmanFilter/AltitudeVelocityKF.h"
+#include "PID/CopterPID.h"
 
 class Copter
 {
@@ -21,15 +24,22 @@ public:
            BatteryMonitor &battMonitor,
            Motors &motors,
            PersistentStorage &storage,
-           LEDIndicator &led) : _rc(rc),
-                                _inertialSensor(inertialSensor),
-                                _rateController(rateController),
-                                _angleController(angleController),
-                                _rollPitchAngleKF(rollPitchAngleKF),
-                                _battMonitor(battMonitor),
-                                _motors(motors),
-                                _storage(storage),
-                                _ledIndicator(led)
+           LEDIndicator &led,
+           Barometer_BMP280 &barometer,
+           AltitudeVelocityKF &altitudeVelocityKF,
+           CopterPID &velocityController) : _rc(rc),
+                                            _inertialSensor(inertialSensor),
+                                            _rateController(rateController),
+                                            _angleController(angleController),
+                                            _rollPitchAngleKF(rollPitchAngleKF),
+                                            _battMonitor(battMonitor),
+                                            _motors(motors),
+                                            _storage(storage),
+                                            _ledIndicator(led),
+                                            _barometer(barometer),
+                                            _altitudeVelocityKF(altitudeVelocityKF),
+                                            _velocityController(velocityController)
+
     {
     }
 
@@ -46,5 +56,9 @@ private:
     Motors &_motors;
     PersistentStorage &_storage;
     LEDIndicator &_ledIndicator;
+    Barometer_BMP280 &_barometer;
+    AltitudeVelocityKF &_altitudeVelocityKF;
+    CopterPID &_velocityController;
+
     void check_esc_calibration();
 };
