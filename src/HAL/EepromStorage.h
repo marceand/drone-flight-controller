@@ -4,7 +4,7 @@
 
 #define CONFIG_MAGIC_NUMBER_BYTE 0xAA
 
-class PersistentStorage
+class EepromStorage
 {
 public:
     void init();

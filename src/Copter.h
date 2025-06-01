@@ -4,7 +4,7 @@
 #include "InertialSensor/InertialSensor.h"
 #include "BatteryMonitor/BatteryMonitor.h"
 #include "Motors/Motors.h"
-#include "HAL/PersistentStorage.h"
+#include "HAL/EepromStorage.h"
 #include "HAL/LEDIndicator.h"
 #include "Barometer/Barometer_BMP280.h"
 #include "KalmanFilter/AltitudeVelocityKF.h"
@@ -23,7 +23,7 @@ public:
            CopterPID &anglePitchController,
            BatteryMonitor &battMonitor,
            Motors &motors,
-           PersistentStorage &storage,
+           EepromStorage &storage,
            LEDIndicator &led,
            Barometer_BMP280 &barometer,
            AltitudeVelocityKF &altitudeVelocityKF,
@@ -62,7 +62,7 @@ private:
     CopterPID &_anglePitchController;
     BatteryMonitor &_battMonitor;
     Motors &_motors;
-    PersistentStorage &_storage;
+    EepromStorage &_storage;
     LEDIndicator &_ledIndicator;
     Barometer_BMP280 &_barometer;
     AltitudeVelocityKF &_altitudeVelocityKF;

@@ -1,6 +1,6 @@
-#include "PersistentStorage.h"
+#include "EepromStorage.h"
 
-void PersistentStorage::init()
+void EepromStorage::init()
 {
     load();
     if (_config.initialized != CONFIG_MAGIC_NUMBER_BYTE)
@@ -10,12 +10,12 @@ void PersistentStorage::init()
     }
 }
 
-bool PersistentStorage::check_for_esc_calibration()
+bool EepromStorage::check_for_esc_calibration()
 {
     return _config.check_esc_calibration;
 }
 
-void PersistentStorage::set_check_esc_calibration(bool check_for_calibration)
+void EepromStorage::set_check_esc_calibration(bool check_for_calibration)
 {
     if (_config.check_esc_calibration != check_for_calibration)
     {
@@ -24,18 +24,18 @@ void PersistentStorage::set_check_esc_calibration(bool check_for_calibration)
     }
 }
 
-void PersistentStorage::setDefaults()
+void EepromStorage::setDefaults()
 {
     _config.initialized = CONFIG_MAGIC_NUMBER_BYTE;
     _config.check_esc_calibration = true;
 }
 
-void PersistentStorage::load()
+void EepromStorage::load()
 {
     EEPROM.get(0, _config);
 }
 
-void PersistentStorage::save()
+void EepromStorage::save()
 {
     EEPROM.put(0, _config);
 }

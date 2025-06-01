@@ -6,7 +6,7 @@
 #include "src/BatteryMonitor/BatteryMonitor.h"
 #include "src/Motors/Motors.h"
 #include "src/HAL/ESCOutput.h"
-#include "src/HAL/PersistentStorage.h"
+#include "src/HAL/EepromStorage.h"
 #include "src/HAL/LEDIndicator.h"
 #include "src/Barometer/Barometer_BMP280.h"
 #include "src/KalmanFilter/AltitudeVelocityKF.h"
@@ -29,7 +29,7 @@ LEDIndicator led;
 BatteryMonitor battMonitor(led);
 ESCOutput escOutput;
 Motors motors(escOutput);
-PersistentStorage storage;
+EepromStorage storage;
 Barometer_BMP280 barometer;
 AltitudeVelocityKF altitudeVelocityKF;
 CopterPID velocityController;
