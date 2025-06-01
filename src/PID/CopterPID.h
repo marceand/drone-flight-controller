@@ -4,10 +4,11 @@ class CopterPID
 {
 
 public:
+    void setParameters(float P, float I, float D, float dt, float outputLimit, float integralLimit);
     void setGains(float P, float I, float D);
     void setTimeStep(float dt);
-    void setOutputLimit(float limit) { _limitOutput = limit; };
-    void setIntegralLimit(float limit) { _limitIntegral = limit; };
+    void setOutputLimit(float limit);
+    void setIntegralLimit(float limit);
     float computePID(float desired, float actual);
 
 private:

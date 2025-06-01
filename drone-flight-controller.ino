@@ -2,9 +2,6 @@
 #include "src/Copter.h"
 #include "src/RC_Channels/RC_Channels.h"
 #include "src/InertialSensor/InertialSensor.h"
-#include "src/KalmanFilter/RollPitchAngleKF.h"
-#include "src/Controller/RateController.h"
-#include "src/Controller/AngleController.h"
 #include "src/Parameters/Parameters.h"
 #include "src/BatteryMonitor/BatteryMonitor.h"
 #include "src/Motors/Motors.h"
@@ -14,6 +11,7 @@
 #include "src/Barometer/Barometer_BMP280.h"
 #include "src/KalmanFilter/AltitudeVelocityKF.h"
 #include "src/KalmanFilter/AngleKF.h"
+#include "src/PID/CopterPID.h"
 
 #define WIRE_CLK_FREQ 400000 // 400Khz
 #define SERIAL_BAUD_RATE 57600
@@ -22,9 +20,11 @@
 
 RC_Channels rc(&Serial1);
 InertialSensor inertialSensor;
-RateController rateController;
-AngleController angleController;
-RollPitchAngleKF rollPitchAngleKF;
+CopterPID rateRollController;
+CopterPID ratePitchController;
+CopterPID rateYawController;
+CopterPID angleRollController;
+CopterPID anglePitchController;
 LEDIndicator led;
 BatteryMonitor battMonitor(led);
 ESCOutput escOutput;
@@ -32,20 +32,27 @@ Motors motors(escOutput);
 PersistentStorage storage;
 Barometer_BMP280 barometer;
 AltitudeVelocityKF altitudeVelocityKF;
-
-// Copter copter(
-//     rc,
-//     inertialSensor,
-//     rateController,
-//     angleController,
-//     rollPitchAngleKF,
-//     battMonitor,
-//     motors,
-//     storage,
-//     led);
-
+CopterPID velocityController;
 AngleKF rollKF;
 AngleKF pitchKF;
+
+Copter copter(
+    rc,
+    inertialSensor,
+    rateRollController,
+    ratePitchController,
+    rateYawController,
+    angleRollController,
+    anglePitchController,
+    battMonitor,
+    motors,
+    storage,
+    led,
+    barometer,
+    altitudeVelocityKF,
+    velocityController,
+    rollKF,
+    pitchKF);
 
 unsigned long loopTimer = micros();
 
@@ -59,9 +66,9 @@ void setup()
     Wire.begin();
     delay(250);
 
-    inertialSensor.init();
-    rollKF.setParameters();
-    pitchKF.setParameters();
+    // inertialSensor.init();
+    // rollKF.setParameters();
+    // pitchKF.setParameters();
     // barometer.init();
     // altitudeVelocityKF.setParameters();
 
@@ -73,20 +80,20 @@ void setup()
 void loop()
 {
 
-    inertialSensor.read();
-    float rollRate = inertialSensor.getCalibGyroX();
-    float pitchRate = inertialSensor.getCalibGyroY();
-    float yawRate = inertialSensor.getCalibGyroZ();
-    float rollAngle = inertialSensor.getRollAngle();
-    float pitchAngle = inertialSensor.getPitchAngle();
+    // inertialSensor.read();
+    // float rollRate = inertialSensor.getCalibGyroX();
+    // float pitchRate = inertialSensor.getCalibGyroY();
+    // float yawRate = inertialSensor.getCalibGyroZ();
+    // float rollAngle = inertialSensor.getRollAngle();
+    // float pitchAngle = inertialSensor.getPitchAngle();
 
-    float rollAngleKF = rollKF.calculateAngle(rollRate, rollAngle);
-    float pitchAngleKF = pitchKF.calculateAngle(pitchRate, pitchAngle);
+    // float rollAngleKF = rollKF.calculateAngle(rollRate, rollAngle);
+    // float pitchAngleKF = pitchKF.calculateAngle(pitchRate, pitchAngle);
 
-    Serial.print(rollKF.getGain(), 6);
-    Serial.print("cm \t");
-    Serial.print(pitchKF.getGain(), 6);
-    Serial.println();
+    // Serial.print(rollKF.getGain(), 6);
+    // Serial.print("cm \t");
+    // Serial.print(pitchKF.getGain(), 6);
+    // Serial.println();
 
     // inertialSensor.read();
     // barometer.read();
@@ -110,6 +117,7 @@ void loop()
     // Serial.println("cm/s");
 
     // delay(20);
+    // copter.run();
     while (micros() - loopTimer < LOOP_250_HZ)
         ;
     loopTimer = micros();

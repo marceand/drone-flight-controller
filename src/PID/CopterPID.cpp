@@ -1,5 +1,13 @@
 #include "CopterPID.h"
 
+void CopterPID::setParameters(float P, float I, float D, float dt, float outputLimit, float integralLimit)
+{
+    setGains(P, I, D);
+    setTimeStep(dt);
+    setOutputLimit(outputLimit);
+    setIntegralLimit(integralLimit);
+}
+
 void CopterPID::setGains(float P, float I, float D)
 {
     _kP = P;
@@ -11,6 +19,15 @@ void CopterPID::setTimeStep(float dt)
 {
     _dt = dt;
 }
+
+void CopterPID::setOutputLimit(float limit)
+{
+    _limitOutput = limit;
+};
+void CopterPID::setIntegralLimit(float limit)
+{
+    _limitIntegral = limit;
+};
 
 float CopterPID::computePID(float desired, float actual)
 {

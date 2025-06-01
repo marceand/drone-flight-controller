@@ -4,16 +4,19 @@
 
 void Copter::init(void)
 {
-    _ledIndicator.init();
     _storage.init();
-    _motors.init();
+    _inertialSensor.init();
+    _barometer.init();
     _rc.init();
-    //_battMonitor.init();
-    // _inertialSensor.init();
-
-    // _rateController.setParameters();
-    // _angleController.setParameters();
-    // _rollPitchAngleKF.setParameters();
+    _ledIndicator.init();
+    _motors.init();
+    _battMonitor.init();
+    _rateRollController.setParameters(0.6, 3.5, 0.03, 0.004, 400, 400);
+    _ratePitchController.setParameters(0.6, 3.5, 0.03, 0.004, 400, 400);
+    _rateYawController.setParameters(2, 12, 0, 0.004, 400, 400);
+    _angleRollController.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
+    _anglePitchController.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
+    _velocityController.setParameters(3.5, 0.0015, 0.01, 0.004, 400, 400);
 
     check_esc_calibration();
 }
@@ -37,17 +40,16 @@ void Copter::run(void)
     float desiredYawRate = _rc.getDesiredYawRate();
     float desiredThrottleVelocity = _rc.getDesiredThrottleVelocity();
 
-    // Kalman filter
-    float rollAngleKF = _rollPitchAngleKF.calculateRoll(rollRate, rollAngle);
-    float pitchAngleKF = _rollPitchAngleKF.calculatePitch(pitchRate, pitchAngle);
+    float rollAngleKF = _rollKF.calculateAngle(rollRate, rollAngle);
+    float pitchAngleKF = _pitchKF.calculateAngle(pitchRate, pitchAngle);
     float verticalVelocityKF = _altitudeVelocityKF.calculateVerticalVelocity(relativeAltitude, verticalAcceleration);
 
-    float desiredRollRate = _angleController.computeRollPID(desiredRollAngle, rollAngleKF);
-    float desiredPitchRate = _angleController.computePitchPID(desiredPitchAngle, pitchAngleKF);
+    float desiredRollRate = _angleRollController.computePID(desiredRollAngle, rollAngleKF);
+    float desiredPitchRate = _anglePitchController.computePID(desiredPitchAngle, pitchAngleKF);
 
-    float rollInput = _rateController.computeRollPID(desiredRollRate, rollRate);
-    float pitchInput = _rateController.computePitchPID(desiredPitchRate, pitchRate);
-    float yawInput = _rateController.computeYawPID(desiredYawRate, yawRate);
+    float rollInput = _rateRollController.computePID(desiredRollRate, rollRate);
+    float pitchInput = _ratePitchController.computePID(desiredPitchRate, pitchRate);
+    float yawInput = _rateYawController.computePID(desiredYawRate, yawRate);
     float throttleInput = _velocityController.computePID(desiredThrottleVelocity, verticalVelocityKF);
     float throttleHoverInput = _rc.getMidThrottle() + throttleInput;
 
