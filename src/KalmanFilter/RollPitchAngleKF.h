@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "AngleKalmanFilter.h"
+#include "AngleKF.h"
 
 class RollPitchAngleKF
 {
@@ -11,6 +11,6 @@ public:
     float calculatePitch(float angularRate, float angleMeasurement);
 
 private:
-    AngleKalmanFilter _rollAngleKF;
-    AngleKalmanFilter _pitchAngleKF;
+    AngleKF _rollAngleKF;
+    AngleKF _pitchAngleKF;
 };

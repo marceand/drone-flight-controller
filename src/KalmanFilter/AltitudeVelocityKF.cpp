@@ -19,15 +19,19 @@ void AltitudeVelocityKF::setParameters()
 
 float AltitudeVelocityKF::calculateVerticalVelocity(float barometer_altitude, float vertical_acceleration)
 {
-      Acc = {vertical_acceleration};
-      S = F * S + G * Acc;
+      U = {vertical_acceleration};
+      S = F * S + G * U;
       P = F * P * ~F + Q;
       L = H * P * ~H + R;
       K = P * (~H) * Inverse(L);
       M = {barometer_altitude};
       S = S + K * (M - H * S);
       P = (I - K * H) * P;
+
+      _gain_altitude = K(0, 0);
+      _gain_vertical_velocity = K(1, 0);
       _altitude = S(0, 0);
       _vertical_velocity = S(1, 0);
+
       return _vertical_velocity;
 }
