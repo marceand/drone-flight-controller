@@ -49,6 +49,16 @@ public:
     {
     }
 
+    struct Task
+    {
+        const char *name;
+        uint32_t interval_us;
+        uint32_t last_run_us;
+        void (*func)();
+    };
+
+    static Task tasks[];
+    const static int NUM_TASKS;
     void init(void);
     void run(void);
 
@@ -70,5 +80,11 @@ private:
     AngleKF &_rollKF;
     AngleKF &_pitchKF;
 
+    void run_main_controller();
     void check_esc_calibration();
+    void check_motors_startup();
+    void check_motors_mapping();
+    void set_motors_at_minimum();
+    // void check_arming();
+    // void check_disarming();
 };

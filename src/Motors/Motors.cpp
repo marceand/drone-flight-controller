@@ -62,9 +62,38 @@ void Motors::updateMotorOutputs(float motor_1_output, float motor_2_output, floa
     }
 }
 
-void Motors::calibrateESC(float throttleInput)
+void Motors::runMotorsForESCPassthrough(float throttleInput)
 {
     updateMotorOutputs(throttleInput, throttleInput, throttleInput, throttleInput);
+}
+
+void Motors::runMotorInSequence(int motorSequence, float throttleInput)
+{
+    if (isArmed())
+    {
+        switch (motorSequence)
+        {
+        case 1:
+            _escOutput.update_motor_1_speed(throttleInput);
+            break;
+        case 2:
+            _escOutput.update_motor_2_speed(throttleInput);
+            break;
+        case 3:
+            _escOutput.update_motor_3_speed(throttleInput);
+            break;
+        case 4:
+            _escOutput.update_motor_4_speed(throttleInput);
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+void Motors::runAtMinimum()
+{
+    updateMotorOutputs(CUT_OFF_THROTTLE, CUT_OFF_THROTTLE, CUT_OFF_THROTTLE, CUT_OFF_THROTTLE);
 }
 
 float Motors::calculateMotorOutput(MotorMixFunc mixer, float throttleInput, float rollInput, float pitchInput, float yawInput)

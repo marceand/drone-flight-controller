@@ -1,6 +1,16 @@
 #include "Copter.h"
 
 #define ESC_CALIBRATION_HIGH_THROTTLE 1800
+#define MOTORS_MINIMUM_STARTUP_THROTTLE 1003
+#define HZ_TO_US(hz) (1000000UL / (hz))
+
+Copter::Task Copter::tasks[] = {
+    // {"TaskA", HZ_TO_US(250), 0, run_main_controller},
+    // {"TaskA", HZ_TO_US(100), 0, taskA},
+    // {"TaskB", HZ_TO_US(50), 0, taskB},
+};
+
+const int Copter::NUM_TASKS = sizeof(tasks) / sizeof(Task);
 
 void Copter::init(void)
 {
@@ -10,18 +20,36 @@ void Copter::init(void)
     _rc.init();
     _ledIndicator.init();
     _motors.init();
-    _battMonitor.init();
-    _rateRollController.setParameters(0.6, 3.5, 0.03, 0.004, 400, 400);
-    _ratePitchController.setParameters(0.6, 3.5, 0.03, 0.004, 400, 400);
-    _rateYawController.setParameters(2, 12, 0, 0.004, 400, 400);
-    _angleRollController.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
-    _anglePitchController.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
-    _velocityController.setParameters(3.5, 0.0015, 0.01, 0.004, 400, 400);
+    // _battMonitor.init();
+    // _rateRollController.setParameters(0.6, 3.5, 0.03, 0.004, 400, 400);
+    // _ratePitchController.setParameters(0.6, 3.5, 0.03, 0.004, 400, 400);
+    // _rateYawController.setParameters(2, 12, 0, 0.004, 400, 400);
+    // _angleRollController.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
+    // _anglePitchController.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
+    // _velocityController.setParameters(3.5, 0.0015, 0.01, 0.004, 400, 400);
 
     check_esc_calibration();
+    check_motors_startup();
+    check_motors_mapping();
+    set_motors_at_minimum();
 }
 
 void Copter::run(void)
+{
+    // uint32_t now = micros();
+
+    // for (int i = 0; i < NUM_TASKS; i++)
+    // {
+    //     Task &task = tasks[i];
+    //     if (now - task.last_run_us >= task.interval_us)
+    //     {
+    //         task.func();
+    //         task.last_run_us = now;
+    //     }
+    // }
+}
+
+void Copter::run_main_controller()
 {
     _inertialSensor.read();
     float rollRate = _inertialSensor.getCalibGyroX();
@@ -96,8 +124,55 @@ void Copter::check_esc_calibration()
                 _rc.read();
                 delay(10);
                 float throttleInput = _rc.getThrottleInPWM();
-                _motors.calibrateESC(throttleInput);
+                _motors.runMotorsForESCPassthrough(throttleInput);
             }
         }
     }
+}
+
+void Copter::check_motors_startup()
+{
+    set_motors_at_minimum();
+    delay(3);
+
+    _motors.setArm(true);
+    uint32_t start_ms = millis();
+    uint32_t test_interval_ms = 5000; // 5 second
+    while (millis() - start_ms < test_interval_ms)
+    {
+        _motors.runMotorsForESCPassthrough(MOTORS_MINIMUM_STARTUP_THROTTLE);
+        delay(3);
+    }
+
+    delay(3);
+    set_motors_at_minimum();
+}
+
+void Copter::check_motors_mapping()
+{
+    set_motors_at_minimum();
+    delay(3);
+
+    _motors.setArm(true);
+    uint32_t test_interval_ms = 5000; // 5 second
+    int num_of_motors = 4;
+    for (int motor_sequence = 1; motor_sequence <= num_of_motors; motor_sequence++)
+    {
+        uint32_t start_ms = millis();
+        while (millis() - start_ms < test_interval_ms)
+        {
+            _motors.runMotorInSequence(motor_sequence, MOTORS_MINIMUM_STARTUP_THROTTLE);
+            delay(3);
+        }
+    }
+
+    delay(3);
+    set_motors_at_minimum();
+}
+
+void Copter::set_motors_at_minimum()
+{
+    _motors.setArm(true);
+    _motors.runAtMinimum();
+    _motors.setArm(false);
 }

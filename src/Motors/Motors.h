@@ -13,7 +13,9 @@ public:
     }
     void setArm(bool arm);
     void runMotors(float throttleInput, float rollInput, float pitchInput, float yawInput);
-    void calibrateESC(float throttleInput);
+    void runMotorsForESCPassthrough(float throttleInput);
+    void runMotorInSequence(int motorSequence, float throttleInput);
+    void runAtMinimum();
 
 private:
     typedef float (*MotorMixFunc)(float, float, float, float);
