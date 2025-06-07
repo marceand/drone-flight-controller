@@ -1,7 +1,7 @@
 #include "Copter.h"
 
 #define ESC_CALIBRATION_HIGH_THROTTLE 1800
-#define MOTORS_MINIMUM_STARTUP_THROTTLE 1003
+#define MOTORS_MINIMUM_STARTUP_THROTTLE 1015
 #define HZ_TO_US(hz) (1000000UL / (hz))
 
 Copter::Task Copter::tasks[] = {
@@ -31,7 +31,7 @@ void Copter::init(void)
     check_esc_calibration();
     check_motors_startup();
     check_motors_mapping();
-    set_motors_at_minimum();
+    arm_esc_at_minimum();
 }
 
 void Copter::run(void)
@@ -104,6 +104,7 @@ void Copter::check_esc_calibration()
         {
             _ledIndicator.enableGreenLED();
             _storage.set_check_esc_calibration(false);
+            // Keep in the loop until drone is reboot
             while (1)
             {
                 delay(5);
@@ -122,9 +123,9 @@ void Copter::check_esc_calibration()
             while (1)
             {
                 _rc.read();
-                delay(10);
                 float throttleInput = _rc.getThrottleInPWM();
                 _motors.runMotorsForESCPassthrough(throttleInput);
+                delay(4);
             }
         }
     }
@@ -132,47 +133,78 @@ void Copter::check_esc_calibration()
 
 void Copter::check_motors_startup()
 {
-    set_motors_at_minimum();
-    delay(3);
+    _ledIndicator.enableRedLED();
+    _ledIndicator.enableGreenLED();
+
+    arm_esc_at_minimum();
 
     _motors.setArm(true);
+
     uint32_t start_ms = millis();
-    uint32_t test_interval_ms = 5000; // 5 second
+    uint32_t test_interval_ms = 10000;
     while (millis() - start_ms < test_interval_ms)
     {
         _motors.runMotorsForESCPassthrough(MOTORS_MINIMUM_STARTUP_THROTTLE);
-        delay(3);
+        delay(4);
     }
 
-    delay(3);
-    set_motors_at_minimum();
+    arm_esc_at_minimum();
+
+    _ledIndicator.disableRedLED();
+    _ledIndicator.disableGreenLED();
 }
 
 void Copter::check_motors_mapping()
 {
-    set_motors_at_minimum();
-    delay(3);
+    _ledIndicator.enableRedLED();
+    _ledIndicator.enableGreenLED();
+
+    arm_esc_at_minimum();
 
     _motors.setArm(true);
-    uint32_t test_interval_ms = 5000; // 5 second
+
+    uint32_t test_interval_ms = 5000;
+    uint32_t total_ms_per_motor = 2 * test_interval_ms;
     int num_of_motors = 4;
+
     for (int motor_sequence = 1; motor_sequence <= num_of_motors; motor_sequence++)
     {
         uint32_t start_ms = millis();
-        while (millis() - start_ms < test_interval_ms)
+        uint32_t now_ms = start_ms;
+        while (now_ms - start_ms < total_ms_per_motor)
         {
-            _motors.runMotorInSequence(motor_sequence, MOTORS_MINIMUM_STARTUP_THROTTLE);
-            delay(3);
+            if (now_ms - start_ms < test_interval_ms)
+            {
+                _motors.runMotorInSequence(motor_sequence, MOTORS_MINIMUM_STARTUP_THROTTLE);
+            }
+            else
+            {
+                _motors.runAtMinimum();
+            }
+            delay(4);
+            now_ms = millis();
         }
     }
 
-    delay(3);
-    set_motors_at_minimum();
+    _motors.setArm(false);
+
+    arm_esc_at_minimum();
+
+    _ledIndicator.disableRedLED();
+    _ledIndicator.disableGreenLED();
 }
 
-void Copter::set_motors_at_minimum()
+void Copter::arm_esc_at_minimum()
 {
     _motors.setArm(true);
-    _motors.runAtMinimum();
+
+    uint32_t start_ms = millis();
+    uint32_t test_interval_ms = 3000;
+    while (millis() - start_ms < test_interval_ms)
+    {
+        _motors.runAtMinimum();
+        delay(4);
+    }
+
     _motors.setArm(false);
 }

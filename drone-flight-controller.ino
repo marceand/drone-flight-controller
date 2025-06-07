@@ -72,7 +72,7 @@ void setup()
     // barometer.init();
     // altitudeVelocityKF.setParameters();
 
-    // copter.init();
+    copter.init();
 
     // rcCheck();
 }

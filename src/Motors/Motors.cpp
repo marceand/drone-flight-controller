@@ -64,26 +64,28 @@ void Motors::updateMotorOutputs(float motor_1_output, float motor_2_output, floa
 
 void Motors::runMotorsForESCPassthrough(float throttleInput)
 {
-    updateMotorOutputs(throttleInput, throttleInput, throttleInput, throttleInput);
+    float throttle_input_scaled = applyResolutionScaleToOuput(throttleInput);
+    updateMotorOutputs(throttle_input_scaled, throttle_input_scaled, throttle_input_scaled, throttle_input_scaled);
 }
 
 void Motors::runMotorInSequence(int motorSequence, float throttleInput)
 {
+    float throttle_input_scaled = applyResolutionScaleToOuput(throttleInput);
     if (isArmed())
     {
         switch (motorSequence)
         {
         case 1:
-            _escOutput.update_motor_1_speed(throttleInput);
+            _escOutput.update_motor_1_speed(throttle_input_scaled);
             break;
         case 2:
-            _escOutput.update_motor_2_speed(throttleInput);
+            _escOutput.update_motor_2_speed(throttle_input_scaled);
             break;
         case 3:
-            _escOutput.update_motor_3_speed(throttleInput);
+            _escOutput.update_motor_3_speed(throttle_input_scaled);
             break;
         case 4:
-            _escOutput.update_motor_4_speed(throttleInput);
+            _escOutput.update_motor_4_speed(throttle_input_scaled);
             break;
         default:
             break;
@@ -93,7 +95,8 @@ void Motors::runMotorInSequence(int motorSequence, float throttleInput)
 
 void Motors::runAtMinimum()
 {
-    updateMotorOutputs(CUT_OFF_THROTTLE, CUT_OFF_THROTTLE, CUT_OFF_THROTTLE, CUT_OFF_THROTTLE);
+    float throttle_input_scaled = applyResolutionScaleToOuput(CUT_OFF_THROTTLE);
+    updateMotorOutputs(throttle_input_scaled, throttle_input_scaled, throttle_input_scaled, throttle_input_scaled);
 }
 
 float Motors::calculateMotorOutput(MotorMixFunc mixer, float throttleInput, float rollInput, float pitchInput, float yawInput)

@@ -84,7 +84,7 @@ private:
     void check_esc_calibration();
     void check_motors_startup();
     void check_motors_mapping();
-    void set_motors_at_minimum();
+    void arm_esc_at_minimum();
     // void check_arming();
     // void check_disarming();
 };
