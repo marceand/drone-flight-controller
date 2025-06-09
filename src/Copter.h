@@ -80,11 +80,13 @@ private:
     AngleKF &_rollKF;
     AngleKF &_pitchKF;
 
+    int _arming_counter = 0;
+
     void run_main_controller();
     void check_esc_calibration();
     void check_motors_startup();
     void check_motors_mapping();
     void arm_esc_at_minimum();
-    // void check_arming();
+    void check_motors_arming();
     // void check_disarming();
 };

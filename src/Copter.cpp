@@ -2,6 +2,8 @@
 
 #define ESC_CALIBRATION_HIGH_THROTTLE 1800
 #define MOTORS_MINIMUM_STARTUP_THROTTLE 1015
+#define ARM_DELAY 20    // called at 10hz so 2 seconds
+#define DISARM_DELAY 20 // called at 10hz so 2 seconds
 #define HZ_TO_US(hz) (1000000UL / (hz))
 
 Copter::Task Copter::tasks[] = {
@@ -207,4 +209,47 @@ void Copter::arm_esc_at_minimum()
     }
 
     _motors.setArm(false);
+}
+
+void Copter::check_motors_arming()
+{
+    if (_rc.getThrottleInPWM() > 1005)
+    {
+        _arming_counter = 0;
+        return;
+    }
+
+    uint16_t yaw_in_pwm = _rc.getYawInPWM();
+    if (yaw_in_pwm >= 1995)
+    {
+        if (_arming_counter < ARM_DELAY)
+        {
+            _arming_counter++;
+        }
+
+        if (_arming_counter == ARM_DELAY && !_motors.isArmed())
+        {
+            _ledIndicator.enableGreenLED();
+            _motors.setArm(true);
+            _motors.runAtMinimum();
+        }
+    }
+    else if (yaw_in_pwm <= 1005)
+    {
+        if (_arming_counter <= DISARM_DELAY)
+        {
+            _arming_counter++;
+        }
+
+        if (_arming_counter == DISARM_DELAY && _motors.isArmed())
+        {
+            _ledIndicator.disableGreenLED();
+            _motors.runAtMinimum();
+            _motors.setArm(false);
+        }
+    }
+    else
+    {
+        _arming_counter = 0;
+    }
 }
