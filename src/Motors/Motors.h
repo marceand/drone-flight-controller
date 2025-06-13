@@ -18,6 +18,12 @@ public:
     void runAtMinimum();
 
 private:
+    float mixer[4][4] = {
+        {1, -1, -1, +1}, // Motor 1
+        {1, -1, +1, -1}, // Motor 2
+        {1, +1, +1, +1}, // Motor 3
+        {1, +1, -1, -1}, // Motor 4
+    };
     typedef float (*MotorMixFunc)(float, float, float, float);
     ESCOutput &_escOutput;
     bool _armed;

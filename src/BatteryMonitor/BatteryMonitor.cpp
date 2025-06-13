@@ -19,9 +19,10 @@ void BatteryMonitor::init()
 
 void BatteryMonitor::monitor()
 {
-    float current = _batteryReader.current();
-    _current_consumed = current * 1000 * 0.004 / 3600 + _current_consumed;
-    _batt_remaining_percentage = (_batt_capacity_initial - _current_consumed) / _batt_capacity_default * 100;
+    _voltage = _batteryReader.voltage();
+    _current = _batteryReader.current();
+    _current_consumed = _current * (1000 / 3600) * 0.004 + _current_consumed;
+    _batt_remaining_percentage = ((_batt_capacity_initial - _current_consumed) / _batt_capacity_default) * 100;
 
     if (_batt_remaining_percentage <= 30)
     {
@@ -41,10 +42,10 @@ float BatteryMonitor::calculateBatteryCapacity(float voltage)
     }
     else if (voltage < 7.5)
     {
-        return 100 * _batt_capacity_default;
+        return (30 / 100) * _batt_capacity_default;
     }
     else
     {
-        return (82 * voltage - 580) / 100 * _batt_capacity_default;
+        return ((82 * voltage - 580) / 100) * _batt_capacity_default;
     }
 }

@@ -6,13 +6,13 @@
 #define DISARM_DELAY 20 // called at 10hz so 2 seconds
 #define HZ_TO_US(hz) (1000000UL / (hz))
 
-Copter::Task Copter::tasks[] = {
-    // {"TaskA", HZ_TO_US(250), 0, run_main_controller},
-    // {"TaskA", HZ_TO_US(100), 0, taskA},
-    // {"TaskB", HZ_TO_US(50), 0, taskB},
-};
+// Copter::Task Copter::tasks[] = {
+//     // {"TaskA", HZ_TO_US(250), 0, run_main_controller},
+//     // {"TaskA", HZ_TO_US(100), 0, taskA},
+//     // {"TaskB", HZ_TO_US(50), 0, taskB},
+// };
 
-const int Copter::NUM_TASKS = sizeof(tasks) / sizeof(Task);
+// const int Copter::NUM_TASKS = sizeof(tasks) / sizeof(Task);
 
 void Copter::init(void)
 {
@@ -22,7 +22,7 @@ void Copter::init(void)
     _rc.init();
     _ledIndicator.init();
     _motors.init();
-    // _battMonitor.init();
+    //_battMonitor.init();
     // _rateRollController.setParameters(0.6, 3.5, 0.03, 0.004, 400, 400);
     // _ratePitchController.setParameters(0.6, 3.5, 0.03, 0.004, 400, 400);
     // _rateYawController.setParameters(2, 12, 0, 0.004, 400, 400);
@@ -38,6 +38,8 @@ void Copter::init(void)
 
 void Copter::run(void)
 {
+    _rc.read();
+    check_motors_arming();
     // uint32_t now = micros();
 
     // for (int i = 0; i < NUM_TASKS; i++)

@@ -10,6 +10,7 @@
 #include "KalmanFilter/AltitudeVelocityKF.h"
 #include "PID/CopterPID.h"
 #include "KalmanFilter/AngleKF.h"
+#include "Functor.h"
 
 class Copter
 {
@@ -54,7 +55,7 @@ public:
         const char *name;
         uint32_t interval_us;
         uint32_t last_run_us;
-        void (*func)();
+        Functor<Copter> function;
     };
 
     static Task tasks[];

@@ -16,7 +16,24 @@
 #define WIRE_CLK_FREQ 400000 // 400Khz
 #define SERIAL_BAUD_RATE 57600
 
-#define LOOP_250_HZ 4000 // run control loop every 4 ms (250 HZ)
+#define LOOP_250_HZ 4000  // run control loop every 4 ms (250 HZ)
+#define LOOP_10_HZ 100000 // run control loop every 4 ms (250 HZ)
+#define HZ_TO_US(hz) (1000000UL / (hz))
+
+// Copter copter; // your flight controller instance
+// Task tasks[] = {
+//     {"CopterRun", 10000, 0, Functor<Copter>(&copter, &Copter::run)},
+//     // Add more tasks with other methods if needed
+// };
+
+// void run_task_if_ready(Task &t, uint32_t now_us)
+// {
+//     if ((now_us - t.last_run_us) >= t.interval_us && t.func.valid())
+//     {
+//         t.last_run_us = now_us;
+//         t.func(); // calls copter.run()
+//     }
+// }
 
 RC_Channels rc(&Serial1);
 InertialSensor inertialSensor;
@@ -54,6 +71,14 @@ Copter copter(
     rollKF,
     pitchKF);
 
+Copter::Task Copter::tasks[] = {
+    {"TaskA", HZ_TO_US(10), 0, Functor<Copter>(&copter, &Copter::run)},
+    // {"TaskA", HZ_TO_US(100), 0, taskA},
+    // {"TaskB", HZ_TO_US(50), 0, taskB},
+};
+
+const int Copter::NUM_TASKS = sizeof(tasks) / sizeof(Task);
+
 unsigned long loopTimer = micros();
 
 void setup()
@@ -66,19 +91,45 @@ void setup()
     Wire.begin();
     delay(250);
 
-    // inertialSensor.init();
-    // rollKF.setParameters();
-    // pitchKF.setParameters();
-    // barometer.init();
-    // altitudeVelocityKF.setParameters();
-
-    copter.init();
+    // copter.init();
+    battMonitor.init();
 
     // rcCheck();
 }
 
 void loop()
 {
+    // copter.run();
+    battMonitor.monitor();
+
+    Serial.print("Init-capacity: ");
+    Serial.print(battMonitor.initial_capacity());
+    Serial.print("unit \t");
+    Serial.print("Voltage: ");
+    Serial.print(battMonitor.voltage());
+    Serial.print("V \t");
+    Serial.print("Current: ");
+    Serial.print(battMonitor.current(), 6);
+    Serial.print("Amp \t");
+    Serial.print("Percentage: ");
+    Serial.print(battMonitor.get_remaining_percentage());
+    Serial.println("%");
+
+    while (micros() - loopTimer < LOOP_250_HZ)
+        ;
+    loopTimer = micros();
+
+    // uint32_t now = micros();
+
+    // for (int i = 0; i < Copter::NUM_TASKS; i++)
+    // {
+    //     Copter::Task &task = Copter::tasks[i];
+    //     if (now - task.last_run_us >= task.interval_us && task.function.valid())
+    //     {
+    //         task.function();
+    //         task.last_run_us = now;
+    //     }
+    // }
 
     // inertialSensor.read();
     // float rollRate = inertialSensor.getCalibGyroX();
@@ -118,9 +169,9 @@ void loop()
 
     // delay(20);
     // copter.run();
-    while (micros() - loopTimer < LOOP_250_HZ)
-        ;
-    loopTimer = micros();
+    // while (micros() - loopTimer < LOOP_10_HZ)
+    //     ;
+    // loopTimer = micros();
 
     // barometer.read();
     // float reference_altitude = barometer.get_reference_altitude_in_cm();
