@@ -35,6 +35,6 @@ private:
     float _current_consumed = 0.0f;
     float _batt_remaining_percentage = 0.0f;
     const float _batt_capacity_default = 1300.0f;
-    float _batt_capacity_initial;
+    float _batt_capacity_initial = 0.0f;
     float calculateBatteryCapacity(float voltage);
 };

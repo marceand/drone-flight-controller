@@ -2,6 +2,8 @@
 
 #include "../HAL/ESCOutput.h"
 
+#define AP_MOTORS_NUM_MOTORS 4
+
 class Motors
 {
 public:
@@ -19,10 +21,10 @@ public:
 
 private:
     float mixer[4][4] = {
-        {1, -1, -1, +1}, // Motor 1
-        {1, -1, +1, -1}, // Motor 2
-        {1, +1, +1, +1}, // Motor 3
-        {1, +1, -1, -1}, // Motor 4
+        {1, -1, -1, -1}, // Motor 1
+        {1, -1, 1, 1},   // Motor 2
+        {1, 1, 1, -1},   // Motor 3
+        {1, 1, -1, 1},   // Motor 4
     };
     typedef float (*MotorMixFunc)(float, float, float, float);
     ESCOutput &_escOutput;

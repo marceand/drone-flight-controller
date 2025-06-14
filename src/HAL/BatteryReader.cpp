@@ -6,10 +6,10 @@
 
 float BatteryReader::voltage()
 {
-    return (float)analogRead(VOLTAGE_PIN) / 62;
+    return (float)analogRead(VOLTAGE_PIN) / 62.0f;
 }
 
 float BatteryReader::current()
 {
-    return (float)analogRead(CURRENT_PIN) * 0.089;
+    return (float)analogRead(CURRENT_PIN) * 0.089f;
 }
