@@ -82,6 +82,15 @@ private:
     AngleKF &_pitchKF;
 
     int _arming_counter = 0;
+    // enum Axis
+    // {
+    //     THROTTLE = 0,
+    //     ROLL = 1,
+    //     PITCH = 2,
+    //     YAW = 3
+    // };
+
+    float _input[4] = {0.0f};
 
     void run_main_controller();
     void check_esc_calibration();

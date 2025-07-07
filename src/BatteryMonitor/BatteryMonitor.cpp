@@ -30,6 +30,7 @@ void BatteryMonitor::monitor()
     }
     else
     {
+        _LEDIndicator.enableGreenLED();
         _LEDIndicator.disableRedLED();
     }
 }

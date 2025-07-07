@@ -91,29 +91,30 @@ void setup()
     Wire.begin();
     delay(250);
 
-    // copter.init();
-    battMonitor.init();
+    copter.init();
+    // battMonitor.init();
 
     // rcCheck();
 }
 
 void loop()
 {
-    // copter.run();
-    battMonitor.monitor();
+    copter.run();
 
-    Serial.print("Init-capacity: ");
-    Serial.print(battMonitor.initial_capacity());
-    Serial.print("unit \t");
-    Serial.print("Voltage: ");
-    Serial.print(battMonitor.voltage());
-    Serial.print("V \t");
-    Serial.print("Current: ");
-    Serial.print(battMonitor.current(), 6);
-    Serial.print("Amp \t");
-    Serial.print("Percentage: ");
-    Serial.print(battMonitor.get_remaining_percentage());
-    Serial.println("%");
+    // battMonitor.monitor();
+
+    // Serial.print("Init-capacity: ");
+    // Serial.print(battMonitor.initial_capacity());
+    // Serial.print("unit \t");
+    // Serial.print("Voltage: ");
+    // Serial.print(battMonitor.voltage());
+    // Serial.print("V \t");
+    // Serial.print("Current: ");
+    // Serial.print(battMonitor.current(), 6);
+    // Serial.print("Amp \t");
+    // Serial.print("Percentage: ");
+    // Serial.print(battMonitor.get_remaining_percentage());
+    // Serial.println("%");
 
     while (micros() - loopTimer < LOOP_250_HZ)
         ;

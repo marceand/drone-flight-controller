@@ -1,4 +1,5 @@
 #include "Copter.h"
+#include <Wire.h>
 
 #define ESC_CALIBRATION_HIGH_THROTTLE 1800
 #define MOTORS_MINIMUM_STARTUP_THROTTLE 1015
@@ -23,23 +24,28 @@ void Copter::init(void)
     _ledIndicator.init();
     _motors.init();
     //_battMonitor.init();
-    // _rateRollController.setParameters(0.6, 3.5, 0.03, 0.004, 400, 400);
-    // _ratePitchController.setParameters(0.6, 3.5, 0.03, 0.004, 400, 400);
-    // _rateYawController.setParameters(2, 12, 0, 0.004, 400, 400);
-    // _angleRollController.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
-    // _anglePitchController.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
-    // _velocityController.setParameters(3.5, 0.0015, 0.01, 0.004, 400, 400);
+    _rollKF.setParameters();
+    _pitchKF.setParameters();
+    _altitudeVelocityKF.setParameters();
+    _rateRollController.setParameters(0.6, 3.5, 0.03, 0.004, 400, 400);
+    _ratePitchController.setParameters(0.6, 3.5, 0.03, 0.004, 400, 400);
+    _rateYawController.setParameters(2, 12, 0, 0.004, 400, 400);
+    _angleRollController.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
+    _anglePitchController.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
+    _velocityController.setParameters(3.5, 0.0015, 0.01, 0.004, 400, 400);
 
-    check_esc_calibration();
-    check_motors_startup();
-    check_motors_mapping();
-    arm_esc_at_minimum();
+    // check_esc_calibration();
+    // check_motors_startup();
+    // check_motors_mapping();
+    // arm_esc_at_minimum();
 }
 
 void Copter::run(void)
 {
     _rc.read();
-    check_motors_arming();
+    run_main_controller();
+    // check_motors_arming();
+
     // uint32_t now = micros();
 
     // for (int i = 0; i < NUM_TASKS; i++)
@@ -66,7 +72,6 @@ void Copter::run_main_controller()
     _barometer.read();
     float relativeAltitude = _barometer.get_relative_altitude_in_cm();
 
-    _rc.read();
     float desiredRollAngle = _rc.getDesiredRollAngle();
     float desiredPitchAngle = _rc.getDesiredPitchAngle();
     float desiredYawRate = _rc.getDesiredYawRate();
@@ -79,13 +84,13 @@ void Copter::run_main_controller()
     float desiredRollRate = _angleRollController.computePID(desiredRollAngle, rollAngleKF);
     float desiredPitchRate = _anglePitchController.computePID(desiredPitchAngle, pitchAngleKF);
 
-    float rollInput = _rateRollController.computePID(desiredRollRate, rollRate);
-    float pitchInput = _ratePitchController.computePID(desiredPitchRate, pitchRate);
-    float yawInput = _rateYawController.computePID(desiredYawRate, yawRate);
-    float throttleInput = _velocityController.computePID(desiredThrottleVelocity, verticalVelocityKF);
-    float throttleHoverInput = _rc.getMidThrottle() + throttleInput;
+    float rollCommand = _rateRollController.computePID(desiredRollRate, rollRate);
+    float pitchCommand = _ratePitchController.computePID(desiredPitchRate, pitchRate);
+    float yawCommand = _rateYawController.computePID(desiredYawRate, yawRate);
+    float throttleCruise = _velocityController.computePID(desiredThrottleVelocity, verticalVelocityKF);
+    float throttleCommand = _rc.getMidThrottle() + throttleCruise
 
-    _motors.runMotors(throttleHoverInput, rollInput, pitchInput, yawInput);
+    //_motors.runMotors(throttleHoverInput, rollInput, pitchInput, yawInput);
 }
 
 void Copter::check_esc_calibration()

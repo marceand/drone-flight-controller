@@ -8,29 +8,31 @@ void ESCOutput::init()
         return;
     }
     is_initalized = true;
-    analogWriteFrequency(MOTOR_1_PIN, 250);
-    analogWriteFrequency(MOTOR_2_PIN, 250);
-    analogWriteFrequency(MOTOR_3_PIN, 250);
-    analogWriteFrequency(MOTOR_4_PIN, 250);
+
+    for (int i = 0; i < NUM_ESC_CHANNELS; i++)
+    {
+        analogWriteFrequency(escChannels[i].pin, 250);
+    }
     analogWriteResolution(12);
 }
 
-void ESCOutput::update_motor_1_speed(float input)
+float ESCOutput::scale_ouput(float pwm)
 {
-    analogWrite(MOTOR_1_PIN, input);
+    return SCALE_TO_12_BIT * pwm;
 }
 
-void ESCOutput::update_motor_2_speed(float input)
+void ESCOutput::write(int index, float scale_pwm)
 {
-    analogWrite(MOTOR_2_PIN, input);
+    if (index >= 0 && index < NUM_ESC_CHANNELS)
+    {
+        escChannels[index].pwm_value = scale_pwm;
+    }
 }
 
-void ESCOutput::update_motor_3_speed(float input)
+void ESCOutput::push()
 {
-    analogWrite(MOTOR_3_PIN, input);
-}
-
-void ESCOutput::update_motor_4_speed(float input)
-{
-    analogWrite(MOTOR_4_PIN, input);
+    for (int i = 0; i < NUM_ESC_CHANNELS; i++)
+    {
+        analogWrite(escChannels[i].pin, escChannels[i].pwm_value);
+    }
 }

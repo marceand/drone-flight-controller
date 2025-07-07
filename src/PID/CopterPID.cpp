@@ -27,12 +27,16 @@ void CopterPID::setOutputLimit(float limit)
 void CopterPID::setIntegralLimit(float limit)
 {
     _limitIntegral = limit;
+}
+void CopterPID::resetIntegral()
+{
+    _lastIntegral = 0.f;
 };
 
-float CopterPID::computePID(float desired, float actual)
+float CopterPID::computePID(float desired, float actual, bool integrator_enabled)
 {
     float error = desired - actual;
-    float output = computeProportional(error) + computeIntegral(error) + computerDerivative(error);
+    float output = computeProportional(error) + computeIntegral(error, integrator_enabled) + computerDerivative(error);
     _lastError = error;
 
     return constrainOutput(output, -_limitOutput, _limitOutput);
@@ -43,10 +47,17 @@ float CopterPID::computeProportional(float error)
     return _kP * error;
 }
 
-float CopterPID::computeIntegral(float error)
+float CopterPID::computeIntegral(float error, bool integrator_enabled)
 {
-    float newIntegral = _lastIntegral + _kI * (error + _lastError) * _dt / 2;
-    return constrainOutput(newIntegral, -_limitIntegral, _limitIntegral);
+    if (!integrator_enabled)
+    {
+        _lastIntegral = 0.f;
+        return 0.f;
+    }
+
+    float newIntegral = _lastIntegral + _kI * (error + _lastError) * _dt / 2.0f;
+    _lastIntegral = constrainOutput(newIntegral, -_limitIntegral, _limitIntegral);
+    return _lastIntegral;
 }
 
 float CopterPID::computerDerivative(float error)
