@@ -42,7 +42,10 @@ void Copter::init(void)
 
 void Copter::run(void)
 {
-    _rc.read();
+    read_rc_channels();
+    read_inertial_sensor();
+    read_barometer();
+    check_takeoff();
     run_main_controller();
     // check_motors_arming();
 
@@ -59,9 +62,42 @@ void Copter::run(void)
     // }
 }
 
-void Copter::run_main_controller()
+void Copter::check_takeoff()
+{
+    if (!is_flying && _rc.getThrottleInPWM() > 1400)
+    {
+        is_flying = true;
+    }
+    if (_rc.getThrottleInPWM() < 1050)
+    {
+        is_flying = false;
+        _angleRollController.reset();
+        _anglePitchController.reset();
+        _rateRollController.reset();
+        _ratePitchController.reset();
+        _rateYawController.reset();
+        _velocityController.reset();
+    }
+}
+
+void Copter::read_rc_channels()
+{
+    _rc.read();
+    _motors.set_throttle_radio(_rc.getThrottleInPWM());
+}
+
+void Copter::read_inertial_sensor()
 {
     _inertialSensor.read();
+}
+
+void Copter::read_barometer()
+{
+    _barometer.read();
+}
+
+void Copter::run_main_controller()
+{
     float rollRate = _inertialSensor.getCalibGyroX();
     float pitchRate = _inertialSensor.getCalibGyroY();
     float yawRate = _inertialSensor.getCalibGyroZ();
@@ -69,7 +105,6 @@ void Copter::run_main_controller()
     float pitchAngle = _inertialSensor.getPitchAngle();
     float verticalAcceleration = _inertialSensor.getVerticalAcceleration();
 
-    _barometer.read();
     float relativeAltitude = _barometer.get_relative_altitude_in_cm();
 
     float desiredRollAngle = _rc.getDesiredRollAngle();
@@ -81,16 +116,22 @@ void Copter::run_main_controller()
     float pitchAngleKF = _pitchKF.calculateAngle(pitchRate, pitchAngle);
     float verticalVelocityKF = _altitudeVelocityKF.calculateVerticalVelocity(relativeAltitude, verticalAcceleration);
 
-    float desiredRollRate = _angleRollController.computePID(desiredRollAngle, rollAngleKF);
-    float desiredPitchRate = _anglePitchController.computePID(desiredPitchAngle, pitchAngleKF);
+    float desiredRollRate = _angleRollController.computePID(desiredRollAngle, rollAngleKF, is_flying);
+    float desiredPitchRate = _anglePitchController.computePID(desiredPitchAngle, pitchAngleKF, is_flying);
 
-    float rollCommand = _rateRollController.computePID(desiredRollRate, rollRate);
-    float pitchCommand = _ratePitchController.computePID(desiredPitchRate, pitchRate);
-    float yawCommand = _rateYawController.computePID(desiredYawRate, yawRate);
-    float throttleCruise = _velocityController.computePID(desiredThrottleVelocity, verticalVelocityKF);
-    float throttleCommand = _rc.getMidThrottle() + throttleCruise
+    float rollCommand = _rateRollController.computePID(desiredRollRate, rollRate, is_flying);
+    float pitchCommand = _ratePitchController.computePID(desiredPitchRate, pitchRate, is_flying);
+    float yawCommand = _rateYawController.computePID(desiredYawRate, yawRate, is_flying);
+    float throttleHover = _velocityController.computePID(desiredThrottleVelocity, verticalVelocityKF, is_flying);
+    float throttleCommand = _rc.getMidThrottle() + throttleHover;
 
-    //_motors.runMotors(throttleHoverInput, rollInput, pitchInput, yawInput);
+    _motors.set_command_inputs(throttleCommand, rollCommand, pitchCommand, yawCommand);
+}
+
+void Copter::run_motors()
+{
+    _motors.update_outputs();
+    _motors.write_to_motors();
 }
 
 void Copter::check_esc_calibration()
@@ -133,7 +174,7 @@ void Copter::check_esc_calibration()
             {
                 _rc.read();
                 float throttleInput = _rc.getThrottleInPWM();
-                _motors.runMotorsForESCPassthrough(throttleInput);
+                _motors.set_esc_calibration_throttle(throttleInput);
                 delay(4);
             }
         }
@@ -153,7 +194,7 @@ void Copter::check_motors_startup()
     uint32_t test_interval_ms = 10000;
     while (millis() - start_ms < test_interval_ms)
     {
-        _motors.runMotorsForESCPassthrough(MOTORS_MINIMUM_STARTUP_THROTTLE);
+        _motors.set_esc_calibration_throttle(MOTORS_MINIMUM_STARTUP_THROTTLE);
         delay(4);
     }
 
@@ -184,11 +225,11 @@ void Copter::check_motors_mapping()
         {
             if (now_ms - start_ms < test_interval_ms)
             {
-                _motors.runMotorInSequence(motor_sequence, MOTORS_MINIMUM_STARTUP_THROTTLE);
+                _motors.set_motor_sequence_throttle(motor_sequence, MOTORS_MINIMUM_STARTUP_THROTTLE);
             }
             else
             {
-                _motors.runAtMinimum();
+                _motors.set_motor_stop_throttle();
             }
             delay(4);
             now_ms = millis();
@@ -211,7 +252,7 @@ void Copter::arm_esc_at_minimum()
     uint32_t test_interval_ms = 3000;
     while (millis() - start_ms < test_interval_ms)
     {
-        _motors.runAtMinimum();
+        _motors.set_motor_stop_throttle();
         delay(4);
     }
 
@@ -238,7 +279,7 @@ void Copter::check_motors_arming()
         {
             _ledIndicator.enableGreenLED();
             _motors.setArm(true);
-            _motors.runAtMinimum();
+            _motors.set_motor_stop_throttle();
         }
     }
     else if (yaw_in_pwm <= 1005)
@@ -251,7 +292,7 @@ void Copter::check_motors_arming()
         if (_arming_counter == DISARM_DELAY && _motors.isArmed())
         {
             _ledIndicator.disableGreenLED();
-            _motors.runAtMinimum();
+            _motors.set_motor_stop_throttle();
             _motors.setArm(false);
         }
     }

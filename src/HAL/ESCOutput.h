@@ -6,6 +6,7 @@
 #define ESC_4_PIN 4
 #define SCALE_TO_12_BIT 1.024f
 #define NUM_ESC_CHANNELS 4
+#include <cstdint>
 
 class ESCOutput
 {
@@ -17,8 +18,8 @@ public:
     };
     void init();
     float scale_ouput(float pwm);
-    void write(int index, float scale_pwm);
-    void push();
+    void set_pwm_value(int index, float scale_pwm);
+    void write_pwm_outputs();
 
 private:
     bool is_initalized = false;

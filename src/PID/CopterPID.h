@@ -9,8 +9,9 @@ public:
     void setTimeStep(float dt);
     void setOutputLimit(float limit);
     void setIntegralLimit(float limit);
-    void resetIntegral();
-    float computePID(float desired, float actual, bool integrator_enabled);
+    void reset();
+    void set_integrator(bool enable);
+    float computePID(float desired, float measured);
 
 private:
     float _dt{1.f};
@@ -21,7 +22,7 @@ private:
     float _lastIntegral{0.f};
     float _limitOutput{0.f};
     float _limitIntegral{0.f};
-
+    bool _integrator_enabled = false;
     float computeProportional(float error);
     float computeIntegral(float error, bool integrator_enabled);
     float computerDerivative(float error);

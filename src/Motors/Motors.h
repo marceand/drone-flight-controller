@@ -20,13 +20,16 @@ public:
         return _armed;
     }
     void setArm(bool arm);
-    void runMotors(float throttleInput, float rollInput, float pitchInput, float yawInput);
-    void calculate_ouput(float throttle_input, float roll_input, float pitch_input, float yaw_nput);
-    void runMotorsForESCPassthrough(float throttleInput);
-    void runMotorInSequence(int motorSequence, float throttleInput);
-    void runAtMinimum();
+    void update_outputs();
+    void set_command_inputs(float throttle_command, float roll_command, float pitch_command, float yaw_command);
+    void set_esc_calibration_throttle(float throttle);
+    void set_motor_sequence_throttle(int sequence, float throttle);
+    void set_motor_stop_throttle();
+    void write_to_motors();
+    void set_throttle_radio(float throttle_input);
 
 private:
+    ESCOutput &_escOutput;
     SpoolState _spoolState = SpoolState::SHUT_DOWN;
     float _command_inputs[NUM_MOTORS] = {0.0f};
     float _mixed_motor_outputs[NUM_MOTORS] = {0.0f};
@@ -37,13 +40,10 @@ private:
         {1, 1, 1, -1},   // Motor 3
         {1, 1, -1, 1},   // Motor 4
     };
-    typedef float (*MotorMixFunc)(float, float, float, float);
-    ESCOutput &_escOutput;
     bool _armed;
-    void output_logic();
-    void output_to_motors();
-    void updateMotorOutputs(float motor_1_output, float motor_2_output, float motor_3_output, float motor_4_output);
-    float calculateMotorOutput(MotorMixFunc mixer, float throttleInput, float rollInput, float pitchInput, float yawInput);
-    float applyResolutionScaleToOuput(float throttle);
-    float applyLimitToOutput(float throttle);
+    float _throttle_radio = 0.0f;
+    void compute_mixer_outputs();
+    void apply_output_logic();
+    void compute_final_outputs();
+    void update_esc_outputs();
 };

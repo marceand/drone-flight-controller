@@ -28,15 +28,20 @@ void CopterPID::setIntegralLimit(float limit)
 {
     _limitIntegral = limit;
 }
-void CopterPID::resetIntegral()
+void CopterPID::reset()
 {
+    _lastError = 0.f;
     _lastIntegral = 0.f;
+}
+void CopterPID::set_integrator(bool enable)
+{
+    _integrator_enabled = enable;
 };
 
-float CopterPID::computePID(float desired, float actual, bool integrator_enabled)
+float CopterPID::computePID(float desired, float measured)
 {
-    float error = desired - actual;
-    float output = computeProportional(error) + computeIntegral(error, integrator_enabled) + computerDerivative(error);
+    float error = desired - measured;
+    float output = computeProportional(error) + computeIntegral(error, _integrator_enabled) + computerDerivative(error);
     _lastError = error;
 
     return constrainOutput(output, -_limitOutput, _limitOutput);

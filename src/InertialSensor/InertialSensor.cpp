@@ -12,13 +12,14 @@ void InertialSensor::init()
     setGyroLowPassFilter();
     setAccelSensitivity();
     setGyroSensitivity();
-    calibrateGyro();
+    calculateGyroOffset();
+    calculateAccelOffset();
 }
 
 void InertialSensor::read()
 {
     _wire->beginTransmission(_address);
-    _wire->write(ACCEL_READING_REGISTER); // start at  acceleromet register for 14 bytes reading
+    _wire->write(ACCEL_READING_REGISTER);
     _wire->endTransmission();
 
     _wire->requestFrom(_address, GYRO_ACCEL_TEMP_14_BYTE_READING);
@@ -33,15 +34,15 @@ void InertialSensor::read()
     int16_t gyroY = _wire->read() << 8 | _wire->read();
     int16_t gyroZ = _wire->read() << 8 | _wire->read();
 
-    _rawAccel.accelX = scaleAccelReading((float)accelX);
-    _rawAccel.accelY = scaleAccelReading((float)accelY);
-    _rawAccel.accelZ = scaleAccelReading((float)accelZ);
+    _accelRaw.accelX = scaleAccelReading((float)accelX);
+    _accelRaw.accelY = scaleAccelReading((float)accelY);
+    _accelRaw.accelZ = scaleAccelReading((float)accelZ);
 
     _temperature = (float)temperature;
 
-    _rawGyro.gyroX = scaleGyroReading((float)gyroX);
-    _rawGyro.gyroY = scaleGyroReading((float)gyroY);
-    _rawGyro.gyroZ = scaleGyroReading((float)gyroZ);
+    _gyroRaw.gyroX = scaleGyroReading((float)gyroX);
+    _gyroRaw.gyroY = scaleGyroReading((float)gyroY);
+    _gyroRaw.gyroZ = scaleGyroReading((float)gyroZ);
 
     calculateAngles();
     calculateVerticalAcceleration();
@@ -79,20 +80,38 @@ void InertialSensor::setAccelSensitivity(void)
     _wire->endTransmission();
 }
 
-void InertialSensor::calibrateGyro(void)
+void InertialSensor::calculateGyroOffset(void)
 {
-    for (int n = 1; n <= GYRO_CALIBRATION_COUNT; n++)
+    for (int n = 1; n <= NUM_CALIBRATION_SAMPLES; n++)
     {
         gyro_t rawRate = readRawGyro();
-        _gyroCalib.gyroX += rawRate.gyroX;
-        _gyroCalib.gyroY += rawRate.gyroY;
-        _gyroCalib.gyroZ += rawRate.gyroZ;
+        _gyroOffset.gyroX += rawRate.gyroX;
+        _gyroOffset.gyroY += rawRate.gyroY;
+        _gyroOffset.gyroZ += rawRate.gyroZ;
         delay(1);
     }
 
-    _gyroCalib.gyroX /= GYRO_CALIBRATION_COUNT;
-    _gyroCalib.gyroY /= GYRO_CALIBRATION_COUNT;
-    _gyroCalib.gyroZ /= GYRO_CALIBRATION_COUNT;
+    _gyroOffset.gyroX /= NUM_CALIBRATION_SAMPLES;
+    _gyroOffset.gyroY /= NUM_CALIBRATION_SAMPLES;
+    _gyroOffset.gyroZ /= NUM_CALIBRATION_SAMPLES;
+}
+
+void InertialSensor::calculateAccelOffset(void)
+{
+    for (int n = 1; n <= NUM_CALIBRATION_SAMPLES; n++)
+    {
+        accel_t rawAccel = readRawAccel();
+        _accelOffset.accelX += rawAccel.accelX;
+        _accelOffset.accelY += rawAccel.accelY;
+        _accelOffset.accelZ += rawAccel.accelZ;
+        delay(1);
+    }
+
+    _accelOffset.accelX /= NUM_CALIBRATION_SAMPLES;
+    _accelOffset.accelY /= NUM_CALIBRATION_SAMPLES;
+    _accelOffset.accelZ /= NUM_CALIBRATION_SAMPLES;
+
+    _accelOffset.accelZ -= 1.00;
 }
 
 InertialSensor::gyro_t InertialSensor::readRawGyro(void)
@@ -149,15 +168,21 @@ float InertialSensor::scaleAccelReading(float reading)
 
 void InertialSensor::calculateAngles(void)
 {
-    _roll_angle = atan(_rawAccel.accelY / sqrt(_rawAccel.accelX * _rawAccel.accelX + _rawAccel.accelZ * _rawAccel.accelZ)) * 1 / (3.142 / 180);
-    _pitch_angle = -atan(_rawAccel.accelX / sqrt(_rawAccel.accelY * _rawAccel.accelY + _rawAccel.accelZ * _rawAccel.accelZ)) * 1 / (3.142 / 180);
+    float accelX = getCalibAccelX();
+    float accelY = getCalibAccelY();
+    float accelZ = getCalibAccelZ();
+    _roll_angle = atan(accelY / sqrt(accelX * accelX + accelZ * accelZ)) * 1 / (3.142 / 180);
+    _pitch_angle = -atan(accelX / sqrt(accelY * accelY + accelZ * accelZ)) * 1 / (3.142 / 180);
 }
 
 void InertialSensor::calculateVerticalAcceleration()
 {
-    float accel_z_inertial = -sin(_pitch_angle * (3.142 / 180)) * _rawAccel.accelX +
-                             cos(_pitch_angle * (3.142 / 180)) * sin(_roll_angle * (3.142 / 180)) * _rawAccel.accelY +
-                             cos(_pitch_angle * (3.142 / 180)) * cos(_roll_angle * (3.142 / 180)) * _rawAccel.accelZ;
+    float accelX = getCalibAccelX();
+    float accelY = getCalibAccelY();
+    float accelZ = getCalibAccelZ();
+    float accel_z_inertial = -sin(_pitch_angle * (3.142 / 180)) * accelX +
+                             cos(_pitch_angle * (3.142 / 180)) * sin(_roll_angle * (3.142 / 180)) * accelY +
+                             cos(_pitch_angle * (3.142 / 180)) * cos(_roll_angle * (3.142 / 180)) * accelZ;
 
     _vertical_acceleration = (accel_z_inertial - 1.0) * 9.81 * 100; // cm/s^2
 }

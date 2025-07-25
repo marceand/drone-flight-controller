@@ -82,17 +82,16 @@ private:
     AngleKF &_pitchKF;
 
     int _arming_counter = 0;
-    // enum Axis
-    // {
-    //     THROTTLE = 0,
-    //     ROLL = 1,
-    //     PITCH = 2,
-    //     YAW = 3
-    // };
-
+    bool is_flying = false;
     float _input[4] = {0.0f};
 
+    void read_rc_channels();
+    void read_inertial_sensor();
+    void read_barometer();
+    void check_takeoff();
     void run_main_controller();
+    void run_motors();
+    // void run_battery_monitor();
     void check_esc_calibration();
     void check_motors_startup();
     void check_motors_mapping();

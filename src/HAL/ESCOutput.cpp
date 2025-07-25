@@ -21,7 +21,7 @@ float ESCOutput::scale_ouput(float pwm)
     return SCALE_TO_12_BIT * pwm;
 }
 
-void ESCOutput::write(int index, float scale_pwm)
+void ESCOutput::set_pwm_value(int index, float scale_pwm)
 {
     if (index >= 0 && index < NUM_ESC_CHANNELS)
     {
@@ -29,7 +29,7 @@ void ESCOutput::write(int index, float scale_pwm)
     }
 }
 
-void ESCOutput::push()
+void ESCOutput::write_pwm_outputs()
 {
     for (int i = 0; i < NUM_ESC_CHANNELS; i++)
     {
