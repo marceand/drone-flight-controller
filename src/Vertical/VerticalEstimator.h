@@ -19,11 +19,11 @@ public:
     {
     }
 
-    void init();
+    void set_parameters();
     void update();
-    float get_estimated_vertical_acceleration()
+    float get_estimated_vertical_velocity()
     {
-        return _estimated_vertical_acceleration;
+        return _estimated_vertical_velocity;
     }
 
 private:
@@ -32,7 +32,7 @@ private:
     InertialSensor &_inertialSensor;
     AttitudeEstimator &_attitudeEstimator;
     float _raw_vertical_acceleration = 0.0;
-    float _estimated_vertical_acceleration = 0.0;
+    float _estimated_vertical_velocity = 0.0;
     void calculateRawVerticalAcceleration();
-    void estimateVerticalAcceleration();
+    void estimateVerticalVelocity();
 };

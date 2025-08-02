@@ -1,5 +1,11 @@
 #include "AttitudeEstimator.h"
 
+void AttitudeEstimator::set_parameters()
+{
+    _rollKF.setParameters();
+    _pitchKF.setParameters();
+}
+
 void AttitudeEstimator::update()
 {
     float accelX = _inertialSensor.getCalibAccelX();

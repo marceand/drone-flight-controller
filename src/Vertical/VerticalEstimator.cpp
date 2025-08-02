@@ -1,9 +1,14 @@
 #include "VerticalEstimator.h"
 
+void VerticalEstimator::set_parameters()
+{
+    _altitudeVelocityKF.setParameters();
+}
+
 void VerticalEstimator::update()
 {
     calculateRawVerticalAcceleration();
-    estimateVerticalAcceleration();
+    estimateVerticalVelocity();
 }
 
 void VerticalEstimator::calculateRawVerticalAcceleration()
@@ -21,8 +26,8 @@ void VerticalEstimator::calculateRawVerticalAcceleration()
     _raw_vertical_acceleration = (accel_z_inertial - 1.0) * 9.81 * 100; // cm/s^2
 }
 
-void VerticalEstimator::estimateVerticalAcceleration()
+void VerticalEstimator::estimateVerticalVelocity()
 {
     float relative_altitude = _barometer.get_relative_altitude_in_cm();
-    _estimated_vertical_acceleration = _altitudeVelocityKF.calculateVerticalVelocity(relative_altitude, _raw_vertical_acceleration);
+    _estimated_vertical_velocity = _altitudeVelocityKF.calculateVerticalVelocity(relative_altitude, _raw_vertical_acceleration);
 }

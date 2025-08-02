@@ -14,7 +14,7 @@ public:
     {
     }
 
-    void init();
+    void set_parameters();
     void update();
 
     float get_raw_roll()

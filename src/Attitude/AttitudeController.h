@@ -5,7 +5,20 @@
 class AttitudeController
 {
 public:
+    AttitudeController(CopterPID &rateRollPID,
+                       CopterPID &ratePitchPID,
+                       CopterPID &rateYawPID,
+                       CopterPID &angleRollPID,
+                       CopterPID &anglePitchPID) : _rateRollPID(rateRollPID),
+                                                   _ratePitchPID(ratePitchPID),
+                                                   _rateYawPID(rateYawPID),
+                                                   _angleRollPID(angleRollPID),
+                                                   _anglePitchPID(anglePitchPID)
+
+    {
+    }
     void reset();
+    void set_parameters();
     void set_integrator(bool enable);
     void set_desired_yaw_rate(float yaw_rate);
     void set_measured_rates(float roll_rate, float pitch_rate, float yaw_rate);

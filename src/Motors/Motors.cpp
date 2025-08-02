@@ -32,13 +32,18 @@ void Motors::set_command_inputs(float throttle_command, float roll_command, floa
     {
         _command_inputs[Input::THROTTLE] = SAFE_MAX_THROTTLE;
     }
+
+    // _mixed_motor_outputs[0] = (throttle_command - pitch_command - roll_command - yaw_command);
+    // _mixed_motor_outputs[1] = (throttle_command + pitch_command - roll_command + yaw_command);
+    // _mixed_motor_outputs[2] = (throttle_command + pitch_command + roll_command - yaw_command);
+    // _mixed_motor_outputs[3] = (throttle_command - pitch_command + roll_command + yaw_command);
 }
 
 void Motors::compute_mixer_outputs()
 {
     for (int i = 0; i < 4; i++)
     {
-        float sum = 0;
+        float sum = 0.0f;
         for (int j = 0; j < 4; j++)
         {
             sum += _mixer[i][j] * _command_inputs[j];
@@ -74,21 +79,27 @@ void Motors::compute_final_outputs()
     case SpoolState::SHUT_DOWN:
         for (int i = 0; i < NUM_MOTORS; i++)
         {
-            _motor_outputs[i] = _escOutput.scale_ouput(CUT_OFF_THROTTLE);
+            //_motor_outputs[i] = _escOutput.scale_ouput(CUT_OFF_THROTTLE);
+            _motor_outputs[i] = CUT_OFF_THROTTLE;
         }
         break;
 
     case SpoolState::GROUND_IDLE:
         for (int i = 0; i < NUM_MOTORS; i++)
         {
-            _motor_outputs[i] = _escOutput.scale_ouput(IDLE_THROTTLE);
+            _motor_outputs[i] = IDLE_THROTTLE;
+
+            //_motor_outputs[i] = _escOutput.scale_ouput(IDLE_THROTTLE);
         }
         break;
 
     case SpoolState::THROTTLE_UNLIMITED:
-        float minThrottle = _escOutput.scale_ouput(IDLE_THROTTLE);
+        // float minThrottle = _escOutput.scale_ouput(IDLE_THROTTLE);
+        float minThrottle = IDLE_THROTTLE;
+
         for (int i = 0; i < NUM_MOTORS; i++)
         {
+            //_motor_outputs[i] = _mixed_motor_outputs[i];
             _motor_outputs[i] = _escOutput.scale_ouput(_mixed_motor_outputs[i]);
             _motor_outputs[i] = constrain(_motor_outputs[i], 1000.0f, 1999.0f); // Constrain to valid PWM range
 

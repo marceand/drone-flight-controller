@@ -9,6 +9,15 @@ void AttitudeController::reset()
     _rateYawPID.reset();
 }
 
+void AttitudeController::set_parameters()
+{
+    _angleRollPID.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
+    _anglePitchPID.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
+    _rateRollPID.setParameters(0.6, 3.5, 0.03, 0.004, 400, 400);
+    _ratePitchPID.setParameters(0.6, 3.5, 0.03, 0.004, 400, 400);
+    _rateYawPID.setParameters(2, 12, 0, 0.004, 400, 400);
+}
+
 void AttitudeController::set_integrator(bool enable)
 {
     _angleRollPID.set_integrator(enable);
