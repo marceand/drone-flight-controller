@@ -45,8 +45,6 @@ void ToneAlarm::update()
         _tone_index++;
         _elapsed_tone_time = 0;
 
-        // if (_tone_index >= _tones[_current_tone_id].length || _tones[_current_tone_id].notes[_tone_index].frequency == 0)
-
         if (_tone_index >= _tones[_current_tone_id].length)
         {
             _current_tone_id = TONE_NONE;
