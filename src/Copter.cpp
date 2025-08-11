@@ -8,22 +8,24 @@
 
 void Copter::init(void)
 {
-    _storage.init();
-    _inertialSensor.init();
-    _barometer.init();
-    _rc.init();
-    _ledIndicator.init();
-    _motors.init();
-    _attitudeEstimator.set_parameters();
-    _attitudeController.set_parameters();
-    _verticalEstimator.set_parameters();
-    _verticalVelocityController.set_parameters();
+    // _storage.init();
+    // _inertialSensor.init();
+    // _barometer.init();
+    // _rc.init();
+    // _ledIndicator.init();
+    // _motors.init();
+    // _attitudeEstimator.set_parameters();
+    // _attitudeController.set_parameters();
+    // _verticalEstimator.set_parameters();
+    // _verticalVelocityController.set_parameters();
+    _toneAlarm.init();
     //_battMonitor.init();
 
     // check_esc_calibration();
     // check_motors_startup();
     // check_motors_mapping();
     // arm_esc_at_minimum();
+    _toneAlarm.play_tone(ToneAlarm::TONE_STARTUP);
 }
 
 void Copter::read_rc_channels()
@@ -31,6 +33,7 @@ void Copter::read_rc_channels()
     _rc.read();
     _attitudeController.set_desired_angles(_rc.getDesiredRollAngle(), _rc.getDesiredPitchAngle());
     _attitudeController.set_desired_yaw_rate(_rc.getDesiredYawRate());
+    _verticalVelocityController.set_desired_vertical_velocity(_rc.getDesiredThrottleVelocity());
     _motors.set_throttle_radio(_rc.getThrottleInPWM());
     Serial.print("Time:");
     Serial.print(micros());
@@ -94,6 +97,8 @@ void Copter::run_main_controller()
     float hover_command = _verticalVelocityController.get_hover_command();
     float throttle_command = _rc.getMidThrottle() + hover_command;
 
+    // Serial.print("Throttle-Command:");
+    // Serial.print(throttle_command);
     // Serial.print("\t");
     // Serial.print("Roll-Command:");
     // Serial.print(roll_command);
@@ -103,9 +108,7 @@ void Copter::run_main_controller()
     // Serial.print("\t");
     // Serial.print("Yaw-Command:");
     // Serial.print(yaw_command);
-    // Serial.print("\t");
-    // Serial.print("Throttle-Command:");
-    // Serial.print(throttle_command);
+    // Serial.println();
     _motors.set_command_inputs(throttle_command, roll_command, pitch_command, yaw_command);
 }
 
@@ -176,6 +179,7 @@ void Copter::check_motors_startup()
     while (millis() - start_ms < test_interval_ms)
     {
         _motors.set_esc_calibration_throttle(MOTORS_MINIMUM_STARTUP_THROTTLE);
+        _motors.write_to_motors();
         delay(4);
     }
 
@@ -212,6 +216,7 @@ void Copter::check_motors_mapping()
             {
                 _motors.set_motor_stop_throttle();
             }
+            _motors.write_to_motors();
             delay(4);
             now_ms = millis();
         }
@@ -234,6 +239,7 @@ void Copter::arm_esc_at_minimum()
     while (millis() - start_ms < test_interval_ms)
     {
         _motors.set_motor_stop_throttle();
+        _motors.write_to_motors();
         delay(4);
     }
 
@@ -281,4 +287,9 @@ void Copter::check_motors_arming()
     {
         _arming_counter = 0;
     }
+}
+
+void Copter::run_tone_alarm()
+{
+    _toneAlarm.update();
 }

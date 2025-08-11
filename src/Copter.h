@@ -12,6 +12,7 @@
 #include "Vertical/VerticalEstimator.h"
 #include "Vertical/VerticalVelocityController.h"
 #include "Functor.h"
+#include "Notify/ToneAlarm.h"
 
 class Copter
 {
@@ -26,17 +27,19 @@ public:
            AttitudeEstimator &attitudeEstimator,
            AttitudeController &attitudeController,
            VerticalEstimator &verticalEstimator,
-           VerticalVelocityController &verticalVelocityController) : _rc(rc),
-                                                                     _inertialSensor(inertialSensor),
-                                                                     _battMonitor(battMonitor),
-                                                                     _motors(motors),
-                                                                     _storage(storage),
-                                                                     _ledIndicator(led),
-                                                                     _barometer(barometer),
-                                                                     _attitudeEstimator(attitudeEstimator),
-                                                                     _attitudeController(attitudeController),
-                                                                     _verticalEstimator(verticalEstimator),
-                                                                     _verticalVelocityController(verticalVelocityController)
+           VerticalVelocityController &verticalVelocityController,
+           ToneAlarm &toneAlarm) : _rc(rc),
+                                   _inertialSensor(inertialSensor),
+                                   _battMonitor(battMonitor),
+                                   _motors(motors),
+                                   _storage(storage),
+                                   _ledIndicator(led),
+                                   _barometer(barometer),
+                                   _attitudeEstimator(attitudeEstimator),
+                                   _attitudeController(attitudeController),
+                                   _verticalEstimator(verticalEstimator),
+                                   _verticalVelocityController(verticalVelocityController),
+                                   _toneAlarm(toneAlarm)
 
     {
     }
@@ -65,6 +68,7 @@ private:
     AttitudeController &_attitudeController;
     VerticalEstimator &_verticalEstimator;
     VerticalVelocityController &_verticalVelocityController;
+    ToneAlarm &_toneAlarm;
 
     int _arming_counter = 0;
     bool is_flying = false;
@@ -82,5 +86,6 @@ private:
     void check_motors_mapping();
     void arm_esc_at_minimum();
     void check_motors_arming();
+    void run_tone_alarm();
     // void check_disarming();
 };

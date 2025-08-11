@@ -32,11 +32,6 @@ void Motors::set_command_inputs(float throttle_command, float roll_command, floa
     {
         _command_inputs[Input::THROTTLE] = SAFE_MAX_THROTTLE;
     }
-
-    // _mixed_motor_outputs[0] = (throttle_command - pitch_command - roll_command - yaw_command);
-    // _mixed_motor_outputs[1] = (throttle_command + pitch_command - roll_command + yaw_command);
-    // _mixed_motor_outputs[2] = (throttle_command + pitch_command + roll_command - yaw_command);
-    // _mixed_motor_outputs[3] = (throttle_command - pitch_command + roll_command + yaw_command);
 }
 
 void Motors::compute_mixer_outputs()
@@ -79,7 +74,6 @@ void Motors::compute_final_outputs()
     case SpoolState::SHUT_DOWN:
         for (int i = 0; i < NUM_MOTORS; i++)
         {
-            //_motor_outputs[i] = _escOutput.scale_ouput(CUT_OFF_THROTTLE);
             _motor_outputs[i] = CUT_OFF_THROTTLE;
         }
         break;
@@ -88,23 +82,17 @@ void Motors::compute_final_outputs()
         for (int i = 0; i < NUM_MOTORS; i++)
         {
             _motor_outputs[i] = IDLE_THROTTLE;
-
-            //_motor_outputs[i] = _escOutput.scale_ouput(IDLE_THROTTLE);
         }
         break;
 
     case SpoolState::THROTTLE_UNLIMITED:
-        // float minThrottle = _escOutput.scale_ouput(IDLE_THROTTLE);
-        float minThrottle = IDLE_THROTTLE;
-
         for (int i = 0; i < NUM_MOTORS; i++)
         {
-            //_motor_outputs[i] = _mixed_motor_outputs[i];
-            _motor_outputs[i] = _escOutput.scale_ouput(_mixed_motor_outputs[i]);
+            _motor_outputs[i] = _mixed_motor_outputs[i];
             _motor_outputs[i] = constrain(_motor_outputs[i], 1000.0f, 1999.0f); // Constrain to valid PWM range
 
-            if (_motor_outputs[i] < minThrottle)
-                _motor_outputs[i] = minThrottle;
+            if (_motor_outputs[i] < IDLE_THROTTLE)
+                _motor_outputs[i] = IDLE_THROTTLE;
         }
         break;
     }
@@ -130,10 +118,9 @@ void Motors::set_esc_calibration_throttle(float throttle)
 {
     if (isArmed())
     {
-        float throttle_input_scaled = _escOutput.scale_ouput(throttle);
         for (int i = 0; i < NUM_MOTORS; i++)
         {
-            _escOutput.set_pwm_value(i, throttle_input_scaled);
+            _escOutput.set_pwm_value(i, throttle);
         }
     }
 }
@@ -142,8 +129,7 @@ void Motors::set_motor_sequence_throttle(int sequence, float throttle)
 {
     if (isArmed())
     {
-        float throttle_input_scaled = _escOutput.scale_ouput(throttle);
-        _escOutput.set_pwm_value(sequence - 1, throttle_input_scaled);
+        _escOutput.set_pwm_value(sequence - 1, throttle);
     }
 }
 
@@ -151,10 +137,10 @@ void Motors::set_motor_stop_throttle()
 {
     if (isArmed())
     {
-        float cut_off_throttle_scaled = _escOutput.scale_ouput(CUT_OFF_THROTTLE);
+        float cut_off_throttle = CUT_OFF_THROTTLE;
         for (int i = 0; i < NUM_MOTORS; i++)
         {
-            _escOutput.set_pwm_value(i, cut_off_throttle_scaled);
+            _escOutput.set_pwm_value(i, cut_off_throttle);
         }
     }
 }

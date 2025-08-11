@@ -15,17 +15,18 @@ public:
     {
         uint8_t pin;
         float pwm_value;
+        float scaled_pwm_value;
     };
     void init();
     float scale_ouput(float pwm);
-    void set_pwm_value(int index, float scale_pwm);
+    void set_pwm_value(int index, float pwm);
     void write_pwm_outputs();
 
 private:
     bool is_initalized = false;
     ESCChannel escChannels[NUM_ESC_CHANNELS] = {
-        {ESC_1_PIN, 1000.0f},
-        {ESC_2_PIN, 1000.0f},
-        {ESC_3_PIN, 1000.0f},
-        {ESC_4_PIN, 1000.0f}};
+        {ESC_1_PIN, 1000.0f, 1000.0f},
+        {ESC_2_PIN, 1000.0f, 1000.0f},
+        {ESC_3_PIN, 1000.0f, 1000.0f},
+        {ESC_4_PIN, 1000.0f, 1000.0f}};
 };
