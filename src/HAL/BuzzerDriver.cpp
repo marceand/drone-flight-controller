@@ -17,10 +17,10 @@ void BuzzerDriver::init()
 
 void BuzzerDriver::enableTone()
 {
-    digitalWrite(BUZZER_PIN, HIGH);
+    digitalWriteFast(BUZZER_PIN, HIGH);
 }
 
 void BuzzerDriver::disableTone()
 {
-    digitalWrite(BUZZER_PIN, LOW);
+    digitalWriteFast(BUZZER_PIN, LOW);
 }

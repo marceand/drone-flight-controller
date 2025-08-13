@@ -7,6 +7,21 @@ const ToneAlarm::Tone ToneAlarm::_tones[ToneAlarm::TONE_COUNT] = {
     {ToneAlarm::TONE_DISARMING, {{800, 200}, {0, 100}, {600, 200}, {0, 0}, {0, 0}}, 5},
     {ToneAlarm::TONE_FAILSAFE, {{200, 300}, {0, 50}, {200, 300}, {0, 50}, {200, 300}}, 5}};
 
+// {440, 125}, {587, 125}, {523, 125},
+//     {440, 125}, {587, 125}, {523, 125},
+//     {440, 125}, {587, 125}, {523, 125},
+//     {587, 63}, {523, 63}, {587, 63}, {523, 63},
+//     {587, 63}, {523, 63}, {587, 63}, {523, 63}
+
+//  {98, 3200}
+
+// {932, 118}, {932, 118}, {932, 118}, {932, 118},
+//     {932, 118}, {932, 118}, {932, 118}, {932, 118},
+//     {932, 118}, {932, 118}, {932, 118}, {932, 118},
+//     {932, 118}, {932, 118}, {932, 118}, {932, 118}
+
+ToneAlarm *ToneAlarm::_tone_alarm_instance = nullptr;
+
 ToneAlarm::ToneAlarm(BuzzerDriver &buzzer)
 {
     _buzzer = buzzer;
@@ -17,6 +32,7 @@ ToneAlarm::ToneAlarm(BuzzerDriver &buzzer)
     _half_period = 0;
     _tone_state = false;
     _last_update_time = 0;
+    _tone_alarm_instance = this;
 }
 
 void ToneAlarm::init()
@@ -27,7 +43,6 @@ void ToneAlarm::init()
 
 void ToneAlarm::update()
 {
-
     uint32_t now = micros();
     uint32_t dt = now - _last_update_time;
     _last_update_time = now;
@@ -37,45 +52,33 @@ void ToneAlarm::update()
         return;
     }
 
-    const Note &tone = _tones[_current_tone_id].notes[_tone_index];
+    const Note &note = _tones[_current_tone_id].notes[_tone_index];
     _elapsed_tone_time = _elapsed_tone_time + dt;
 
-    if (_elapsed_tone_time >= tone.duration * 1000UL)
+    if (_elapsed_tone_time >= note.duration * 1000UL)
     {
         _tone_index++;
         _elapsed_tone_time = 0;
 
-        // if (_tone_index >= _tones[_current_tone_id].length || _tones[_current_tone_id].notes[_tone_index].frequency == 0)
-
         if (_tone_index >= _tones[_current_tone_id].length)
         {
             _current_tone_id = TONE_NONE;
+            _toneTimer.end();
             _buzzer.disableTone();
             return;
         }
 
-        _half_period = calculate_half_period(_tones[_current_tone_id].notes[_tone_index].frequency);
+        const Note &next_note = _tones[_current_tone_id].notes[_tone_index];
+        _half_period = calculate_half_period(next_note.frequency);
 
-        _elapsed_half_period = 0;
-        _tone_state = false;
-        _buzzer.disableTone();
-    }
-
-    if (_half_period > 0)
-    {
-        _elapsed_half_period = _elapsed_half_period + dt;
-        if (_elapsed_half_period >= _half_period)
+        if (next_note.frequency > 0)
         {
-            _elapsed_half_period = 0;
-            _tone_state = !_tone_state;
-            if (_tone_state)
-            {
-                _buzzer.enableTone();
-            }
-            else
-            {
-                _buzzer.disableTone();
-            }
+            _toneTimer.begin(isrToggle, _half_period);
+        }
+        else
+        {
+            _toneTimer.end();
+            _buzzer.disableTone();
         }
     }
 }
@@ -87,25 +90,41 @@ void ToneAlarm::play_tone(ToneID id)
     _elapsed_tone_time = 0;
 
     uint16_t current_frequency = _tones[id].notes[_tone_index].frequency;
+    _half_period = calculate_half_period(current_frequency);
     if (current_frequency > 0)
     {
-        _half_period = calculate_half_period(current_frequency);
+        _toneTimer.begin(isrToggle, _half_period);
     }
     else
     {
-        _half_period = 0;
+        _toneTimer.end();
+        _buzzer.disableTone();
     }
 
-    _elapsed_half_period = 0;
-    _tone_state = false;
-    _buzzer.disableTone();
     _last_update_time = micros();
 }
 
 void ToneAlarm::stop_tone()
 {
     _current_tone_id = TONE_NONE;
+    _toneTimer.end();
     _buzzer.disableTone();
+}
+
+void ToneAlarm::isrToggle()
+{
+    if (_tone_alarm_instance)
+    {
+        _tone_alarm_instance->_tone_state = !_tone_alarm_instance->_tone_state;
+        if (_tone_alarm_instance->_tone_state)
+        {
+            _tone_alarm_instance->_buzzer.enableTone();
+        }
+        else
+        {
+            _tone_alarm_instance->_buzzer.disableTone();
+        }
+    }
 }
 
 uint32_t ToneAlarm::calculate_half_period(uint16_t frequency)
