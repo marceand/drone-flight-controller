@@ -1,7 +1,7 @@
 #include "BuzzerDriver.h"
 #include <Arduino.h>
 
-#define BUZZER_PIN 1
+#define BUZZER_PIN 23
 
 void BuzzerDriver::init()
 {

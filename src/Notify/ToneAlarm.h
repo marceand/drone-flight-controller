@@ -21,7 +21,8 @@ public:
         TONE_STARTUP,
         TONE_ARMING,
         TONE_DISARMING,
-        TONE_FAILSAFE,
+        TONE_LOW_BATT,
+        TONE_FAILSAFE_RADIO,
         TONE_COUNT
     };
 
@@ -30,6 +31,7 @@ public:
         const ToneID id;
         Note notes[21];
         uint8_t length;
+        bool continuous;
     };
 
     void init();

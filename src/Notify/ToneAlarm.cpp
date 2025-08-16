@@ -1,31 +1,16 @@
 #include "ToneAlarm.h"
 
-// const ToneAlarm::Tone ToneAlarm::_tones[ToneAlarm::TONE_COUNT] = {
-//     {ToneAlarm::TONE_NONE, {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, 5},
-//     {ToneAlarm::TONE_STARTUP, {{440, 125}, {523, 125}, {659, 125}, {440, 125}, {0, 100}, {659, 250}, {784, 125}, {880, 125}, {784, 125}, {659, 125}, {523, 125}, {440, 125}, {0, 200}, {440, 500}, {0, 300}, {660, 400}, {880, 400}, {0, 300}, {659, 250}, {523, 250}, {440, 500}}, 21},
-//     {ToneAlarm::TONE_ARMING, {{1000, 700}, {0, 100}, {1500, 200}, {0, 0}, {0, 0}}, 5},
-//     {ToneAlarm::TONE_DISARMING, {{800, 200}, {0, 100}, {600, 200}, {0, 0}, {0, 0}}, 5},
-//     {ToneAlarm::TONE_FAILSAFE, {{200, 300}, {0, 50}, {200, 300}, {0, 50}, {200, 300}}, 5}};
+// Tones string from Ardupilot are converted to {frquency, duration}
+// and equation for note_period, _silence_duration and note_frequency from the Ardupilot parser
+// were used and _octave = 0
 
 const ToneAlarm::Tone ToneAlarm::_tones[ToneAlarm::TONE_COUNT] = {
-    {ToneAlarm::TONE_NONE, {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, 5},
-    {ToneAlarm::TONE_STARTUP, {{440, 125}, {587, 125}, {523, 125}, {440, 125}, {587, 125}, {523, 125}, {440, 125}, {587, 125}, {523, 125}, {587, 63}, {523, 63}, {587, 63}, {523, 63}, {587, 63}, {523, 63}, {587, 63}, {523, 63}}, 17},
-    {ToneAlarm::TONE_ARMING, {{98, 3200}}, 1},
-    {ToneAlarm::TONE_DISARMING, {{800, 200}, {0, 100}, {600, 200}, {0, 0}, {0, 0}}, 5},
-    {ToneAlarm::TONE_FAILSAFE, {{200, 300}, {0, 50}, {200, 300}, {0, 50}, {200, 300}}, 5}};
-
-// {440, 125}, {587, 125}, {523, 125},
-// {440, 125}, {587, 125}, {523, 125},
-// {440, 125}, {587, 125}, {523, 125},
-// {587, 63}, {523, 63}, {587, 63}, {523, 63},
-// {587, 63}, {523, 63}, {587, 63}, {523, 63}
-
-//  {98, 3200}
-
-// {932, 118}, {932, 118}, {932, 118}, {932, 118},
-//     {932, 118}, {932, 118}, {932, 118}, {932, 118},
-//     {932, 118}, {932, 118}, {932, 118}, {932, 118},
-//     {932, 118}, {932, 118}, {932, 118}, {932, 118}
+    {ToneAlarm::TONE_NONE, {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, 5, false},
+    {ToneAlarm::TONE_STARTUP, {{440, 109}, {587, 109}, {523, 109}, {440, 109}, {587, 109}, {523, 109}, {440, 109}, {587, 109}, {523, 109}, {587, 55}, {523, 55}, {587, 55}, {523, 55}, {587, 55}, {523, 55}, {587, 55}, {523, 55}, {587, 55}, {523, 55}, {587, 55}, {523, 55}}, 20, false},
+    {ToneAlarm::TONE_ARMING, {{98, 2800}}, 1, false},
+    {ToneAlarm::TONE_DISARMING, {{262, 262}}, 1, false},
+    {ToneAlarm::TONE_LOW_BATT, {{466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}}, 18, false},
+    {ToneAlarm::TONE_FAILSAFE_RADIO, {{262, 262}, {117, 262}}, 2, false}};
 
 ToneAlarm *ToneAlarm::_tone_alarm_instance = nullptr;
 
@@ -69,10 +54,18 @@ void ToneAlarm::update()
 
         if (_tone_index >= _tones[_current_tone_id].length)
         {
-            _current_tone_id = TONE_NONE;
-            _toneTimer.end();
-            _buzzer.disableTone();
-            return;
+            if (_tones[_current_tone_id].continuous)
+            {
+                _tone_index = 0;
+            }
+            else
+            {
+
+                _current_tone_id = TONE_NONE;
+                _toneTimer.end();
+                _buzzer.disableTone();
+                return;
+            }
         }
 
         const Note &next_note = _tones[_current_tone_id].notes[_tone_index];
