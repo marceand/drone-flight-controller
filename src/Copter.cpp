@@ -8,6 +8,18 @@
 
 void Copter::init(void)
 {
+    _toneAlarm.init();
+    ToneAlarm::events.startup = true;
+
+    uint32_t start_ms = millis();
+    uint32_t now_ms = start_ms;
+    while (now_ms - start_ms < 5000)
+    {
+        _toneAlarm.update();
+        delay(20);
+        now_ms = millis();
+    }
+
     // _storage.init();
     // _inertialSensor.init();
     // _barometer.init();
@@ -18,14 +30,12 @@ void Copter::init(void)
     // _attitudeController.set_parameters();
     // _verticalEstimator.set_parameters();
     // _verticalVelocityController.set_parameters();
-    _toneAlarm.init();
     //_battMonitor.init();
 
     // check_esc_calibration();
     // check_motors_startup();
     // check_motors_mapping();
     // arm_esc_at_minimum();
-    _toneAlarm.play_tone(ToneAlarm::TONE_STARTUP);
 }
 
 void Copter::read_rc_channels()
