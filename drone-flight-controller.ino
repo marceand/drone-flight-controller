@@ -69,7 +69,7 @@ Copter::Task Copter::tasks[] = {
     // {"run_main_controller", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::run_main_controller)},
     // {"run_motors", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::run_motors)},
     // {"check_motors_arming", HZ_TO_US(10), 0, Functor<Copter>(&copter, &Copter::check_motors_arming)},
-    {"run_tone_alarm", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::run_tone_alarm)},
+    {"run_tone_alarm", HZ_TO_US(50), 0, Functor<Copter>(&copter, &Copter::run_tone_alarm)},
 };
 
 const int Copter::NUM_TASKS = sizeof(tasks) / sizeof(Task);
