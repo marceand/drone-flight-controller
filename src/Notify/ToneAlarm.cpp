@@ -2,15 +2,23 @@
 
 // Tones string from Ardupilot are converted to {frquency, duration}
 // and equation for note_period, _silence_duration and note_frequency from the Ardupilot parser
-// were used and _octave = 0
+
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+
+const ToneAlarm::Note none_notes[] = {{0, 0}};
+const ToneAlarm::Note startup_notes[] = {{440, 109}, {0, 16}, {587, 109}, {0, 16}, {523, 109}, {0, 16}, {440, 109}, {0, 16}, {587, 109}, {0, 16}, {523, 109}, {0, 16}, {440, 109}, {0, 16}, {587, 109}, {0, 16}, {523, 109}, {0, 16}, {294, 55}, {0, 8}, {262, 55}, {0, 8}, {294, 55}, {0, 8}, {262, 55}, {0, 8}, {294, 55}, {0, 8}, {262, 55}, {0, 8}, {294, 55}, {0, 8}, {262, 55}, {0, 8}};
+const ToneAlarm::Note arming_notes[] = {{392, 2800}, {0, 400}};
+const ToneAlarm::Note disarming_notes[] = {{1045, 225}, {0, 75}};
+const ToneAlarm::Note low_batt_notes[] = {{3729, 103}, {0, 15}, {3729, 103}, {0, 15}, {3729, 103}, {0, 15}, {3729, 103}, {0, 15}, {3729, 103}, {0, 15}, {3729, 103}, {0, 15}, {3729, 103}, {0, 15}, {3729, 103}, {0, 15}, {3729, 103}, {0, 15}, {3729, 103}, {0, 15}, {3729, 103}, {0, 15}, {3729, 103}, {0, 15}, {3729, 103}, {0, 15}, {3729, 103}, {0, 15}, {3729, 103}, {0, 15}, {3729, 103}, {0, 15}};
+const ToneAlarm::Note failsafe_radio_notes[] = {{277, 225}, {0, 75}, {247, 450}, {0, 150}};
 
 const ToneAlarm::Tone ToneAlarm::_tones[ToneAlarm::TONE_COUNT] = {
-    {ToneAlarm::TONE_NONE, {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, 5, false},
-    {ToneAlarm::TONE_STARTUP, {{440, 109}, {587, 109}, {523, 109}, {440, 109}, {587, 109}, {523, 109}, {440, 109}, {587, 109}, {523, 109}, {587, 55}, {523, 55}, {587, 55}, {523, 55}, {587, 55}, {523, 55}, {587, 55}, {523, 55}, {587, 55}, {523, 55}, {587, 55}, {523, 55}}, 21, false},
-    {ToneAlarm::TONE_ARMING, {{98, 2800}}, 1, false},
-    {ToneAlarm::TONE_DISARMING, {{262, 262}}, 1, false},
-    {ToneAlarm::TONE_LOW_BATT, {{466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}, {466, 103}}, 18, false},
-    {ToneAlarm::TONE_FAILSAFE_RADIO, {{262, 262}, {117, 262}}, 2, false}};
+    {ToneAlarm::TONE_NONE, none_notes, ARRAY_SIZE(none_notes), false},
+    {ToneAlarm::TONE_STARTUP, startup_notes, ARRAY_SIZE(startup_notes), false},
+    {ToneAlarm::TONE_ARMING, arming_notes, ARRAY_SIZE(arming_notes), false},
+    {ToneAlarm::TONE_DISARMING, disarming_notes, ARRAY_SIZE(disarming_notes), false},
+    {ToneAlarm::TONE_LOW_BATT, low_batt_notes, ARRAY_SIZE(low_batt_notes), false},
+    {ToneAlarm::TONE_FAILSAFE_RADIO, failsafe_radio_notes, ARRAY_SIZE(failsafe_radio_notes), false}};
 
 ToneAlarm::ToneFlags ToneAlarm::events = {false, false, false, false};
 ToneAlarm *ToneAlarm::_tone_alarm_instance = nullptr;
@@ -31,13 +39,13 @@ ToneAlarm::ToneAlarm(BuzzerDriver &buzzer)
 void ToneAlarm::init()
 {
     _buzzer.init();
-    _last_update_time = micros();
+    _toneTimer.begin(timer_task, 1000);
+    play_tone(TONE_STARTUP);
 }
 
 void ToneAlarm::update()
 {
     update_flags();
-    update_next_note();
 }
 
 void ToneAlarm::play_tone(ToneID id)
@@ -47,15 +55,13 @@ void ToneAlarm::play_tone(ToneID id)
     _elapsed_tone_time = 0;
 
     uint16_t current_frequency = _tones[id].notes[_tone_index].frequency;
-    _half_period = calculate_half_period(current_frequency);
     if (current_frequency > 0)
     {
-        _toneTimer.begin(isrToggle, _half_period);
+        _buzzer.start_tone(current_frequency);
     }
     else
     {
-        _toneTimer.end();
-        _buzzer.disableTone();
+        _buzzer.stop_tone();
     }
 
     _last_update_time = micros();
@@ -63,12 +69,6 @@ void ToneAlarm::play_tone(ToneID id)
 
 void ToneAlarm::update_flags()
 {
-    if (events.startup)
-    {
-        play_tone(TONE_STARTUP);
-        events.startup = false;
-    }
-
     if (_flags.armed != events.armed)
     {
         _flags.armed = events.armed;
@@ -134,16 +134,13 @@ void ToneAlarm::update_next_note()
         }
 
         const Note &next_note = _tones[_current_tone_id].notes[_tone_index];
-        _half_period = calculate_half_period(next_note.frequency);
-
         if (next_note.frequency > 0)
         {
-            _toneTimer.begin(isrToggle, _half_period);
+            _buzzer.start_tone(next_note.frequency);
         }
         else
         {
-            _toneTimer.end();
-            _buzzer.disableTone();
+            _buzzer.stop_tone();
         }
     }
 }
@@ -151,31 +148,13 @@ void ToneAlarm::update_next_note()
 void ToneAlarm::stop_tone()
 {
     _current_tone_id = TONE_NONE;
-    _toneTimer.end();
-    _buzzer.disableTone();
+    _buzzer.stop_tone();
 }
 
-void ToneAlarm::isrToggle()
+void ToneAlarm::timer_task()
 {
     if (_tone_alarm_instance)
     {
-        _tone_alarm_instance->_tone_state = !_tone_alarm_instance->_tone_state;
-        if (_tone_alarm_instance->_tone_state)
-        {
-            _tone_alarm_instance->_buzzer.enableTone();
-        }
-        else
-        {
-            _tone_alarm_instance->_buzzer.disableTone();
-        }
+        _tone_alarm_instance->update_next_note();
     }
-}
-
-uint32_t ToneAlarm::calculate_half_period(uint16_t frequency)
-{
-    if (frequency == 0)
-    {
-        return 0;
-    }
-    return 1000000UL / (2UL * frequency);
 }

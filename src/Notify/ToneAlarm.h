@@ -29,7 +29,7 @@ public:
     struct Tone
     {
         const ToneID id;
-        Note notes[21];
+        const Note *notes;
         uint8_t length;
         bool continuous;
     };
@@ -66,7 +66,5 @@ private:
 
     static const Tone _tones[TONE_COUNT];
     static ToneAlarm *_tone_alarm_instance; // singleton pointer for ISR
-    static void isrToggle();                // ISR for IntervalTimer
-
-    uint32_t calculate_half_period(uint16_t frequency);
+    static void timer_task();               // ISR for IntervalTimer
 };

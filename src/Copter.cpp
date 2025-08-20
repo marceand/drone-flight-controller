@@ -9,16 +9,16 @@
 void Copter::init(void)
 {
     _toneAlarm.init();
-    ToneAlarm::events.startup = true;
+    // ToneAlarm::events.startup = true;
 
-    uint32_t start_ms = millis();
-    uint32_t now_ms = start_ms;
-    while (now_ms - start_ms < 5000)
-    {
-        _toneAlarm.update();
-        delay(20);
-        now_ms = millis();
-    }
+    // uint32_t start_ms = millis();
+    // uint32_t now_ms = start_ms;
+    // while (now_ms - start_ms < 5000)
+    // {
+    //     _toneAlarm.update();
+    //     delay(20);
+    //     now_ms = millis();
+    // }
 
     // _storage.init();
     // _inertialSensor.init();
