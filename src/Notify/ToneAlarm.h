@@ -54,10 +54,7 @@ private:
     ToneID _current_tone_id;
     uint8_t _tone_index;
     uint32_t _elapsed_tone_time;
-    uint32_t _elapsed_half_period;
-    uint32_t _half_period;
     uint32_t _last_update_time;
-    volatile bool _tone_state;
     ToneFlags _flags;
 
     void play_tone(ToneID id);

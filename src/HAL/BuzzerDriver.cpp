@@ -10,18 +10,6 @@ void BuzzerDriver::init()
     }
 
     is_initialized = true;
-    pinMode(BUZZER_PIN, OUTPUT);
-    disableTone();
-}
-
-void BuzzerDriver::enableTone()
-{
-    digitalWriteFast(BUZZER_PIN, HIGH);
-}
-
-void BuzzerDriver::disableTone()
-{
-    digitalWriteFast(BUZZER_PIN, LOW);
 }
 
 void BuzzerDriver::start_tone(uint16_t frequency)

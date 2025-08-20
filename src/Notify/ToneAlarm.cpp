@@ -29,9 +29,6 @@ ToneAlarm::ToneAlarm(BuzzerDriver &buzzer)
     _current_tone_id = TONE_NONE;
     _tone_index = 0;
     _elapsed_tone_time = 0;
-    _elapsed_half_period = 0;
-    _half_period = 0;
-    _tone_state = false;
     _last_update_time = 0;
     _tone_alarm_instance = this;
 }
