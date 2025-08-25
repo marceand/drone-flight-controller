@@ -1,6 +1,6 @@
 #pragma once
 
-class LEDIndicator
+class LEDDriver
 {
 public:
     void init();

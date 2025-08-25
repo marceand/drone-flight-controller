@@ -7,8 +7,6 @@
 #include "src/Motors/Motors.h"
 #include "src/HAL/ESCOutput.h"
 #include "src/HAL/EepromStorage.h"
-#include "src/HAL/LEDIndicator.h"
-#include "src/HAL/BuzzerDriver.h"
 #include "src/Barometer/Barometer_BMP280.h"
 #include "src/KalmanFilter/AltitudeVelocityKF.h"
 #include "src/KalmanFilter/AngleKF.h"
@@ -17,7 +15,11 @@
 #include "src/Attitude/AttitudeController.h"
 #include "src/Vertical/VerticalEstimator.h"
 #include "src/Vertical/VerticalVelocityController.h"
+#include "src/HAL/BuzzerDriver.h"
+#include "src/HAL/LEDDriver.h"
 #include "src/Notify/ToneAlarm.h"
+#include "src/Notify/LEDIndicator.h"
+#include "src/Notify/StatusNotifier.h"
 
 #define WIRE_CLK_FREQ 400000 // 400Khz
 #define SERIAL_BAUD_RATE 57600
@@ -30,8 +32,7 @@ CopterPID ratePitchPID;
 CopterPID rateYawPID;
 CopterPID angleRollPID;
 CopterPID anglePitchPID;
-LEDIndicator led;
-BatteryMonitor battMonitor(led);
+BatteryMonitor battMonitor;
 ESCOutput escOutput;
 Motors motors(escOutput);
 EepromStorage storage;
@@ -46,6 +47,9 @@ VerticalEstimator verticalEstimator(barometer, altitudeVelocityKF, inertialSenso
 VerticalVelocityController verticalVelocityController(velocityPID);
 BuzzerDriver buzzer;
 ToneAlarm toneAlarm(buzzer);
+LEDDriver led;
+LEDIndicator ledIndicator(led);
+StatusNotifier notifier(toneAlarm, ledIndicator);
 
 Copter copter(
     rc,
@@ -53,23 +57,22 @@ Copter copter(
     battMonitor,
     motors,
     storage,
-    led,
     barometer,
     attitudeEstimator,
     attitudeController,
     verticalEstimator,
     verticalVelocityController,
-    toneAlarm);
+    notifier);
 
 Copter::Task Copter::tasks[] = {
-    // {"read_rc", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::read_rc_channels)},
-    // {"read_inertial", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::read_inertial_sensor)},
-    // {"read_barometer", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::read_barometer)},
-    // {"check_takeoff", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::check_takeoff)},
-    // {"run_main_controller", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::run_main_controller)},
-    // {"run_motors", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::run_motors)},
-    // {"check_motors_arming", HZ_TO_US(10), 0, Functor<Copter>(&copter, &Copter::check_motors_arming)},
-    {"run_tone_alarm", HZ_TO_US(50), 0, Functor<Copter>(&copter, &Copter::run_tone_alarm)},
+    {"read_rc", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::read_rc_channels)},
+    {"read_inertial", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::read_inertial_sensor)},
+    {"read_barometer", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::read_barometer)},
+    {"check_takeoff", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::check_takeoff)},
+    {"run_main_controller", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::run_main_controller)},
+    {"run_motors", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::run_motors)},
+    {"check_motors_arming", HZ_TO_US(10), 0, Functor<Copter>(&copter, &Copter::check_motors_arming)},
+    {"run_tone_alarm", HZ_TO_US(50), 0, Functor<Copter>(&copter, &Copter::run_notifier)},
 };
 
 const int Copter::NUM_TASKS = sizeof(tasks) / sizeof(Task);

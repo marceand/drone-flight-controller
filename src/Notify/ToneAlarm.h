@@ -34,6 +34,11 @@ public:
         bool continuous;
     };
 
+    void init();
+    void update();
+    void stop_tone();
+
+private:
     struct ToneFlags
     {
         bool startup = false;
@@ -41,14 +46,6 @@ public:
         bool failsafe_radio = false;
         bool failsafe_battery = false;
     };
-
-    static ToneFlags events;
-
-    void init();
-    void update();
-    void stop_tone();
-
-private:
     IntervalTimer _toneTimer;
     BuzzerDriver _buzzer;
     ToneID _current_tone_id;

@@ -1,10 +1,10 @@
-#include "LEDIndicator.h"
+#include "LEDDriver.h"
 #include <Arduino.h>
 
 #define RED_LED_PIN 5
 #define GREEN_LED_PIN 6
 
-void LEDIndicator::init()
+void LEDDriver::init()
 {
     if (is_initialized)
     {
@@ -14,24 +14,30 @@ void LEDIndicator::init()
 
     pinMode(RED_LED_PIN, OUTPUT);
     pinMode(GREEN_LED_PIN, OUTPUT);
+
+    enableGreenLED();
+    enableRedLED();
+    delay(1000);
+    disableGreenLED();
+    disableRedLED();
 }
 
-void LEDIndicator::enableRedLED()
+void LEDDriver::enableRedLED()
 {
     digitalWrite(RED_LED_PIN, HIGH);
 }
 
-void LEDIndicator::disableRedLED()
+void LEDDriver::disableRedLED()
 {
     digitalWrite(RED_LED_PIN, LOW);
 }
 
-void LEDIndicator::enableGreenLED()
+void LEDDriver::enableGreenLED()
 {
     digitalWrite(GREEN_LED_PIN, HIGH);
 }
 
-void LEDIndicator::disableGreenLED()
+void LEDDriver::disableGreenLED()
 {
     digitalWrite(GREEN_LED_PIN, LOW);
 }

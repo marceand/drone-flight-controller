@@ -27,6 +27,7 @@ public:
     void set_motor_stop_throttle();
     void write_to_motors();
     void set_throttle_radio(float throttle_input);
+    void run_motors_at_minimum();
 
 private:
     ESCOutput &_escOutput;

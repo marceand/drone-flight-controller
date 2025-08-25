@@ -1,4 +1,5 @@
 #include "ToneAlarm.h"
+#include "StatusNotifier.h"
 
 // Tones string from Ardupilot are converted to {frquency, duration}
 // and equation for note_period, _silence_duration and note_frequency from the Ardupilot parser
@@ -20,7 +21,6 @@ const ToneAlarm::Tone ToneAlarm::_tones[ToneAlarm::TONE_COUNT] = {
     {ToneAlarm::TONE_LOW_BATT, low_batt_notes, ARRAY_SIZE(low_batt_notes), false},
     {ToneAlarm::TONE_FAILSAFE_RADIO, failsafe_radio_notes, ARRAY_SIZE(failsafe_radio_notes), false}};
 
-ToneAlarm::ToneFlags ToneAlarm::events = {false, false, false, false};
 ToneAlarm *ToneAlarm::_tone_alarm_instance = nullptr;
 
 ToneAlarm::ToneAlarm(BuzzerDriver &buzzer)
@@ -66,9 +66,9 @@ void ToneAlarm::play_tone(ToneID id)
 
 void ToneAlarm::update_flags()
 {
-    if (_flags.armed != events.armed)
+    if (_flags.armed != StatusNotifier::events.armed)
     {
-        _flags.armed = events.armed;
+        _flags.armed = StatusNotifier::events.armed;
         if (_flags.armed)
         {
             play_tone(TONE_ARMING);
@@ -79,18 +79,18 @@ void ToneAlarm::update_flags()
         }
     }
 
-    if (_flags.failsafe_radio != events.failsafe_radio)
+    if (_flags.failsafe_radio != StatusNotifier::events.failsafe_radio)
     {
-        _flags.failsafe_radio = events.failsafe_radio;
+        _flags.failsafe_radio = StatusNotifier::events.failsafe_radio;
         if (_flags.failsafe_radio)
         {
             play_tone(TONE_FAILSAFE_RADIO);
         }
     }
 
-    if (_flags.failsafe_battery != events.failsafe_battery)
+    if (_flags.failsafe_battery != StatusNotifier::events.failsafe_battery)
     {
-        _flags.failsafe_battery = events.failsafe_radio;
+        _flags.failsafe_battery = StatusNotifier::events.failsafe_radio;
         if (_flags.failsafe_battery)
         {
             play_tone(TONE_LOW_BATT);

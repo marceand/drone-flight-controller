@@ -1,5 +1,6 @@
 #include "Copter.h"
 #include <Wire.h>
+#include "Notify/StatusNotifier.h"
 
 #define ESC_CALIBRATION_HIGH_THROTTLE 1800
 #define MOTORS_MINIMUM_STARTUP_THROTTLE 1015
@@ -8,34 +9,22 @@
 
 void Copter::init(void)
 {
-    _toneAlarm.init();
-    // ToneAlarm::events.startup = true;
+    _notifier.init();
+    _storage.init();
+    _inertialSensor.init();
+    _barometer.init();
+    _rc.init();
+    _motors.init();
+    _attitudeEstimator.set_parameters();
+    _attitudeController.set_parameters();
+    _verticalEstimator.set_parameters();
+    _verticalVelocityController.set_parameters();
+    _battMonitor.init();
 
-    // uint32_t start_ms = millis();
-    // uint32_t now_ms = start_ms;
-    // while (now_ms - start_ms < 5000)
-    // {
-    //     _toneAlarm.update();
-    //     delay(20);
-    //     now_ms = millis();
-    // }
-
-    // _storage.init();
-    // _inertialSensor.init();
-    // _barometer.init();
-    // _rc.init();
-    // _ledIndicator.init();
-    // _motors.init();
-    // _attitudeEstimator.set_parameters();
-    // _attitudeController.set_parameters();
-    // _verticalEstimator.set_parameters();
-    // _verticalVelocityController.set_parameters();
-    //_battMonitor.init();
-
-    // check_esc_calibration();
-    // check_motors_startup();
-    // check_motors_mapping();
-    // arm_esc_at_minimum();
+    check_esc_calibration();
+    check_motors_startup();
+    check_motors_mapping();
+    arm_esc_at_minimum();
 }
 
 void Copter::read_rc_channels()
@@ -130,8 +119,6 @@ void Copter::run_motors()
 
 void Copter::check_esc_calibration()
 {
-    _ledIndicator.enableRedLED();
-
     uint8_t i = 0;
     while (i++ < 100)
     {
@@ -139,14 +126,11 @@ void Copter::check_esc_calibration()
         _rc.read();
     }
 
-    _ledIndicator.disableRedLED();
-
     if (_storage.check_for_esc_calibration())
     {
 
         if (_rc.getThrottleInPWM() >= ESC_CALIBRATION_HIGH_THROTTLE)
         {
-            _ledIndicator.enableGreenLED();
             _storage.set_check_esc_calibration(false);
             // Keep in the loop until drone is reboot
             while (1)
@@ -161,8 +145,6 @@ void Copter::check_esc_calibration()
         {
             _storage.set_check_esc_calibration(true);
             _motors.setArm(true);
-            _ledIndicator.enableGreenLED();
-            _ledIndicator.enableRedLED();
 
             while (1)
             {
@@ -177,9 +159,6 @@ void Copter::check_esc_calibration()
 
 void Copter::check_motors_startup()
 {
-    _ledIndicator.enableRedLED();
-    _ledIndicator.enableGreenLED();
-
     arm_esc_at_minimum();
 
     _motors.setArm(true);
@@ -190,20 +169,16 @@ void Copter::check_motors_startup()
     {
         _motors.set_esc_calibration_throttle(MOTORS_MINIMUM_STARTUP_THROTTLE);
         _motors.write_to_motors();
+        update_notifier();
         delay(4);
     }
+    _motors.setArm(false);
 
     arm_esc_at_minimum();
-
-    _ledIndicator.disableRedLED();
-    _ledIndicator.disableGreenLED();
 }
 
 void Copter::check_motors_mapping()
 {
-    _ledIndicator.enableRedLED();
-    _ledIndicator.enableGreenLED();
-
     arm_esc_at_minimum();
 
     _motors.setArm(true);
@@ -235,9 +210,6 @@ void Copter::check_motors_mapping()
     _motors.setArm(false);
 
     arm_esc_at_minimum();
-
-    _ledIndicator.disableRedLED();
-    _ledIndicator.disableGreenLED();
 }
 
 void Copter::arm_esc_at_minimum()
@@ -248,8 +220,8 @@ void Copter::arm_esc_at_minimum()
     uint32_t test_interval_ms = 3000;
     while (millis() - start_ms < test_interval_ms)
     {
-        _motors.set_motor_stop_throttle();
-        _motors.write_to_motors();
+        _motors.run_motors_at_minimum();
+        update_notifier();
         delay(4);
     }
 
@@ -274,9 +246,8 @@ void Copter::check_motors_arming()
 
         if (_arming_counter == ARM_DELAY && !_motors.isArmed())
         {
-            _ledIndicator.enableGreenLED();
             _motors.setArm(true);
-            _motors.set_motor_stop_throttle();
+            _motors.run_motors_at_minimum();
         }
     }
     else if (yaw_in_pwm <= 1005)
@@ -288,8 +259,7 @@ void Copter::check_motors_arming()
 
         if (_arming_counter == DISARM_DELAY && _motors.isArmed())
         {
-            _ledIndicator.disableGreenLED();
-            _motors.set_motor_stop_throttle();
+            _motors.run_motors_at_minimum();
             _motors.setArm(false);
         }
     }
@@ -299,7 +269,17 @@ void Copter::check_motors_arming()
     }
 }
 
-void Copter::run_tone_alarm()
+void Copter::run_notifier()
 {
-    _toneAlarm.update();
+    _notifier.update();
+}
+
+void Copter::update_notifier()
+{
+    uint32_t now = millis();
+    if (now - notifier_update_ms > 20)
+    {
+        notifier_update_ms = now;
+        _notifier.update();
+    }
 }

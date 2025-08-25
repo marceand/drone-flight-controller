@@ -1,6 +1,7 @@
 #include "Motors.h"
 #include "Axis.h"
 #include <Wire.h>
+#include "../Notify/StatusNotifier.h"
 
 #define MAX_THROTTLE 1999
 #define IDLE_THROTTLE 1180
@@ -111,6 +112,7 @@ void Motors::setArm(bool arm)
     if (arm != _armed)
     {
         _armed = arm;
+        StatusNotifier::events.armed = arm;
     }
 }
 
@@ -153,4 +155,10 @@ void Motors::write_to_motors()
 void Motors::set_throttle_radio(float throttle_input)
 {
     _throttle_radio = throttle_input;
+}
+
+void Motors::run_motors_at_minimum()
+{
+    set_motor_stop_throttle();
+    write_to_motors();
 }

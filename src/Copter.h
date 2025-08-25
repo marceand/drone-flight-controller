@@ -5,14 +5,13 @@
 #include "BatteryMonitor/BatteryMonitor.h"
 #include "Motors/Motors.h"
 #include "HAL/EepromStorage.h"
-#include "HAL/LEDIndicator.h"
 #include "Barometer/Barometer_BMP280.h"
 #include "Attitude/AttitudeEstimator.h"
 #include "Attitude/AttitudeController.h"
 #include "Vertical/VerticalEstimator.h"
 #include "Vertical/VerticalVelocityController.h"
 #include "Functor.h"
-#include "Notify/ToneAlarm.h"
+#include "Notify/StatusNotifier.h"
 
 class Copter
 {
@@ -22,24 +21,22 @@ public:
            BatteryMonitor &battMonitor,
            Motors &motors,
            EepromStorage &storage,
-           LEDIndicator &led,
            Barometer_BMP280 &barometer,
            AttitudeEstimator &attitudeEstimator,
            AttitudeController &attitudeController,
            VerticalEstimator &verticalEstimator,
            VerticalVelocityController &verticalVelocityController,
-           ToneAlarm &toneAlarm) : _rc(rc),
-                                   _inertialSensor(inertialSensor),
-                                   _battMonitor(battMonitor),
-                                   _motors(motors),
-                                   _storage(storage),
-                                   _ledIndicator(led),
-                                   _barometer(barometer),
-                                   _attitudeEstimator(attitudeEstimator),
-                                   _attitudeController(attitudeController),
-                                   _verticalEstimator(verticalEstimator),
-                                   _verticalVelocityController(verticalVelocityController),
-                                   _toneAlarm(toneAlarm)
+           StatusNotifier &notifier) : _rc(rc),
+                                       _inertialSensor(inertialSensor),
+                                       _battMonitor(battMonitor),
+                                       _motors(motors),
+                                       _storage(storage),
+                                       _barometer(barometer),
+                                       _attitudeEstimator(attitudeEstimator),
+                                       _attitudeController(attitudeController),
+                                       _verticalEstimator(verticalEstimator),
+                                       _verticalVelocityController(verticalVelocityController),
+                                       _notifier(notifier)
 
     {
     }
@@ -62,17 +59,17 @@ private:
     BatteryMonitor &_battMonitor;
     Motors &_motors;
     EepromStorage &_storage;
-    LEDIndicator &_ledIndicator;
     Barometer_BMP280 &_barometer;
     AttitudeEstimator &_attitudeEstimator;
     AttitudeController &_attitudeController;
     VerticalEstimator &_verticalEstimator;
     VerticalVelocityController &_verticalVelocityController;
-    ToneAlarm &_toneAlarm;
+    StatusNotifier &_notifier;
 
     int _arming_counter = 0;
     bool is_flying = false;
     float _input[4] = {0.0f};
+    uint32_t notifier_update_ms = 0;
 
     void read_rc_channels();
     void read_inertial_sensor();
@@ -86,6 +83,7 @@ private:
     void check_motors_mapping();
     void arm_esc_at_minimum();
     void check_motors_arming();
-    void run_tone_alarm();
+    void run_notifier();
     // void check_disarming();
+    void update_notifier();
 };

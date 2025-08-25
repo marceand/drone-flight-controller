@@ -1,19 +1,18 @@
 #include "BatteryMonitor.h"
+#include "../Notify/StatusNotifier.h"
 
 void BatteryMonitor::init()
 {
-    _LEDIndicator.init();
-
     float voltage = _batteryReader.voltage();
     _batt_capacity_initial = calculateBatteryCapacity(voltage);
 
     if (voltage < 7.5f)
     {
-        _LEDIndicator.enableRedLED();
+        StatusNotifier::events.failsafe_battery = true;
     }
     else
     {
-        _LEDIndicator.disableRedLED();
+        StatusNotifier::events.failsafe_battery = false;
     }
 }
 
@@ -26,12 +25,11 @@ void BatteryMonitor::monitor()
 
     if (_batt_remaining_percentage <= 30.0f)
     {
-        _LEDIndicator.enableRedLED();
+        StatusNotifier::events.failsafe_battery = true;
     }
     else
     {
-        _LEDIndicator.enableGreenLED();
-        _LEDIndicator.disableRedLED();
+        StatusNotifier::events.failsafe_battery = false;
     }
 }
 
