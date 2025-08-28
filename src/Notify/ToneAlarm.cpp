@@ -47,21 +47,24 @@ void ToneAlarm::update()
 
 void ToneAlarm::play_tone(ToneID id)
 {
+    uint16_t current_frequency_snapshot = 0;
+
+    noInterrupts();
     _current_tone_id = id;
     _tone_index = 0;
     _elapsed_tone_time = 0;
+    _last_update_time = micros();
+    current_frequency_snapshot = _tones[_current_tone_id].notes[_tone_index].frequency;
+    interrupts();
 
-    uint16_t current_frequency = _tones[id].notes[_tone_index].frequency;
-    if (current_frequency > 0)
+    if (current_frequency_snapshot > 0)
     {
-        _buzzer.start_tone(current_frequency);
+        _buzzer.start_tone(current_frequency_snapshot);
     }
     else
     {
         _buzzer.stop_tone();
     }
-
-    _last_update_time = micros();
 }
 
 void ToneAlarm::update_flags()
