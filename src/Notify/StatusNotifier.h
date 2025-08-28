@@ -17,6 +17,7 @@ public:
         bool armed = false;
         bool failsafe_radio = false;
         bool failsafe_battery = false;
+        bool esc_calibration = false;
     };
     static Events events;
 

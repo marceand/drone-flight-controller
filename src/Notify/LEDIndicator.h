@@ -16,6 +16,7 @@ private:
         bool armed = false;
         bool failsafe_radio = false;
         bool battery_low = false;
+        bool esc_calibration = false;
     };
 
     enum class LedEvent : uint8_t
@@ -26,7 +27,7 @@ private:
         DISARMING,
         ARMED,
         DISARMED,
-        FAILSAFE,
+        ESC_CALIBRATION,
         FAILSAFE_RADIO,
         LOW_BATTERY
     };

@@ -24,7 +24,7 @@ void Copter::init(void)
     check_esc_calibration();
     check_motors_startup();
     check_motors_mapping();
-    arm_esc_at_minimum();
+    // arm_esc_at_minimum();
 }
 
 void Copter::read_rc_channels()
@@ -96,18 +96,6 @@ void Copter::run_main_controller()
     float hover_command = _verticalVelocityController.get_hover_command();
     float throttle_command = _rc.getMidThrottle() + hover_command;
 
-    // Serial.print("Throttle-Command:");
-    // Serial.print(throttle_command);
-    // Serial.print("\t");
-    // Serial.print("Roll-Command:");
-    // Serial.print(roll_command);
-    // Serial.print("\t");
-    // Serial.print("Pitch-Command:");
-    // Serial.print(pitch_command);
-    // Serial.print("\t");
-    // Serial.print("Yaw-Command:");
-    // Serial.print(yaw_command);
-    // Serial.println();
     _motors.set_command_inputs(throttle_command, roll_command, pitch_command, yaw_command);
 }
 
@@ -132,9 +120,12 @@ void Copter::check_esc_calibration()
         if (_rc.getThrottleInPWM() >= ESC_CALIBRATION_HIGH_THROTTLE)
         {
             _storage.set_check_esc_calibration(false);
+            StatusNotifier::events.esc_calibration = true;
+
             // Keep in the loop until drone is reboot
             while (1)
             {
+                update_notifier();
                 delay(5);
             }
         }
@@ -145,12 +136,13 @@ void Copter::check_esc_calibration()
         {
             _storage.set_check_esc_calibration(true);
             _motors.setArm(true);
-
             while (1)
             {
+                update_notifier();
                 _rc.read();
                 float throttleInput = _rc.getThrottleInPWM();
                 _motors.set_esc_calibration_throttle(throttleInput);
+                _motors.write_to_motors();
                 delay(4);
             }
         }

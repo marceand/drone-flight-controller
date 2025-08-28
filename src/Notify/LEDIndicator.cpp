@@ -45,6 +45,19 @@ void LEDIndicator::update()
         }
     }
 
+    if (_flags.esc_calibration != StatusNotifier::events.esc_calibration)
+    {
+        _flags.esc_calibration = StatusNotifier::events.esc_calibration;
+        if (_flags.esc_calibration)
+        {
+            setEvent(LedEvent::ESC_CALIBRATION);
+        }
+        else
+        {
+            setEvent(_flags.armed ? LedEvent::ARMED : LedEvent::DISARMED);
+        }
+    }
+
     // === Handle LED pattern ===
     if (_activeEvent == LedEvent::NONE)
         return;
@@ -146,7 +159,7 @@ LEDIndicator::LedPattern LEDIndicator::patternForEvent(LedEvent ev)
         return {1000, 0, 0, false, false}; // solid green
     case LedEvent::DISARMED:
         return {200, 1800, 0, true, false}; // green blink every 2s
-    case LedEvent::FAILSAFE:
+    case LedEvent::ESC_CALIBRATION:
         return {200, 200, 0, true, true}; // fast red blink
     case LedEvent::FAILSAFE_RADIO:
         return {100, 400, 0, true, true}; // red blink with pause
