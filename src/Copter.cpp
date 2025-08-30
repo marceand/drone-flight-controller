@@ -11,20 +11,20 @@ void Copter::init(void)
 {
     _notifier.init();
     _storage.init();
-    _inertialSensor.init();
-    _barometer.init();
     _rc.init();
     _motors.init();
+    check_esc_calibration(); // need to call after power on otherwise ESCs calibration time window is missed
+    _inertialSensor.init();
+    _barometer.init();
     _attitudeEstimator.set_parameters();
     _attitudeController.set_parameters();
     _verticalEstimator.set_parameters();
     _verticalVelocityController.set_parameters();
     _battMonitor.init();
 
-    check_esc_calibration();
     check_motors_startup();
     check_motors_mapping();
-    // arm_esc_at_minimum();
+    arm_esc_at_minimum();
 }
 
 void Copter::read_rc_channels()
@@ -108,10 +108,10 @@ void Copter::run_motors()
 void Copter::check_esc_calibration()
 {
     uint8_t i = 0;
-    while (i++ < 100)
+    while (i++ < 2)
     {
-        delay(20);
         _rc.read();
+        delay(20); // From test, the 20ms delay is enough for capturing the radio reading
     }
 
     if (_storage.check_for_esc_calibration())
@@ -126,7 +126,7 @@ void Copter::check_esc_calibration()
             while (1)
             {
                 update_notifier();
-                delay(5);
+                delay(4);
             }
         }
     }
