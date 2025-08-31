@@ -50,7 +50,11 @@ void Motors::compute_mixer_outputs()
 
 void Motors::apply_output_logic()
 {
-    if (!isArmed())
+    if (!is_armed())
+    {
+        _spoolState = SpoolState::SHUT_DOWN;
+    }
+    else if (_is_motor_emergency)
     {
         _spoolState = SpoolState::SHUT_DOWN;
     }
@@ -116,9 +120,14 @@ void Motors::setArm(bool arm)
     }
 }
 
+void Motors::set_motor_emergency(bool motor_emergency)
+{
+    _is_motor_emergency = motor_emergency;
+}
+
 void Motors::set_esc_calibration_throttle(float throttle)
 {
-    if (isArmed())
+    if (is_armed())
     {
         for (int i = 0; i < NUM_MOTORS; i++)
         {
@@ -129,7 +138,7 @@ void Motors::set_esc_calibration_throttle(float throttle)
 
 void Motors::set_motor_sequence_throttle(int sequence, float throttle)
 {
-    if (isArmed())
+    if (is_armed())
     {
         _escOutput.set_pwm_value(sequence - 1, throttle);
     }
@@ -137,7 +146,7 @@ void Motors::set_motor_sequence_throttle(int sequence, float throttle)
 
 void Motors::set_motor_stop_throttle()
 {
-    if (isArmed())
+    if (is_armed())
     {
         float cut_off_throttle = CUT_OFF_THROTTLE;
         for (int i = 0; i < NUM_MOTORS; i++)

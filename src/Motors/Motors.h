@@ -15,11 +15,12 @@ public:
         THROTTLE_UNLIMITED = 2,
     };
     void init();
-    bool isArmed()
+    bool is_armed()
     {
         return _armed;
     }
     void setArm(bool arm);
+    void set_motor_emergency(bool motor_emergency);
     void update_outputs();
     void set_command_inputs(float throttle_command, float roll_command, float pitch_command, float yaw_command);
     void set_esc_calibration_throttle(float throttle);
@@ -41,7 +42,8 @@ private:
         {1, 1, 1, -1},   // Motor 3
         {1, 1, -1, 1},   // Motor 4
     };
-    bool _armed;
+    bool _armed = false;
+    bool _is_motor_emergency = false;
     float _throttle_radio = 0.0f;
     void compute_mixer_outputs();
     void apply_output_logic();

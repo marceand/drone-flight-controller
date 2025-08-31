@@ -30,15 +30,16 @@ void Copter::init(void)
 void Copter::read_rc_channels()
 {
     _rc.read();
-    _attitudeController.set_desired_angles(_rc.getDesiredRollAngle(), _rc.getDesiredPitchAngle());
-    _attitudeController.set_desired_yaw_rate(_rc.getDesiredYawRate());
-    _verticalVelocityController.set_desired_vertical_velocity(_rc.getDesiredThrottleVelocity());
-    _motors.set_throttle_radio(_rc.getThrottleInPWM());
+    _attitudeController.set_desired_angles(_rc.get_desired_roll_angle(), _rc.get_desired_pitch_angle());
+    _attitudeController.set_desired_yaw_rate(_rc.get_desired_yaw_rate());
+    _verticalVelocityController.set_desired_vertical_velocity(_rc.get_desired_vertical_velocity());
+    _motors.set_throttle_radio(_rc.get_throttle_in_pwm());
+    _motors.set_motor_emergency(_rc.is_motor_emergency());
     Serial.print("Time:");
     Serial.print(micros());
     Serial.print("\t");
     Serial.print("Throtle:");
-    Serial.print(_rc.getThrottleInPWM());
+    Serial.print(_rc.get_throttle_in_pwm());
     Serial.print("\t");
 }
 
@@ -66,13 +67,13 @@ void Copter::read_barometer()
 
 void Copter::check_takeoff()
 {
-    if (!is_flying && _rc.getThrottleInPWM() > 1400)
+    if (!is_flying && _rc.get_throttle_in_pwm() > 1400)
     {
         is_flying = true;
         _attitudeController.set_integrator(is_flying);
         _verticalVelocityController.set_integrator(is_flying);
     }
-    if (_rc.getThrottleInPWM() < 1050)
+    if (_rc.get_throttle_in_pwm() < 1050)
     {
         is_flying = false;
         _attitudeController.set_integrator(is_flying);
@@ -94,7 +95,7 @@ void Copter::run_main_controller()
     float pitch_command = _attitudeController.get_pitch_command();
     float yaw_command = _attitudeController.get_yaw_command();
     float hover_command = _verticalVelocityController.get_hover_command();
-    float throttle_command = _rc.getMidThrottle() + hover_command;
+    float throttle_command = _rc.get_mid_throttle() + hover_command;
 
     _motors.set_command_inputs(throttle_command, roll_command, pitch_command, yaw_command);
 }
@@ -117,7 +118,7 @@ void Copter::check_esc_calibration()
     if (_storage.check_for_esc_calibration())
     {
 
-        if (_rc.getThrottleInPWM() >= ESC_CALIBRATION_HIGH_THROTTLE)
+        if (_rc.get_throttle_in_pwm() >= ESC_CALIBRATION_HIGH_THROTTLE)
         {
             _storage.set_check_esc_calibration(false);
             StatusNotifier::events.esc_calibration = true;
@@ -132,7 +133,7 @@ void Copter::check_esc_calibration()
     }
     else
     {
-        if (_rc.getThrottleInPWM() >= ESC_CALIBRATION_HIGH_THROTTLE)
+        if (_rc.get_throttle_in_pwm() >= ESC_CALIBRATION_HIGH_THROTTLE)
         {
             _storage.set_check_esc_calibration(true);
             _motors.setArm(true);
@@ -140,7 +141,7 @@ void Copter::check_esc_calibration()
             {
                 update_notifier();
                 _rc.read();
-                float throttleInput = _rc.getThrottleInPWM();
+                float throttleInput = _rc.get_throttle_in_pwm();
                 _motors.set_esc_calibration_throttle(throttleInput);
                 _motors.write_to_motors();
                 delay(4);
@@ -222,13 +223,13 @@ void Copter::arm_esc_at_minimum()
 
 void Copter::check_motors_arming()
 {
-    if (_rc.getThrottleInPWM() > 1005)
+    if (_rc.get_throttle_in_pwm() > 1005)
     {
         _arming_counter = 0;
         return;
     }
 
-    uint16_t yaw_in_pwm = _rc.getYawInPWM();
+    uint16_t yaw_in_pwm = _rc.get_yaw_in_pwm();
     if (yaw_in_pwm >= 1995)
     {
         if (_arming_counter < ARM_DELAY)
@@ -236,7 +237,7 @@ void Copter::check_motors_arming()
             _arming_counter++;
         }
 
-        if (_arming_counter == ARM_DELAY && !_motors.isArmed())
+        if (_arming_counter == ARM_DELAY && !_motors.is_armed())
         {
             _motors.setArm(true);
             _motors.run_motors_at_minimum();
@@ -249,7 +250,7 @@ void Copter::check_motors_arming()
             _arming_counter++;
         }
 
-        if (_arming_counter == DISARM_DELAY && _motors.isArmed())
+        if (_arming_counter == DISARM_DELAY && _motors.is_armed())
         {
             _motors.run_motors_at_minimum();
             _motors.setArm(false);
