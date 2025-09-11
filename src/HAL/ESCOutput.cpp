@@ -37,6 +37,7 @@ void ESCOutput::write_pwm_outputs()
         analogWrite(escChannels[i].pin, escChannels[i].scaled_pwm_value);
     }
 
+    Serial.print("\t");
     Serial.print("M1:");
     Serial.print(escChannels[0].pwm_value);
     Serial.print("\t");

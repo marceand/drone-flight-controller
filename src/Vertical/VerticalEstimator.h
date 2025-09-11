@@ -25,6 +25,10 @@ public:
     {
         return _estimated_vertical_velocity;
     }
+    float get_estimated_altitude_in_cm()
+    {
+        return _estimated_altitude;
+    }
 
 private:
     Barometer_BMP280 &_barometer;
@@ -33,6 +37,7 @@ private:
     AttitudeEstimator &_attitudeEstimator;
     float _raw_vertical_acceleration = 0.0;
     float _estimated_vertical_velocity = 0.0;
+    float _estimated_altitude = 0.0;
     void calculateRawVerticalAcceleration();
     void estimateVerticalVelocity();
 };

@@ -22,8 +22,8 @@ void Copter::init(void)
     _verticalVelocityController.set_parameters();
     _battMonitor.init();
 
-    check_motors_startup();
-    check_motors_mapping();
+    // check_motors_startup();
+    // check_motors_mapping();
     arm_esc_at_minimum();
 }
 
@@ -57,7 +57,6 @@ void Copter::read_inertial_sensor()
     Serial.print("\t");
     Serial.print("AccZ:");
     Serial.print(_inertialSensor.getCalibAccelZ());
-    Serial.print("\t");
 }
 
 void Copter::read_barometer()
@@ -90,6 +89,13 @@ void Copter::run_main_controller()
 
     _attitudeController.update(_attitudeEstimator.get_estimated_roll(), _attitudeEstimator.get_estimated_pitch());
     _verticalVelocityController.update(_verticalEstimator.get_estimated_vertical_velocity());
+
+    Serial.print("\t");
+    Serial.print("Vz:");
+    Serial.print(_verticalEstimator.get_estimated_vertical_velocity());
+    Serial.print("\t");
+    Serial.print("Altitude:");
+    Serial.print(_verticalEstimator.get_estimated_altitude_in_cm());
 
     float roll_command = _attitudeController.get_roll_command();
     float pitch_command = _attitudeController.get_pitch_command();

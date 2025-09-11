@@ -30,4 +30,5 @@ void VerticalEstimator::estimateVerticalVelocity()
 {
     float relative_altitude = _barometer.get_relative_altitude_in_cm();
     _estimated_vertical_velocity = _altitudeVelocityKF.calculateVerticalVelocity(relative_altitude, _raw_vertical_acceleration);
+    _estimated_altitude = _altitudeVelocityKF.getAltitude();
 }
