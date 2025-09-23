@@ -25,10 +25,12 @@ void BatteryMonitor::monitor()
 
     if (_batt_remaining_percentage <= 30.0f)
     {
+        _is_batt_failsafe = true;
         StatusNotifier::events.failsafe_battery = true;
     }
     else
     {
+        _is_batt_failsafe = false;
         StatusNotifier::events.failsafe_battery = false;
     }
 }

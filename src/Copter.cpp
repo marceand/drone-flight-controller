@@ -1,6 +1,5 @@
 #include "Copter.h"
 #include <Wire.h>
-#include "Notify/StatusNotifier.h"
 
 #define ESC_CALIBRATION_HIGH_THROTTLE 1800
 #define MOTORS_MINIMUM_STARTUP_THROTTLE 1015
@@ -110,6 +109,14 @@ void Copter::run_motors()
 {
     _motors.update_outputs();
     _motors.write_to_motors();
+}
+
+void Copter::run_battery_monitor()
+{
+    _battMonitor.monitor();
+    Serial.print("\t");
+    Serial.print("voltage:");
+    Serial.print(_battMonitor.voltage());
 }
 
 void Copter::check_esc_calibration()
@@ -245,8 +252,15 @@ void Copter::check_motors_arming()
 
         if (_arming_counter == ARM_DELAY && !_motors.is_armed())
         {
-            _motors.setArm(true);
-            _motors.run_motors_at_minimum();
+            if (is_pre_arm_check_pass())
+            {
+                _motors.setArm(true);
+                _motors.run_motors_at_minimum();
+            }
+            else
+            {
+                _arming_counter = 0;
+            }
         }
     }
     else if (yaw_in_pwm <= 1005)
@@ -266,6 +280,11 @@ void Copter::check_motors_arming()
     {
         _arming_counter = 0;
     }
+}
+
+bool Copter::is_pre_arm_check_pass()
+{
+    return _battMonitor.is_batt_failsafe();
 }
 
 void Copter::run_notifier()

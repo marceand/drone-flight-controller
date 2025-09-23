@@ -77,12 +77,13 @@ private:
     void check_takeoff();
     void run_main_controller();
     void run_motors();
-    // void run_battery_monitor();
+    void run_battery_monitor();
     void check_esc_calibration();
     void check_motors_startup();
     void check_motors_mapping();
     void arm_esc_at_minimum();
     void check_motors_arming();
+    bool is_pre_arm_check_pass();
     void run_notifier();
     // void check_disarming();
     void update_notifier();

@@ -24,6 +24,10 @@ public:
     {
         return _batt_remaining_percentage;
     }
+    bool is_batt_failsafe()
+    {
+        return _is_batt_failsafe;
+    }
 
 private:
     BatteryReader _batteryReader;
@@ -33,5 +37,6 @@ private:
     float _batt_remaining_percentage = 0.0f;
     const float _batt_capacity_default = 1300.0f;
     float _batt_capacity_initial = 0.0f;
+    bool _is_batt_failsafe = false;
     float calculateBatteryCapacity(float voltage);
 };
