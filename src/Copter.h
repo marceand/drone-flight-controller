@@ -87,4 +87,5 @@ private:
     void run_notifier();
     // void check_disarming();
     void update_notifier();
+    void update_logging();
 };

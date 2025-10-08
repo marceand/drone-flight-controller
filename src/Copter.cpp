@@ -1,8 +1,10 @@
 #include "Copter.h"
 #include <Wire.h>
+#include "Log/Logger.h"
 
 #define ESC_CALIBRATION_HIGH_THROTTLE 1800
 #define MOTORS_MINIMUM_STARTUP_THROTTLE 1015
+// #define MOTORS_MINIMUM_STARTUP_THROTTLE 1050
 #define ARM_DELAY 20    // called at 10hz so 2 seconds
 #define DISARM_DELAY 20 // called at 10hz so 2 seconds
 
@@ -21,7 +23,7 @@ void Copter::init(void)
     _verticalVelocityController.set_parameters();
     _battMonitor.init();
 
-    // check_motors_startup();
+    check_motors_startup();
     // check_motors_mapping();
     arm_esc_at_minimum();
 }
@@ -34,12 +36,14 @@ void Copter::read_rc_channels()
     _verticalVelocityController.set_desired_vertical_velocity(_rc.get_desired_vertical_velocity());
     _motors.set_throttle_radio(_rc.get_throttle_in_pwm());
     _motors.set_motor_emergency(_rc.is_motor_emergency());
-    Serial.print("Time:");
-    Serial.print(micros());
-    Serial.print("\t");
-    Serial.print("Throtle:");
-    Serial.print(_rc.get_throttle_in_pwm());
-    Serial.print("\t");
+    // Serial.print("Time:");
+    // Serial.print(micros());
+    // Serial.print("\t");
+    // Serial.print("Throtle:");
+    // Serial.print(_rc.get_throttle_in_pwm());
+    // Serial.print("\t");
+
+    Logger::update_throttle(_rc.get_throttle_in_pwm());
 }
 
 void Copter::read_inertial_sensor()
@@ -48,14 +52,17 @@ void Copter::read_inertial_sensor()
     _attitudeController.set_measured_rates(_inertialSensor.getCalibGyroX(),
                                            _inertialSensor.getCalibGyroY(),
                                            _inertialSensor.getCalibGyroZ());
-    Serial.print("AccX:");
-    Serial.print(_inertialSensor.getCalibAccelX());
-    Serial.print("\t");
-    Serial.print("AccY:");
-    Serial.print(_inertialSensor.getCalibAccelY());
-    Serial.print("\t");
-    Serial.print("AccZ:");
-    Serial.print(_inertialSensor.getCalibAccelZ());
+    // Serial.print("AccX:");
+    // Serial.print(_inertialSensor.getCalibAccelX());
+    // Serial.print("\t");
+    // Serial.print("AccY:");
+    // Serial.print(_inertialSensor.getCalibAccelY());
+    // Serial.print("\t");
+    // Serial.print("AccZ:");
+    // Serial.print(_inertialSensor.getCalibAccelZ());
+    Logger::update_accelerometer(_inertialSensor.getCalibAccelX(),
+                                 _inertialSensor.getCalibAccelY(),
+                                 _inertialSensor.getCalibAccelZ());
 }
 
 void Copter::read_barometer()
@@ -65,11 +72,12 @@ void Copter::read_barometer()
 
 void Copter::check_takeoff()
 {
-    if (!is_flying && _rc.get_throttle_in_pwm() > 1400)
+    if (!is_flying && (_rc.get_throttle_in_pwm() > 1550 || _verticalEstimator.get_estimated_vertical_velocity() > 30.0))
     {
         is_flying = true;
         _attitudeController.set_integrator(is_flying);
         _verticalVelocityController.set_integrator(is_flying);
+        Logger::update_flying(is_flying);
     }
     if (_rc.get_throttle_in_pwm() < 1050)
     {
@@ -78,6 +86,7 @@ void Copter::check_takeoff()
         _verticalVelocityController.set_integrator(is_flying);
         _attitudeController.reset();
         _verticalVelocityController.reset();
+        Logger::update_flying(is_flying);
     }
 }
 
@@ -89,20 +98,40 @@ void Copter::run_main_controller()
     _attitudeController.update(_attitudeEstimator.get_estimated_roll(), _attitudeEstimator.get_estimated_pitch());
     _verticalVelocityController.update(_verticalEstimator.get_estimated_vertical_velocity());
 
-    Serial.print("\t");
-    Serial.print("Vz:");
-    Serial.print(_verticalEstimator.get_estimated_vertical_velocity());
-    Serial.print("\t");
-    Serial.print("Altitude:");
-    Serial.print(_verticalEstimator.get_estimated_altitude_in_cm());
+    // Serial.print("Roll:");
+    // Serial.print(_attitudeEstimator.get_estimated_roll());
+    // Serial.print("\t");
+    // Serial.print("Pitch:");
+    // Serial.print(_attitudeEstimator.get_estimated_pitch());
+    // Serial.print("\t");
+    // Serial.print("GyroX:");
+    // Serial.print(_inertialSensor.getCalibGyroX());
+    // Serial.print("\t");
+    // Serial.print("GyroY:");
+    // Serial.print(_inertialSensor.getCalibGyroY());
+    // Serial.print("\t");
+    // Serial.print("GyroZ:");
+    // Serial.println(_inertialSensor.getCalibGyroZ());
+
+    // Serial.print("\t");
+    // Serial.print("Vz:");
+    // Serial.print(_verticalEstimator.get_estimated_vertical_velocity());
+    // Serial.print("\t");
+    // Serial.print("Altitude:");
+    // Serial.print(_verticalEstimator.get_estimated_altitude_in_cm());
+
+    Logger::update_vertical(_verticalEstimator.get_estimated_vertical_velocity(),
+                            _verticalEstimator.get_estimated_altitude_in_cm());
 
     float roll_command = _attitudeController.get_roll_command();
     float pitch_command = _attitudeController.get_pitch_command();
     float yaw_command = _attitudeController.get_yaw_command();
     float hover_command = _verticalVelocityController.get_hover_command();
-    float throttle_command = _rc.get_mid_throttle() + hover_command;
+    // float throttle_command = _rc.get_mid_throttle() + hover_command;
+    float throttle_command = _rc.get_throttle_in_pwm();
 
     _motors.set_command_inputs(throttle_command, roll_command, pitch_command, yaw_command);
+    Logger::update_commands(roll_command, pitch_command, yaw_command, throttle_command, hover_command);
 }
 
 void Copter::run_motors()
@@ -114,9 +143,10 @@ void Copter::run_motors()
 void Copter::run_battery_monitor()
 {
     _battMonitor.monitor();
-    Serial.print("\t");
-    Serial.print("voltage:");
-    Serial.print(_battMonitor.voltage());
+    Logger::update_voltage(_battMonitor.voltage());
+    // Serial.print("\t");
+    // Serial.print("voltage:");
+    // Serial.print(_battMonitor.voltage());
 }
 
 void Copter::check_esc_calibration()
@@ -284,7 +314,8 @@ void Copter::check_motors_arming()
 
 bool Copter::is_pre_arm_check_pass()
 {
-    return _battMonitor.is_batt_failsafe();
+    return true;
+    // return _battMonitor.is_batt_failsafe();
 }
 
 void Copter::run_notifier()
@@ -299,5 +330,20 @@ void Copter::update_notifier()
     {
         notifier_update_ms = now;
         _notifier.update();
+    }
+}
+
+void Copter::update_logging()
+{
+    Logger::log_data();
+
+    if (_motors.is_armed())
+    {
+        return;
+    }
+
+    if (_rc.get_aux_4_in_pwm() >= RC_AUX_CHANNEL_HIGH_VALUE)
+    {
+        Logger::dump_logs();
     }
 }

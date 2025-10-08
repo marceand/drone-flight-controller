@@ -40,9 +40,6 @@ public:
     float getCalibAccelY() { return _accelRaw.accelY - _accelOffset.accelY; }
     float getCalibAccelZ() { return _accelRaw.accelZ - _accelOffset.accelZ; }
     float getTemperature() { return _temperature; }
-    float getRollAngle() { return _roll_angle; }
-    float getPitchAngle() { return _pitch_angle; }
-    float getVerticalAcceleration() { return _vertical_acceleration; }
 
 private:
     struct gyro_t
@@ -66,9 +63,6 @@ private:
     accel_t _accelRaw = {0.0, 0.0, 0.0};
     accel_t _accelOffset = {0.0, 0.0, 0.0};
     float _temperature = 0.0;
-    float _roll_angle = 0.0;
-    float _pitch_angle = 0.0;
-    float _vertical_acceleration = 0.0;
     void startGyroPowerMode(void);
     void setGyroLowPassFilter(void);
     void setGyroSensitivity(void);
@@ -79,6 +73,4 @@ private:
     InertialSensor::accel_t readRawAccel(void);
     float scaleGyroReading(float reading);
     float scaleAccelReading(float reading);
-    void calculateAngles(void);
-    void calculateVerticalAcceleration();
 };

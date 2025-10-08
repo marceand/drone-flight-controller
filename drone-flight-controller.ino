@@ -2,7 +2,6 @@
 #include "src/Copter.h"
 #include "src/RC_Channels/RC_Channels.h"
 #include "src/InertialSensor/InertialSensor.h"
-#include "src/Parameters/Parameters.h"
 #include "src/BatteryMonitor/BatteryMonitor.h"
 #include "src/Motors/Motors.h"
 #include "src/HAL/ESCOutput.h"
@@ -74,6 +73,7 @@ Copter::Task Copter::tasks[] = {
     {"run_batt_monitor", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::run_battery_monitor)},
     {"check_motors_arming", HZ_TO_US(10), 0, Functor<Copter>(&copter, &Copter::check_motors_arming)},
     {"run_tone_alarm", HZ_TO_US(50), 0, Functor<Copter>(&copter, &Copter::run_notifier)},
+    {"update_logging", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::update_logging)},
 };
 
 const int Copter::NUM_TASKS = sizeof(tasks) / sizeof(Task);
