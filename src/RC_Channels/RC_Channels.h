@@ -47,7 +47,7 @@ public:
     float get_mid_throttle() { return RC_MID_CHANNEL_VALUE; }
     float get_desired_roll_rate() { return compute_desired_rate(_pwm_channels.roll); }
     float get_desired_pitch_rate() { return compute_desired_rate(_pwm_channels.pitch); }
-    float get_desired_yaw_rate() { return compute_desired_rate(_pwm_channels.yaw); }
+    float get_desired_yaw_rate() { return -1.0 * compute_desired_rate(_pwm_channels.yaw); }
     float get_desired_roll_angle() { return compute_desired_angle(_pwm_channels.roll); }
     float get_desired_pitch_angle() { return compute_desired_angle(_pwm_channels.pitch); }
     float get_desired_vertical_velocity() { return compute_desired_velocity(_pwm_channels.throttle); }
