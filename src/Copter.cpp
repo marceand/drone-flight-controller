@@ -1,6 +1,5 @@
 #include "Copter.h"
 #include <Wire.h>
-#include "Log/Logger.h"
 
 #define ESC_CALIBRATION_HIGH_THROTTLE 1800
 #define MOTORS_MINIMUM_STARTUP_THROTTLE 1015
@@ -22,7 +21,7 @@ void Copter::init(void)
     _verticalEstimator.set_parameters();
     _verticalVelocityController.set_parameters();
     _battMonitor.init();
-
+    _logger.init();
     check_motors_startup();
     // check_motors_mapping();
     arm_esc_at_minimum();
@@ -43,7 +42,7 @@ void Copter::read_rc_channels()
     // Serial.print(_rc.get_throttle_in_pwm());
     // Serial.print("\t");
 
-    Logger::update_throttle(_rc.get_throttle_in_pwm());
+    _logger.update_throttle(_rc.get_throttle_in_pwm());
 }
 
 void Copter::read_inertial_sensor()
@@ -60,7 +59,7 @@ void Copter::read_inertial_sensor()
     // Serial.print("\t");
     // Serial.print("AccZ:");
     // Serial.print(_inertialSensor.getCalibAccelZ());
-    Logger::update_accelerometer(_inertialSensor.getCalibAccelX(),
+    _logger.update_accelerometer(_inertialSensor.getCalibAccelX(),
                                  _inertialSensor.getCalibAccelY(),
                                  _inertialSensor.getCalibAccelZ());
 }
@@ -77,7 +76,7 @@ void Copter::check_takeoff()
         is_flying = true;
         _attitudeController.set_integrator(is_flying);
         _verticalVelocityController.set_integrator(is_flying);
-        Logger::update_flying(is_flying);
+        _logger.update_flying(is_flying);
     }
     if (_rc.get_throttle_in_pwm() < 1050)
     {
@@ -86,7 +85,7 @@ void Copter::check_takeoff()
         _verticalVelocityController.set_integrator(is_flying);
         _attitudeController.reset();
         _verticalVelocityController.reset();
-        Logger::update_flying(is_flying);
+        _logger.update_flying(is_flying);
     }
 }
 
@@ -120,7 +119,7 @@ void Copter::run_main_controller()
     // Serial.print("Altitude:");
     // Serial.print(_verticalEstimator.get_estimated_altitude_in_cm());
 
-    Logger::update_vertical(_verticalEstimator.get_estimated_vertical_velocity(),
+    _logger.update_vertical(_verticalEstimator.get_estimated_vertical_velocity(),
                             _verticalEstimator.get_estimated_altitude_in_cm());
 
     float roll_command = _attitudeController.get_roll_command();
@@ -131,19 +130,20 @@ void Copter::run_main_controller()
     float throttle_command = _rc.get_throttle_in_pwm();
 
     _motors.set_command_inputs(throttle_command, roll_command, pitch_command, yaw_command);
-    Logger::update_commands(roll_command, pitch_command, yaw_command, throttle_command, hover_command);
+    _logger.update_commands(roll_command, pitch_command, yaw_command, throttle_command, hover_command);
 }
 
 void Copter::run_motors()
 {
     _motors.update_outputs();
     _motors.write_to_motors();
+    _motors.write_logs();
 }
 
 void Copter::run_battery_monitor()
 {
     _battMonitor.monitor();
-    Logger::update_voltage(_battMonitor.voltage());
+    _logger.update_voltage(_battMonitor.voltage());
     // Serial.print("\t");
     // Serial.print("voltage:");
     // Serial.print(_battMonitor.voltage());
@@ -273,7 +273,7 @@ void Copter::check_motors_arming()
     }
 
     uint16_t yaw_in_pwm = _rc.get_yaw_in_pwm();
-    if (yaw_in_pwm >= 1995)
+    if (yaw_in_pwm >= 1992)
     {
         if (_arming_counter < ARM_DELAY)
         {
@@ -293,7 +293,7 @@ void Copter::check_motors_arming()
             }
         }
     }
-    else if (yaw_in_pwm <= 1005)
+    else if (yaw_in_pwm <= 1008)
     {
         if (_arming_counter <= DISARM_DELAY)
         {
@@ -335,15 +335,10 @@ void Copter::update_notifier()
 
 void Copter::update_logging()
 {
-    Logger::log_data();
+    _logger.update_logging();
+}
 
-    if (_motors.is_armed())
-    {
-        return;
-    }
-
-    if (_rc.get_aux_4_in_pwm() >= RC_AUX_CHANNEL_HIGH_VALUE)
-    {
-        Logger::dump_logs();
-    }
+void Copter::flush_log_to_sd()
+{
+    _logger.flush_log_to_sd();
 }

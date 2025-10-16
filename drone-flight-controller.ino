@@ -19,6 +19,7 @@
 #include "src/Notify/ToneAlarm.h"
 #include "src/Notify/LEDIndicator.h"
 #include "src/Notify/StatusNotifier.h"
+#include "src/Logger/Logger.h"
 
 #define WIRE_CLK_FREQ 400000 // 400Khz
 #define SERIAL_BAUD_RATE 57600
@@ -49,6 +50,7 @@ ToneAlarm toneAlarm(buzzer);
 LEDDriver led;
 LEDIndicator ledIndicator(led);
 StatusNotifier notifier(toneAlarm, ledIndicator);
+Logger &logger = Logger::get_singleton();
 
 Copter copter(
     rc,
@@ -61,7 +63,8 @@ Copter copter(
     attitudeController,
     verticalEstimator,
     verticalVelocityController,
-    notifier);
+    notifier,
+    logger);
 
 Copter::Task Copter::tasks[] = {
     {"read_rc", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::read_rc_channels)},
@@ -74,7 +77,7 @@ Copter::Task Copter::tasks[] = {
     {"check_motors_arming", HZ_TO_US(10), 0, Functor<Copter>(&copter, &Copter::check_motors_arming)},
     {"run_tone_alarm", HZ_TO_US(50), 0, Functor<Copter>(&copter, &Copter::run_notifier)},
     {"update_logging", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::update_logging)},
-};
+    {"flush_logging", HZ_TO_US(50), 0, Functor<Copter>(&copter, &Copter::flush_log_to_sd)}};
 
 const int Copter::NUM_TASKS = sizeof(tasks) / sizeof(Task);
 

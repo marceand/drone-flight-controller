@@ -2,6 +2,7 @@
 #include "Axis.h"
 #include <Wire.h>
 #include "../Notify/StatusNotifier.h"
+#include "../Logger/Logger.h"
 
 #define MAX_THROTTLE 1999
 #define IDLE_THROTTLE 1180
@@ -159,6 +160,15 @@ void Motors::set_motor_stop_throttle()
 void Motors::write_to_motors()
 {
     _escOutput.write_pwm_outputs();
+}
+
+void Motors::write_logs()
+{
+    Logger::get_singleton().update_motors(
+        _motor_outputs[0],
+        _motor_outputs[1],
+        _motor_outputs[2],
+        _motor_outputs[3]);
 }
 
 void Motors::set_throttle_radio(float throttle_input)

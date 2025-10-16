@@ -12,6 +12,7 @@
 #include "Vertical/VerticalVelocityController.h"
 #include "Functor.h"
 #include "Notify/StatusNotifier.h"
+#include "Logger/Logger.h"
 
 class Copter
 {
@@ -26,17 +27,19 @@ public:
            AttitudeController &attitudeController,
            VerticalEstimator &verticalEstimator,
            VerticalVelocityController &verticalVelocityController,
-           StatusNotifier &notifier) : _rc(rc),
-                                       _inertialSensor(inertialSensor),
-                                       _battMonitor(battMonitor),
-                                       _motors(motors),
-                                       _storage(storage),
-                                       _barometer(barometer),
-                                       _attitudeEstimator(attitudeEstimator),
-                                       _attitudeController(attitudeController),
-                                       _verticalEstimator(verticalEstimator),
-                                       _verticalVelocityController(verticalVelocityController),
-                                       _notifier(notifier)
+           StatusNotifier &notifier,
+           Logger &logger) : _rc(rc),
+                             _inertialSensor(inertialSensor),
+                             _battMonitor(battMonitor),
+                             _motors(motors),
+                             _storage(storage),
+                             _barometer(barometer),
+                             _attitudeEstimator(attitudeEstimator),
+                             _attitudeController(attitudeController),
+                             _verticalEstimator(verticalEstimator),
+                             _verticalVelocityController(verticalVelocityController),
+                             _notifier(notifier),
+                             _logger(logger)
 
     {
     }
@@ -65,6 +68,7 @@ private:
     VerticalEstimator &_verticalEstimator;
     VerticalVelocityController &_verticalVelocityController;
     StatusNotifier &_notifier;
+    Logger &_logger;
 
     int _arming_counter = 0;
     bool is_flying = false;
@@ -88,4 +92,5 @@ private:
     // void check_disarming();
     void update_notifier();
     void update_logging();
+    void flush_log_to_sd();
 };

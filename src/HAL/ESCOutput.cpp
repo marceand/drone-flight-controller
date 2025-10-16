@@ -1,6 +1,5 @@
 #include "ESCOutput.h"
 #include <Arduino.h>
-#include "../Log/Logger.h"
 
 void ESCOutput::init()
 {
@@ -37,11 +36,6 @@ void ESCOutput::write_pwm_outputs()
     {
         analogWrite(escChannels[i].pin, escChannels[i].scaled_pwm_value);
     }
-
-    Logger::update_motors(escChannels[0].pwm_value,
-                          escChannels[1].pwm_value,
-                          escChannels[2].pwm_value,
-                          escChannels[3].pwm_value);
     // Serial.print("\t");
     // Serial.print("M1:");
     // Serial.print(escChannels[0].pwm_value);
