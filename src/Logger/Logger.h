@@ -20,7 +20,7 @@ public:
 
     struct LogEntry
     {
-        uint32_t t_ms = 0;
+        uint32_t time_us = 0;
         uint16_t throttle = 0;
         float acc_x = 0.0f, acc_y = 0.0f, acc_z = 0.0f;
         float vertical_velocity = 0.0f;

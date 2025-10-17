@@ -56,7 +56,7 @@ void Logger::update_logging()
     }
 
     LogEntry entry = current;
-    entry.t_ms = micros();
+    entry.time_us = micros();
 
     push_log(entry);
 }
