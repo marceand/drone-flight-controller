@@ -34,7 +34,7 @@ float RC_Channels::compute_desired_velocity(uint16_t input_in_pwm)
 
 bool RC_Channels::is_motor_emergency(uint16_t aux_1, uint16_t aux_2)
 {
-    return (aux_1 >= RC_AUX_CHANNEL_HIGH_VALUE) && (aux_2 >= RC_AUX_CHANNEL_HIGH_VALUE);
+    return (_pwm_channels.aux_4 >= RC_MAX_CHANNEL_VALUE - 1) || ((aux_1 >= RC_AUX_CHANNEL_HIGH_VALUE) && (aux_2 >= RC_AUX_CHANNEL_HIGH_VALUE));
 }
 
 void RC_Channels::init()
@@ -44,6 +44,8 @@ void RC_Channels::init()
 
 void RC_Channels::read()
 {
+    const uint32_t now_ms = millis();
+
     if (_sbus_rx.Read())
     {
         bfs::SbusData data = _sbus_rx.data();
@@ -65,5 +67,26 @@ void RC_Channels::read()
         _pwm_channels.aux_2 = constrain(aux_2, RC_MIN_CHANNEL_VALUE, RC_MAX_CHANNEL_VALUE);
         _pwm_channels.aux_3 = constrain(aux_3, RC_MIN_CHANNEL_VALUE, RC_MAX_CHANNEL_VALUE);
         _pwm_channels.aux_4 = constrain(aux_4, RC_MIN_CHANNEL_VALUE, RC_MAX_CHANNEL_VALUE);
+
+        last_radio_reading_ms = now_ms;
+        has_received_radio_reading = true;
     }
+
+    if (radio_failsafe)
+    {
+        return;
+    }
+
+    if (!has_received_radio_reading)
+    {
+        return;
+    }
+
+    const uint32_t radio_reading_elapsed_ms = now_ms - last_radio_reading_ms;
+    if (radio_reading_elapsed_ms < 1000)
+    {
+        return;
+    }
+
+    radio_failsafe = true;
 }

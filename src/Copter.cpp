@@ -35,12 +35,11 @@ void Copter::read_rc_channels()
     _verticalVelocityController.set_desired_vertical_velocity(_rc.get_desired_vertical_velocity());
     _motors.set_throttle_radio(_rc.get_throttle_in_pwm());
     _motors.set_motor_emergency(_rc.is_motor_emergency());
-    // Serial.print("Time:");
-    // Serial.print(micros());
-    // Serial.print("\t");
-    // Serial.print("Throtle:");
-    // Serial.print(_rc.get_throttle_in_pwm());
-    // Serial.print("\t");
+
+    if (_rc.is_radio_failsafe() && _motors.is_armed())
+    {
+        _motors.setArm(false);
+    }
 
     _logger.update_throttle(_rc.get_throttle_in_pwm());
 }
@@ -126,8 +125,8 @@ void Copter::run_main_controller()
     float pitch_command = _attitudeController.get_pitch_command();
     float yaw_command = _attitudeController.get_yaw_command();
     float hover_command = _verticalVelocityController.get_hover_command();
-    // float throttle_command = _rc.get_mid_throttle() + hover_command;
-    float throttle_command = _rc.get_throttle_in_pwm();
+    float throttle_command = _rc.get_mid_throttle() + hover_command;
+    // float throttle_command = _rc.get_throttle_in_pwm();
 
     _motors.set_command_inputs(throttle_command, roll_command, pitch_command, yaw_command);
     _logger.update_commands(roll_command, pitch_command, yaw_command, throttle_command, hover_command);
