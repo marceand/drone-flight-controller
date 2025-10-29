@@ -25,7 +25,7 @@ public:
     void set_command_inputs(float throttle_command, float roll_command, float pitch_command, float yaw_command);
     void set_esc_calibration_throttle(float throttle);
     void set_motor_sequence_throttle(int sequence, float throttle);
-    void set_motor_stop_throttle();
+    void set_motor_to_stop();
     void write_to_motors();
     void write_logs();
     void set_throttle_radio(float throttle_input);

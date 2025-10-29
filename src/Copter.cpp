@@ -21,10 +21,11 @@ void Copter::init(void)
     _verticalEstimator.set_parameters();
     _verticalVelocityController.set_parameters();
     _battMonitor.init();
-    _logger.init();
+
     check_motors_startup();
     // check_motors_mapping();
     arm_esc_at_minimum();
+    _logger.init();
 }
 
 void Copter::read_rc_channels()
@@ -39,9 +40,24 @@ void Copter::read_rc_channels()
     if (_rc.is_radio_failsafe() && _motors.is_armed())
     {
         _motors.setArm(false);
+        _logger.update_radio_failsafe(true);
     }
 
-    _logger.update_throttle(_rc.get_throttle_in_pwm());
+    // Serial.print("Time:");
+    // Serial.print(micros());
+    // Serial.print("\t");
+    // Serial.print("Throtle:");
+    // Serial.println(_rc.get_throttle_in_pwm());
+    // Serial.print("\t");
+    _logger.update_desired_angles(_rc.get_desired_roll_angle(),
+                                  _rc.get_desired_pitch_angle());
+    _logger.update_desired_rates(_rc.get_desired_yaw_rate());
+    _logger.update_desired_vertical_velocity(_rc.get_desired_vertical_velocity());
+    _logger.update_rc_inputs(_rc.get_throttle_in_pwm(),
+                             _rc.get_roll_in_pwm(),
+                             _rc.get_pitch_in_pwm(),
+                             _rc.get_yaw_in_pwm());
+    _logger.update_motor_emergency(_rc.is_motor_emergency());
 }
 
 void Copter::read_inertial_sensor()
@@ -58,6 +74,9 @@ void Copter::read_inertial_sensor()
     // Serial.print("\t");
     // Serial.print("AccZ:");
     // Serial.print(_inertialSensor.getCalibAccelZ());
+    _logger.update_gyro(_inertialSensor.getCalibGyroX(),
+                        _inertialSensor.getCalibGyroY(),
+                        _inertialSensor.getCalibGyroZ());
     _logger.update_accelerometer(_inertialSensor.getCalibAccelX(),
                                  _inertialSensor.getCalibAccelY(),
                                  _inertialSensor.getCalibAccelZ());
@@ -70,7 +89,7 @@ void Copter::read_barometer()
 
 void Copter::check_takeoff()
 {
-    if (!is_flying && (_rc.get_throttle_in_pwm() > 1550 || _verticalEstimator.get_estimated_vertical_velocity() > 30.0))
+    if (!is_flying && _motors.is_armed() && ((_rc.get_throttle_in_pwm() > 1550) || (_verticalEstimator.get_estimated_vertical_velocity() > 30.0)))
     {
         is_flying = true;
         _attitudeController.set_integrator(is_flying);
@@ -118,9 +137,6 @@ void Copter::run_main_controller()
     // Serial.print("Altitude:");
     // Serial.print(_verticalEstimator.get_estimated_altitude_in_cm());
 
-    _logger.update_vertical(_verticalEstimator.get_estimated_vertical_velocity(),
-                            _verticalEstimator.get_estimated_altitude_in_cm());
-
     float roll_command = _attitudeController.get_roll_command();
     float pitch_command = _attitudeController.get_pitch_command();
     float yaw_command = _attitudeController.get_yaw_command();
@@ -129,7 +145,11 @@ void Copter::run_main_controller()
     // float throttle_command = _rc.get_throttle_in_pwm();
 
     _motors.set_command_inputs(throttle_command, roll_command, pitch_command, yaw_command);
-    _logger.update_commands(roll_command, pitch_command, yaw_command, throttle_command, hover_command);
+
+    _logger.update_estimated_angles(_attitudeEstimator.get_estimated_roll(), _attitudeEstimator.get_estimated_pitch());
+    _logger.update_vertical(_verticalEstimator.get_estimated_vertical_velocity(),
+                            _verticalEstimator.get_estimated_altitude_in_cm());
+    _logger.update_commands(throttle_command, roll_command, pitch_command, yaw_command, hover_command);
 }
 
 void Copter::run_motors()
@@ -142,7 +162,7 @@ void Copter::run_motors()
 void Copter::run_battery_monitor()
 {
     _battMonitor.monitor();
-    _logger.update_voltage(_battMonitor.voltage());
+    _logger.update_voltage_current(_battMonitor.voltage(), _battMonitor.current());
     // Serial.print("\t");
     // Serial.print("voltage:");
     // Serial.print(_battMonitor.voltage());
@@ -234,7 +254,7 @@ void Copter::check_motors_mapping()
             }
             else
             {
-                _motors.set_motor_stop_throttle();
+                _motors.set_motor_to_stop();
             }
             _motors.write_to_motors();
             delay(4);
@@ -285,6 +305,7 @@ void Copter::check_motors_arming()
             {
                 _motors.setArm(true);
                 _motors.run_motors_at_minimum();
+                _logger.update_arming(true);
             }
             else
             {
@@ -303,6 +324,7 @@ void Copter::check_motors_arming()
         {
             _motors.run_motors_at_minimum();
             _motors.setArm(false);
+            _logger.update_arming(false);
         }
     }
     else

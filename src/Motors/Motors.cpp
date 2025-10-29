@@ -145,7 +145,7 @@ void Motors::set_motor_sequence_throttle(int sequence, float throttle)
     }
 }
 
-void Motors::set_motor_stop_throttle()
+void Motors::set_motor_to_stop()
 {
     if (is_armed())
     {
@@ -178,6 +178,6 @@ void Motors::set_throttle_radio(float throttle_input)
 
 void Motors::run_motors_at_minimum()
 {
-    set_motor_stop_throttle();
+    set_motor_to_stop();
     write_to_motors();
 }

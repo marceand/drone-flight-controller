@@ -3,6 +3,7 @@
 
 void Logger::init()
 {
+    // Serial.println(sizeof(LogEntry));
     is_sd_card_inserted = false;
 
     if (!sd.begin(SdioConfig(DMA_SDIO)))
@@ -26,7 +27,7 @@ void Logger::init()
         return;
     }
 
-    logFile = sd.open("flight_log.bin", O_WRITE | O_CREAT | O_TRUNC);
+    logFile = sd.open(filename, O_WRITE | O_CREAT | O_TRUNC);
     if (!logFile)
     {
         return;
@@ -55,7 +56,7 @@ void Logger::update_logging()
         return;
     }
 
-    LogEntry entry = current;
+    LogEntry entry = log_entry;
     entry.time_us = micros();
 
     push_log(entry);
@@ -91,47 +92,95 @@ void Logger::flush_log_to_sd()
     }
 }
 
-void Logger::update_throttle(uint16_t throttle)
+void Logger::update_rc_inputs(uint16_t rc_throttle, uint16_t rc_roll, uint16_t rc_pitch, uint16_t rc_yaw)
 {
-    current.throttle = throttle;
+    log_entry.rc_throttle = rc_throttle;
+    log_entry.rc_roll = rc_roll;
+    log_entry.rc_pitch = rc_pitch;
+    log_entry.rc_yaw = rc_yaw;
+}
+
+void Logger::update_desired_angles(float desired_roll_angle, float desired_pitch_angle)
+{
+    log_entry.desired_roll_angle = desired_roll_angle;
+    log_entry.desired_pitch_angle = desired_pitch_angle;
+}
+
+void Logger::update_desired_rates(float desired_yaw_rate)
+{
+    log_entry.desired_yaw_rate = desired_yaw_rate;
+}
+
+void Logger::update_desired_vertical_velocity(float desired_vertical_velocity)
+{
+    log_entry.desired_vertical_velocity = desired_vertical_velocity;
+}
+
+void Logger::update_gyro(float gx, float gy, float gz)
+{
+    log_entry.gyro_x = gx;
+    log_entry.gyro_y = gy;
+    log_entry.gyro_z = gz;
 }
 
 void Logger::update_accelerometer(float ax, float ay, float az)
 {
-    current.acc_x = ax;
-    current.acc_y = ay;
-    current.acc_z = az;
+    log_entry.acc_x = ax;
+    log_entry.acc_y = ay;
+    log_entry.acc_z = az;
+}
+
+void Logger::update_estimated_angles(float estimated_roll, float estimated_pitch)
+{
+    log_entry.estimated_roll_angle = estimated_roll;
+    log_entry.estimated_pitch_angle = estimated_pitch;
 }
 
 void Logger::update_vertical(float vz, float alt)
 {
-    current.vertical_velocity = vz;
-    current.altitude = alt;
+    log_entry.vertical_velocity = vz;
+    log_entry.altitude = alt;
 }
 
-void Logger::update_voltage(float voltage)
+void Logger::update_voltage_current(float voltage, float current)
 {
-    current.voltage = voltage;
+    log_entry.voltage = voltage;
+    log_entry.current = current;
 }
 
 void Logger::update_motors(float m1, float m2, float m3, float m4)
 {
-    current.m1 = m1;
-    current.m2 = m2;
-    current.m3 = m3;
-    current.m4 = m4;
+    log_entry.m1 = m1;
+    log_entry.m2 = m2;
+    log_entry.m3 = m3;
+    log_entry.m4 = m4;
 }
 
-void Logger::update_commands(float roll, float pitch, float yaw, float throttle, float hover)
+void Logger::update_commands(float throttle, float roll, float pitch, float yaw, float hover)
 {
-    current.cmd_roll = roll;
-    current.cmd_pitch = pitch;
-    current.cmd_yaw = yaw;
-    current.cmd_throttle = throttle;
-    current.cmd_hover = hover;
+    log_entry.cmd_throttle = throttle;
+    log_entry.cmd_roll = roll;
+    log_entry.cmd_pitch = pitch;
+    log_entry.cmd_yaw = yaw;
+    log_entry.cmd_hover = hover;
 }
 
 void Logger::update_flying(uint8_t flying)
 {
-    current.is_flying = flying;
+    log_entry.is_flying = flying;
+}
+
+void Logger::update_arming(uint8_t arm)
+{
+    log_entry.is_armed = arm;
+}
+
+void Logger::update_radio_failsafe(uint8_t radio_failsafe)
+{
+    log_entry.is_radio_failsafe = radio_failsafe;
+}
+
+void Logger::update_motor_emergency(uint8_t motor_emergency)
+{
+    log_entry.is_motor_emergency = motor_emergency;
 }
