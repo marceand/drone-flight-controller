@@ -48,7 +48,7 @@ public:
     float get_mid_throttle() { return RC_MID_CHANNEL_VALUE; }
     float get_desired_roll_rate() { return compute_desired_rate(_pwm_channels.roll); }
     float get_desired_pitch_rate() { return compute_desired_rate(_pwm_channels.pitch); }
-    float get_desired_yaw_rate() { return -1.0 * compute_desired_rate(_pwm_channels.yaw); }
+    float get_desired_yaw_rate() { return -1.0 * compute_yaw_desired_rate(_pwm_channels.yaw); }
     float get_desired_roll_angle() { return compute_desired_angle(_pwm_channels.roll); }
     float get_desired_pitch_angle() { return compute_desired_angle(_pwm_channels.pitch); }
     float get_desired_vertical_velocity() { return compute_desired_velocity(_pwm_channels.throttle); }
@@ -82,6 +82,7 @@ private:
     uint32_t last_radio_reading_ms;
     uint16_t map_sbus_to_pwm(uint16_t sbus_value);
     float compute_desired_rate(uint16_t input_in_pwm);
+    float compute_yaw_desired_rate(uint16_t input_in_pwm);
     float compute_desired_angle(uint16_t input_in_pwm);
     float compute_desired_velocity(uint16_t input_in_pwm);
     bool is_motor_emergency(uint16_t aux_1, uint16_t aux_2);

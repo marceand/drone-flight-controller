@@ -23,8 +23,8 @@ void Copter::init(void)
     _battMonitor.init();
 
     check_motors_startup();
-    // check_motors_mapping();
-    arm_esc_at_minimum();
+    //  check_motors_mapping();
+    // arm_esc_at_minimum();
     _logger.init();
 }
 
@@ -89,7 +89,9 @@ void Copter::read_barometer()
 
 void Copter::check_takeoff()
 {
-    if (!is_flying && _motors.is_armed() && ((_rc.get_throttle_in_pwm() > 1550) || (_verticalEstimator.get_estimated_vertical_velocity() > 30.0)))
+    // if (!is_flying && _motors.is_armed() && ((_rc.get_throttle_in_pwm() > 1550) || (_verticalEstimator.get_estimated_vertical_velocity() > 30.0)))
+
+    if (!is_flying && _motors.is_armed() && ((_rc.get_throttle_in_pwm() > 1650) || (_verticalEstimator.get_estimated_vertical_velocity() > 30.0)))
     {
         is_flying = true;
         _attitudeController.set_integrator(is_flying);
@@ -141,10 +143,11 @@ void Copter::run_main_controller()
     float pitch_command = _attitudeController.get_pitch_command();
     float yaw_command = _attitudeController.get_yaw_command();
     float hover_command = _verticalVelocityController.get_hover_command();
-    float throttle_command = _rc.get_mid_throttle() + hover_command;
-    // float throttle_command = _rc.get_throttle_in_pwm();
+    // float throttle_command = _rc.get_mid_throttle() + hover_command;
+    float throttle_command = _rc.get_throttle_in_pwm();
 
-    _motors.set_command_inputs(throttle_command, roll_command, pitch_command, yaw_command);
+    _motors.set_command_inputs(throttle_command, 0.0f, 0.0f, 0.0f);
+    //_motors.set_command_inputs(throttle_command, roll_command, pitch_command, yaw_command);
 
     _logger.update_estimated_angles(_attitudeEstimator.get_estimated_roll(), _attitudeEstimator.get_estimated_pitch());
     _logger.update_vertical(_verticalEstimator.get_estimated_vertical_velocity(),
@@ -171,7 +174,7 @@ void Copter::run_battery_monitor()
 void Copter::check_esc_calibration()
 {
     uint8_t i = 0;
-    while (i++ < 2)
+    while (i++ < 4)
     {
         _rc.read();
         delay(20); // From test, the 20ms delay is enough for capturing the radio reading

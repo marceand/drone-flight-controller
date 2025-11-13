@@ -11,14 +11,41 @@ void AttitudeController::reset()
 
 void AttitudeController::set_parameters()
 {
+    // first test
     _angleRollPID.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
     _anglePitchPID.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
     _rateRollPID.setParameters(0.6, 3.5, 0.03, 0.004, 400, 400);
     _ratePitchPID.setParameters(0.6, 3.5, 0.03, 0.004, 400, 400);
-    //_rateYawPID.setParameters(0.5, 0.05, 0, 0.004, 400, 400);
-    _rateYawPID.setParameters(0.180f, 0.018f, 0, 0.004, 400, 400);
+    _rateYawPID.setParameters(2, 12, 0, 0.004, 400, 400);
 
-    //_rateYawPID.setParameters(2.4, 11.3, 0, 0.004, 400, 400);
+    // I tried this set
+    // _angleRollPID.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
+    // _anglePitchPID.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
+    // _rateRollPID.setParameters(0.5, 3.5, 0.03, 0.004, 400, 400);
+    // _ratePitchPID.setParameters(0.5, 3.5, 0.03, 0.004, 400, 400);
+
+    //_rateYawPID.setParameters(0.5, 0.05, 0, 0.004, 400, 400); // already tried
+    //_rateYawPID.setParameters(1.2, 11.3, 0, 0.004, 400, 400);  // already tried
+    //_rateYawPID.setParameters(0.180f, 0.018f, 0, 0.004, 400, 400); // already tried
+
+    //_rateYawPID.setParameters(0.180f, 0.018f, 0, 0.004, 400, 400); // already tried
+    //_rateYawPID.setParameters(0.198f, 0.018f, 0, 0.004, 400, 400); // already tried
+    //_rateYawPID.setParameters(0.218f, 0.018f, 0, 0.004, 400, 400); // already tried
+    // _rateYawPID.setParameters(0.240f, 0.018f, 0, 0.004, 400, 400); // already tried
+    // _rateYawPID.setParameters(0.265f, 0.018f, 0, 0.004, 400, 400); // already tried
+    // _rateYawPID.setParameters(0.425f, 0.018f, 0, 0.004, 400, 400); // already tried
+    //_rateYawPID.setParameters(0.513f, 0.018f, 0, 0.004, 400, 400); // already tried
+    // _rateYawPID.setParameters(0.825f, 0.018f, 0, 0.004, 400, 400); // already tried
+    // _rateYawPID.setParameters(0.997f, 0.018f, 0, 0.004, 400, 400); // already tried
+    //_rateYawPID.setParameters(1.325f, 0.018f, 0, 0.004, 400, 400); // already tried
+    //_rateYawPID.setParameters(1.762f, 0.018f, 0, 0.004, 400, 400); // already tried
+
+    // second test
+    // _angleRollPID.setParameters(1.6, 0.0, 0.0, 0.004, 400, 400);
+    // _anglePitchPID.setParameters(1.6, 0.0, 0.0, 0.004, 400, 400);
+    // _rateRollPID.setParameters(0.4, 3.2, 0.03, 0.004, 400, 400);
+    // _ratePitchPID.setParameters(0.4, 3.2, 0.03, 0.004, 400, 400);
+    // _rateYawPID.setParameters(0.180f, 0.018f, 0, 0.004, 400, 400);
 }
 
 void AttitudeController::set_integrator(bool enable)
