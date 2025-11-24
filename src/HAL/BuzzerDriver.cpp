@@ -20,5 +20,5 @@ void BuzzerDriver::start_tone(uint16_t frequency)
 
 void BuzzerDriver::stop_tone()
 {
-    analogWrite(BUZZER_PIN, 0); // 50% duty
+    analogWrite(BUZZER_PIN, 0);
 }

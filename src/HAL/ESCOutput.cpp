@@ -14,6 +14,11 @@ void ESCOutput::init()
         analogWriteFrequency(escChannels[i].pin, 250);
     }
     analogWriteResolution(12);
+
+    // M1.attach(1, 1000, 2000);
+    // M2.attach(2, 1000, 2000);
+    // M3.attach(3, 1000, 2000);
+    // M4.attach(4, 1000, 2000);
 }
 
 float ESCOutput::scale_ouput(float pwm)
@@ -32,10 +37,17 @@ void ESCOutput::set_pwm_value(int index, float pwm)
 
 void ESCOutput::write_pwm_outputs()
 {
+
+    // M1.write(us_to_deg(escChannels[0].pwm_value));
+    // M2.write(us_to_deg(escChannels[1].pwm_value));
+    // M3.write(us_to_deg(escChannels[2].pwm_value));
+    // M4.write(us_to_deg(escChannels[3].pwm_value));
+
     for (int i = 0; i < NUM_ESC_CHANNELS; i++)
     {
         analogWrite(escChannels[i].pin, escChannels[i].scaled_pwm_value);
     }
+
     // Serial.print("\t");
     // Serial.print("M1:");
     // Serial.print(escChannels[0].pwm_value);
@@ -48,4 +60,13 @@ void ESCOutput::write_pwm_outputs()
     // Serial.print("\t");
     // Serial.print("M4:");
     // Serial.println(escChannels[3].pwm_value);
+}
+
+int ESCOutput::us_to_deg(int us)
+{
+    if (us < 1000)
+        us = 1000;
+    if (us > 2000)
+        us = 2000;
+    return (us - 1000) * 0.18f; // convert to 0–180 degrees
 }

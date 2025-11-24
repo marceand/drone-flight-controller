@@ -20,10 +20,11 @@ public:
     void reset();
     void set_parameters();
     void set_integrator(bool enable);
-    void set_desired_yaw_rate(float yaw_rate);
+    void set_desired_rates(float roll_rate, float pitch_rate, float yaw_rate);
     void set_measured_rates(float roll_rate, float pitch_rate, float yaw_rate);
     void set_desired_angles(float roll_angle, float pitch_angle);
-    void update(float roll_angle_estimated, float pitch_angle_estimated);
+    void update_rate_controller();
+    void update_angle_controller(float roll_angle_estimated, float pitch_angle_estimated);
     float get_roll_command()
     {
         return _roll_command;

@@ -22,7 +22,7 @@ float RC_Channels::compute_desired_rate(uint16_t input_in_pwm)
     return DESIRED_GYRO_FACTOR * (input_in_pwm - RC_MID_CHANNEL_VALUE);
 }
 
-float RC_Channels::compute_yaw_desired_rate(uint16_t input_in_pwm)
+float RC_Channels::compute_expo_desired_rate(uint16_t input_in_pwm)
 {
     float expo = 0.3;
     float stick = (input_in_pwm - get_mid_throttle()) / 500.0f;
@@ -77,25 +77,25 @@ void RC_Channels::read()
         _pwm_channels.aux_3 = constrain(aux_3, RC_MIN_CHANNEL_VALUE, RC_MAX_CHANNEL_VALUE);
         _pwm_channels.aux_4 = constrain(aux_4, RC_MIN_CHANNEL_VALUE, RC_MAX_CHANNEL_VALUE);
 
-        last_radio_reading_ms = now_ms;
-        has_received_radio_reading = true;
+        _last_radio_reading_ms = now_ms;
+        _has_received_radio_reading = true;
     }
 
-    if (radio_failsafe)
+    if (_radio_failsafe)
     {
         return;
     }
 
-    if (!has_received_radio_reading)
+    if (!_has_received_radio_reading)
     {
         return;
     }
 
-    const uint32_t radio_reading_elapsed_ms = now_ms - last_radio_reading_ms;
+    const uint32_t radio_reading_elapsed_ms = now_ms - _last_radio_reading_ms;
     if (radio_reading_elapsed_ms < 1000)
     {
         return;
     }
 
-    radio_failsafe = true;
+    _radio_failsafe = true;
 }

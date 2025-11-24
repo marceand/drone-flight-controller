@@ -2,8 +2,8 @@
 #include <Wire.h>
 
 #define ESC_CALIBRATION_HIGH_THROTTLE 1800
-#define MOTORS_MINIMUM_STARTUP_THROTTLE 1015
-// #define MOTORS_MINIMUM_STARTUP_THROTTLE 1050
+// #define MOTORS_MINIMUM_STARTUP_THROTTLE 1015
+#define MOTORS_MINIMUM_STARTUP_THROTTLE 1148
 #define ARM_DELAY 20    // called at 10hz so 2 seconds
 #define DISARM_DELAY 20 // called at 10hz so 2 seconds
 
@@ -23,8 +23,8 @@ void Copter::init(void)
     _battMonitor.init();
 
     check_motors_startup();
-    //  check_motors_mapping();
-    // arm_esc_at_minimum();
+    //   check_motors_mapping();
+    //  arm_esc_at_minimum();
     _logger.init();
 }
 
@@ -32,7 +32,7 @@ void Copter::read_rc_channels()
 {
     _rc.read();
     _attitudeController.set_desired_angles(_rc.get_desired_roll_angle(), _rc.get_desired_pitch_angle());
-    _attitudeController.set_desired_yaw_rate(_rc.get_desired_yaw_rate());
+    _attitudeController.set_desired_rates(_rc.get_desired_roll_rate(), _rc.get_desired_pitch_rate(), _rc.get_desired_yaw_rate());
     _verticalVelocityController.set_desired_vertical_velocity(_rc.get_desired_vertical_velocity());
     _motors.set_throttle_radio(_rc.get_throttle_in_pwm());
     _motors.set_motor_emergency(_rc.is_motor_emergency());
@@ -47,8 +47,30 @@ void Copter::read_rc_channels()
     // Serial.print(micros());
     // Serial.print("\t");
     // Serial.print("Throtle:");
-    // Serial.println(_rc.get_throttle_in_pwm());
+    // Serial.print(_rc.get_throttle_in_pwm());
     // Serial.print("\t");
+    // Serial.print("Yaw:");
+    // Serial.print(_rc.get_yaw_in_pwm());
+    // Serial.print("\t");
+    // Serial.print("Roll:");
+    // Serial.print(_rc.get_roll_in_pwm());
+    // Serial.print("\t");
+    // Serial.print("Pitch:");
+    // Serial.println(_rc.get_pitch_in_pwm());
+    // Serial.print("\t");
+
+    // Serial.print("VerticalVelocity:");
+    // Serial.print(_rc.get_desired_vertical_velocity());
+    // Serial.print("\t");
+    // Serial.print("Yaw-Rate-Desired:");
+    // Serial.print(_rc.get_desired_yaw_rate());
+    // Serial.print("\t");
+    // Serial.print("Roll-Rate-Desired:");
+    // Serial.print(_rc.get_desired_roll_angle());
+    // Serial.print("\t");
+    // Serial.print("Pitch-Rate-Desired:");
+    // Serial.println(_rc.get_desired_pitch_angle());
+
     _logger.update_desired_angles(_rc.get_desired_roll_angle(),
                                   _rc.get_desired_pitch_angle());
     _logger.update_desired_rates(_rc.get_desired_yaw_rate());
@@ -66,14 +88,14 @@ void Copter::read_inertial_sensor()
     _attitudeController.set_measured_rates(_inertialSensor.getCalibGyroX(),
                                            _inertialSensor.getCalibGyroY(),
                                            _inertialSensor.getCalibGyroZ());
-    // Serial.print("AccX:");
-    // Serial.print(_inertialSensor.getCalibAccelX());
+    // Serial.print("GyroX:");
+    // Serial.print(_inertialSensor.getCalibGyroX());
     // Serial.print("\t");
-    // Serial.print("AccY:");
-    // Serial.print(_inertialSensor.getCalibAccelY());
+    // Serial.print("GyroY:");
+    // Serial.print(_inertialSensor.getCalibGyroY());
     // Serial.print("\t");
-    // Serial.print("AccZ:");
-    // Serial.print(_inertialSensor.getCalibAccelZ());
+    // Serial.print("GyroZ:");
+    // Serial.println(_inertialSensor.getCalibGyroZ());
     _logger.update_gyro(_inertialSensor.getCalibGyroX(),
                         _inertialSensor.getCalibGyroY(),
                         _inertialSensor.getCalibGyroZ());
@@ -101,7 +123,7 @@ void Copter::check_takeoff()
     if (_rc.get_throttle_in_pwm() < 1050)
     {
         is_flying = false;
-        _attitudeController.set_integrator(is_flying);
+        _attitudeController.set_integrator(true);
         _verticalVelocityController.set_integrator(is_flying);
         _attitudeController.reset();
         _verticalVelocityController.reset();
@@ -114,23 +136,14 @@ void Copter::run_main_controller()
     _attitudeEstimator.update();
     _verticalEstimator.update();
 
-    _attitudeController.update(_attitudeEstimator.get_estimated_roll(), _attitudeEstimator.get_estimated_pitch());
+    _attitudeController.update_angle_controller(_attitudeEstimator.get_estimated_roll(), _attitudeEstimator.get_estimated_pitch());
     _verticalVelocityController.update(_verticalEstimator.get_estimated_vertical_velocity());
 
     // Serial.print("Roll:");
     // Serial.print(_attitudeEstimator.get_estimated_roll());
     // Serial.print("\t");
     // Serial.print("Pitch:");
-    // Serial.print(_attitudeEstimator.get_estimated_pitch());
-    // Serial.print("\t");
-    // Serial.print("GyroX:");
-    // Serial.print(_inertialSensor.getCalibGyroX());
-    // Serial.print("\t");
-    // Serial.print("GyroY:");
-    // Serial.print(_inertialSensor.getCalibGyroY());
-    // Serial.print("\t");
-    // Serial.print("GyroZ:");
-    // Serial.println(_inertialSensor.getCalibGyroZ());
+    // Serial.println(_attitudeEstimator.get_estimated_pitch());
 
     // Serial.print("\t");
     // Serial.print("Vz:");
@@ -146,8 +159,8 @@ void Copter::run_main_controller()
     // float throttle_command = _rc.get_mid_throttle() + hover_command;
     float throttle_command = _rc.get_throttle_in_pwm();
 
-    _motors.set_command_inputs(throttle_command, 0.0f, 0.0f, 0.0f);
-    //_motors.set_command_inputs(throttle_command, roll_command, pitch_command, yaw_command);
+    //_motors.set_command_inputs(throttle_command, 0.0f, 0.0f, 0.0f);
+    _motors.set_command_inputs(throttle_command, roll_command, pitch_command, yaw_command);
 
     _logger.update_estimated_angles(_attitudeEstimator.get_estimated_roll(), _attitudeEstimator.get_estimated_pitch());
     _logger.update_vertical(_verticalEstimator.get_estimated_vertical_velocity(),
@@ -174,7 +187,7 @@ void Copter::run_battery_monitor()
 void Copter::check_esc_calibration()
 {
     uint8_t i = 0;
-    while (i++ < 4)
+    while ((i++ < 25) && !_rc.has_received_radio_reading())
     {
         _rc.read();
         delay(20); // From test, the 20ms delay is enough for capturing the radio reading
