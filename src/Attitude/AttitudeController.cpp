@@ -14,11 +14,17 @@ void AttitudeController::set_parameters()
     // Test 1: it vibrate or jerk because of saturation
     //  first test, the drone do sudden jerk or oscillate
     //  no yaw now, the yaw pid is working
-    //  _angleRollPID.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
-    //  _anglePitchPID.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
-    //  _rateRollPID.setParameters(0.6, 3.5, 0.03, 0.004, 400, 400);
-    //  _ratePitchPID.setParameters(0.6, 3.5, 0.03, 0.004, 400, 400);
-    //  _rateYawPID.setParameters(2.5, 11.3, 0, 0.004, 400, 400); // cancel yawing
+    // _angleRollPID.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
+    // _anglePitchPID.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
+    // _rateRollPID.setParameters(0.6, 3.5, 0.03, 0.004, 400, 400);
+    // _ratePitchPID.setParameters(0.6, 3.5, 0.03, 0.004, 400, 400);
+    // _rateYawPID.setParameters(2.5, 11.3, 0, 0.004, 400, 400); // cancel yawing
+
+    _angleRollPID.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
+    _anglePitchPID.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
+    _rateRollPID.setParameters(0.62, 1.8, 0.02, 0.004, 400, 400);
+    _ratePitchPID.setParameters(0.62, 1.8, 0.02, 0.004, 400, 400);
+    _rateYawPID.setParameters(0.9, 0.7, 0, 0.004, 400, 400); // cancel yawing
 
     // Test 2: it is not stable, it drift a lot
     // _angleRollPID.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
@@ -28,11 +34,11 @@ void AttitudeController::set_parameters()
     // _rateYawPID.setParameters(2.5, 11.3, 0, 0.004, 400, 400); // cancel yawing
 
     // Test 3:
-    _angleRollPID.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
-    _anglePitchPID.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
-    _rateRollPID.setParameters(0.62, 2.1, 0.008, 0.004, 400, 400);
-    _ratePitchPID.setParameters(0.62, 2.1, 0.008, 0.004, 400, 400);
-    _rateYawPID.setParameters(2.5, 11.3, 0, 0.004, 400, 400); // cancel yawing
+    // _angleRollPID.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
+    // _anglePitchPID.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
+    // _rateRollPID.setParameters(0.62, 2.1, 0.008, 0.004, 400, 400);
+    // _ratePitchPID.setParameters(0.62, 2.1, 0.008, 0.004, 400, 400);
+    // _rateYawPID.setParameters(2.5, 11.3, 0, 0.004, 400, 400); // cancel yawing
 
     //_rateYawPID.setParameters(4, 3, 0, 0.004, 400, 400); // normal yawing
     //_rateYawPID.setParameters(3, 2, 0, 0.004, 400, 400); // still yawing
@@ -98,14 +104,14 @@ void AttitudeController::set_desired_angles(float roll_angle, float pitch_angle)
     _pitch_angle_desired = pitch_angle;
 }
 
-void AttitudeController::update_rate_controller()
+void AttitudeController::update_rate_control()
 {
     _roll_command = _rateRollPID.computePID(_roll_rate_desired, _roll_rate_measured);
     _pitch_command = _ratePitchPID.computePID(_pitch_rate_desired, _pitch_rate_measured);
     _yaw_command = _rateYawPID.computePID(_yaw_rate_desired, _yaw_rate_measured);
 }
 
-void AttitudeController::update_angle_controller(float roll_angle_estimated, float pitch_angle_estimated)
+void AttitudeController::update_angle_control(float roll_angle_estimated, float pitch_angle_estimated)
 {
     float roll_rate_desired_from_pid = _angleRollPID.computePID(_roll_angle_desired, roll_angle_estimated);
     float pitch_rate_desired_from_pid = _anglePitchPID.computePID(_pitch_angle_desired, pitch_angle_estimated);

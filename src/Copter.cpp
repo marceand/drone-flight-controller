@@ -3,9 +3,9 @@
 
 #define ESC_CALIBRATION_HIGH_THROTTLE 1800
 // #define MOTORS_MINIMUM_STARTUP_THROTTLE 1015
-#define MOTORS_MINIMUM_STARTUP_THROTTLE 1148
-#define ARM_DELAY 20    // called at 10hz so 2 seconds
-#define DISARM_DELAY 20 // called at 10hz so 2 seconds
+#define MOTORS_MINIMUM_STARTUP_THROTTLE 1148 // factory esc min
+#define ARM_DELAY 20                         // called at 10hz so 2 seconds
+#define DISARM_DELAY 20                      // called at 10hz so 2 seconds
 
 void Copter::init(void)
 {
@@ -136,7 +136,8 @@ void Copter::run_main_controller()
     _attitudeEstimator.update();
     _verticalEstimator.update();
 
-    _attitudeController.update_angle_controller(_attitudeEstimator.get_estimated_roll(), _attitudeEstimator.get_estimated_pitch());
+    //_attitudeController.update_angle_control(_attitudeEstimator.get_estimated_roll(), _attitudeEstimator.get_estimated_pitch());
+    _attitudeController.update_rate_control();
     _verticalVelocityController.update(_verticalEstimator.get_estimated_vertical_velocity());
 
     // Serial.print("Roll:");
@@ -186,8 +187,10 @@ void Copter::run_battery_monitor()
 
 void Copter::check_esc_calibration()
 {
+
+    // i = 4 was not enough, i = 25 was not enough, i = 50 is not enough, still not reading escape
     uint8_t i = 0;
-    while ((i++ < 25) && !_rc.has_received_radio_reading())
+    while ((i++ < 100) && !_rc.has_received_radio_reading())
     {
         _rc.read();
         delay(20); // From test, the 20ms delay is enough for capturing the radio reading

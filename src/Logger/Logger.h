@@ -37,6 +37,12 @@ public:
         uint8_t is_armed = 0;
         uint8_t is_radio_failsafe = 0;
         uint8_t is_motor_emergency = 0;
+        float roll_rate_kp = 0.0f, roll_rate_ki = 0.0f, roll_rate_kd = 0.0f;
+        float pitch_rate_kp = 0.0f, pitch_rate_ki = 0.0f, pitch_rate_kd = 0.0f;
+        float yaw_rate_kp = 0.0f, yaw_rate_ki = 0.0f, yaw_rate_kd = 0.0f;
+        float roll_angle_kp = 0.0f, roll_angle_ki = 0.0f, roll_angle_kd = 0.0f;
+        float pitch_angle_kp = 0.0f, pitch_angle_ki = 0.0f, pitch_angle_kd = 0.0f;
+        float vertical_velocity_kp = 0.0f, vertical_velocity_ki = 0.0f, vertical_velocity_kd = 0.0f;
     };
 
     void init();
