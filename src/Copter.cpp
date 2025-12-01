@@ -2,10 +2,11 @@
 #include <Wire.h>
 
 #define ESC_CALIBRATION_HIGH_THROTTLE 1800
+#define MOTORS_MINIMUM_STARTUP_THROTTLE 1016
 // #define MOTORS_MINIMUM_STARTUP_THROTTLE 1015
-#define MOTORS_MINIMUM_STARTUP_THROTTLE 1148 // factory esc min
-#define ARM_DELAY 20                         // called at 10hz so 2 seconds
-#define DISARM_DELAY 20                      // called at 10hz so 2 seconds
+// #define MOTORS_MINIMUM_STARTUP_THROTTLE 1148 // factory esc min
+#define ARM_DELAY 20    // called at 10hz so 2 seconds
+#define DISARM_DELAY 20 // called at 10hz so 2 seconds
 
 void Copter::init(void)
 {
@@ -73,7 +74,7 @@ void Copter::read_rc_channels()
 
     _logger.update_desired_angles(_rc.get_desired_roll_angle(),
                                   _rc.get_desired_pitch_angle());
-    _logger.update_desired_rates(_rc.get_desired_yaw_rate());
+    _logger.update_desired_rates(_rc.get_desired_roll_rate(), _rc.get_desired_pitch_rate(), _rc.get_desired_yaw_rate());
     _logger.update_desired_vertical_velocity(_rc.get_desired_vertical_velocity());
     _logger.update_rc_inputs(_rc.get_throttle_in_pwm(),
                              _rc.get_roll_in_pwm(),

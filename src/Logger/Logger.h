@@ -23,7 +23,7 @@ public:
         uint32_t time_us = 0;
         uint16_t rc_throttle = 0, rc_roll = 0, rc_pitch = 0, rc_yaw = 0;
         float desired_roll_angle = 0.0f, desired_pitch_angle = 0.0f;
-        float desired_yaw_rate = 0.0f;
+        float desired_roll_rate = 0.0f, desired_pitch_rate = 0.0f, desired_yaw_rate = 0.0f;
         float desired_vertical_velocity = 0.0f;
         float gyro_x = 0.0f, gyro_y = 0.0f, gyro_z = 0.0f;
         float acc_x = 0.0f, acc_y = 0.0f, acc_z = 0.0f;
@@ -33,16 +33,13 @@ public:
         float voltage = 0.0f, current = 0.0f;
         float cmd_throttle = 0.0f, cmd_roll = 0.0f, cmd_pitch = 0.0f, cmd_yaw = 0.0f, cmd_hover = 0.0f;
         float m1 = 0.0f, m2 = 0.0f, m3 = 0.0f, m4 = 0.0f;
-        uint8_t is_flying = 0;
-        uint8_t is_armed = 0;
-        uint8_t is_radio_failsafe = 0;
-        uint8_t is_motor_emergency = 0;
         float roll_rate_kp = 0.0f, roll_rate_ki = 0.0f, roll_rate_kd = 0.0f;
         float pitch_rate_kp = 0.0f, pitch_rate_ki = 0.0f, pitch_rate_kd = 0.0f;
         float yaw_rate_kp = 0.0f, yaw_rate_ki = 0.0f, yaw_rate_kd = 0.0f;
         float roll_angle_kp = 0.0f, roll_angle_ki = 0.0f, roll_angle_kd = 0.0f;
         float pitch_angle_kp = 0.0f, pitch_angle_ki = 0.0f, pitch_angle_kd = 0.0f;
         float vertical_velocity_kp = 0.0f, vertical_velocity_ki = 0.0f, vertical_velocity_kd = 0.0f;
+        uint8_t is_flying = 0, is_armed = 0, is_radio_failsafe = 0, is_motor_emergency = 0, is_batt_failsafe = 0;
     };
 
     void init();
@@ -50,7 +47,7 @@ public:
     void flush_log_to_sd();
     void update_rc_inputs(uint16_t rc_throttle, uint16_t rc_roll, uint16_t rc_pitch, uint16_t rc_yaw);
     void update_desired_angles(float desired_roll_angle, float desired_pitch_angle);
-    void update_desired_rates(float desired_yaw_rate);
+    void update_desired_rates(float desired_roll_rate, float desired_pitch_rate, float desired_yaw_rate);
     void update_desired_vertical_velocity(float desired_vertical_velocity);
     void update_gyro(float gx, float gy, float gz);
     void update_accelerometer(float ax, float ay, float az);

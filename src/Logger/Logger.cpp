@@ -106,8 +106,10 @@ void Logger::update_desired_angles(float desired_roll_angle, float desired_pitch
     log_entry.desired_pitch_angle = desired_pitch_angle;
 }
 
-void Logger::update_desired_rates(float desired_yaw_rate)
+void Logger::update_desired_rates(float desired_roll_rate, float desired_pitch_rate, float desired_yaw_rate)
 {
+    log_entry.desired_roll_rate = desired_roll_rate;
+    log_entry.desired_pitch_rate = desired_pitch_rate;
     log_entry.desired_yaw_rate = desired_yaw_rate;
 }
 
