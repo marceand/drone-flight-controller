@@ -79,6 +79,7 @@ private:
     void read_inertial_sensor();
     void read_barometer();
     void check_takeoff();
+    void check_pid_reset();
     void run_main_controller();
     void run_motors();
     void run_battery_monitor();

@@ -71,6 +71,7 @@ Copter::Task Copter::tasks[] = {
     {"read_inertial", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::read_inertial_sensor)},
     {"read_barometer", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::read_barometer)},
     {"check_takeoff", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::check_takeoff)},
+    {"check_pid_reset", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::check_pid_reset)},
     {"run_main_controller", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::run_main_controller)},
     {"run_motors", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::run_motors)},
     {"run_batt_monitor", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::run_battery_monitor)},

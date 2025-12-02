@@ -118,9 +118,16 @@ void Copter::check_takeoff()
     if (_rc.get_throttle_in_pwm() < 1050)
     {
         is_flying = false;
+        _logger.update_flying(is_flying);
+    }
+}
+
+void Copter::check_pid_reset()
+{
+    if (_rc.get_throttle_in_pwm() < 1050)
+    {
         _attitudeController.reset();
         _verticalVelocityController.reset();
-        _logger.update_flying(is_flying);
     }
 }
 
