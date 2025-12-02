@@ -2,8 +2,7 @@
 #include <Wire.h>
 
 #define ESC_CALIBRATION_HIGH_THROTTLE 1800
-// #define MOTORS_MINIMUM_STARTUP_THROTTLE 1015
-// #define MOTORS_MINIMUM_STARTUP_THROTTLE 1148 // factory esc min
+#define MOTORS_MINIMUM_STARTUP_THROTTLE 1016
 #define ARM_DELAY 20    // called at 10hz so 2 seconds
 #define DISARM_DELAY 20 // called at 10hz so 2 seconds
 
