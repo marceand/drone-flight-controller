@@ -33,10 +33,6 @@ void CopterPID::reset()
     _lastError = 0.f;
     _lastIntegral = 0.f;
 }
-void CopterPID::set_integrator(bool enable)
-{
-    _integrator_enabled = enable;
-};
 
 float CopterPID::computePID(float desired, float measured)
 {
@@ -52,14 +48,8 @@ float CopterPID::computeProportional(float error)
     return _kP * error;
 }
 
-float CopterPID::computeIntegral(float error, bool integrator_enabled)
+float CopterPID::computeIntegral(float error)
 {
-    if (!integrator_enabled)
-    {
-        _lastIntegral = 0.f;
-        return 0.f;
-    }
-
     float newIntegral = _lastIntegral + _kI * (error + _lastError) * _dt / 2.0f;
     _lastIntegral = constrainOutput(newIntegral, -_limitIntegral, _limitIntegral);
     return _lastIntegral;

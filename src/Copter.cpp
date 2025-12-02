@@ -2,7 +2,6 @@
 #include <Wire.h>
 
 #define ESC_CALIBRATION_HIGH_THROTTLE 1800
-#define MOTORS_MINIMUM_STARTUP_THROTTLE 1016
 // #define MOTORS_MINIMUM_STARTUP_THROTTLE 1015
 // #define MOTORS_MINIMUM_STARTUP_THROTTLE 1148 // factory esc min
 #define ARM_DELAY 20    // called at 10hz so 2 seconds
@@ -112,20 +111,14 @@ void Copter::read_barometer()
 
 void Copter::check_takeoff()
 {
-    // if (!is_flying && _motors.is_armed() && ((_rc.get_throttle_in_pwm() > 1550) || (_verticalEstimator.get_estimated_vertical_velocity() > 30.0)))
-
-    if (!is_flying && _motors.is_armed() && ((_rc.get_throttle_in_pwm() > 1650) || (_verticalEstimator.get_estimated_vertical_velocity() > 30.0)))
+    if (!is_flying && _motors.is_armed() && (_verticalEstimator.get_estimated_vertical_velocity() > 30.0))
     {
         is_flying = true;
-        _attitudeController.set_integrator(is_flying);
-        _verticalVelocityController.set_integrator(is_flying);
         _logger.update_flying(is_flying);
     }
     if (_rc.get_throttle_in_pwm() < 1050)
     {
         is_flying = false;
-        _attitudeController.set_integrator(true);
-        _verticalVelocityController.set_integrator(is_flying);
         _attitudeController.reset();
         _verticalVelocityController.reset();
         _logger.update_flying(is_flying);

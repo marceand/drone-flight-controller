@@ -9,7 +9,6 @@ public:
     }
     void set_parameters();
     void reset();
-    void set_integrator(bool enable);
     void set_desired_vertical_velocity(float vertical_velocity)
     {
         _vertical_velocity_desired = vertical_velocity;

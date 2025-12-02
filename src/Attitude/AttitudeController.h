@@ -19,7 +19,6 @@ public:
     }
     void reset();
     void set_parameters();
-    void set_integrator(bool enable);
     void set_desired_rates(float roll_rate, float pitch_rate, float yaw_rate);
     void set_measured_rates(float roll_rate, float pitch_rate, float yaw_rate);
     void set_desired_angles(float roll_angle, float pitch_angle);

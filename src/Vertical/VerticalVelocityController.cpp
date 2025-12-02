@@ -10,11 +10,6 @@ void VerticalVelocityController::reset()
     _velocityPID.reset();
 }
 
-void VerticalVelocityController::set_integrator(bool enable)
-{
-    _velocityPID.set_integrator(enable);
-}
-
 void VerticalVelocityController::update(float vertical_velocity_estimated)
 {
     _hover_command = _velocityPID.computePID(_vertical_velocity_desired, vertical_velocity_estimated);

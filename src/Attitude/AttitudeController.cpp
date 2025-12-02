@@ -75,15 +75,6 @@ void AttitudeController::set_parameters()
     // _rateYawPID.setParameters(0.180f, 0.018f, 0, 0.004, 400, 400);
 }
 
-void AttitudeController::set_integrator(bool enable)
-{
-    _angleRollPID.set_integrator(enable);
-    _anglePitchPID.set_integrator(enable);
-    _rateRollPID.set_integrator(enable);
-    _ratePitchPID.set_integrator(enable);
-    _rateYawPID.set_integrator(enable);
-}
-
 void AttitudeController::set_desired_rates(float roll_rate, float pitch_rate, float yaw_rate)
 {
     _roll_rate_desired = roll_rate;

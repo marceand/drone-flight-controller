@@ -10,7 +10,6 @@ public:
     void setOutputLimit(float limit);
     void setIntegralLimit(float limit);
     void reset();
-    void set_integrator(bool enable);
     float computePID(float desired, float measured);
 
 private:
@@ -22,9 +21,8 @@ private:
     float _lastIntegral{0.f};
     float _limitOutput{0.f};
     float _limitIntegral{0.f};
-    bool _integrator_enabled = false;
     float computeProportional(float error);
-    float computeIntegral(float error, bool integrator_enabled);
+    float computeIntegral(float error);
     float computerDerivative(float error);
     float constrainOutput(float value, float minValue, float maxValue);
 };
