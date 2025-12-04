@@ -150,14 +150,6 @@ void Logger::update_voltage_current(float voltage, float current)
     log_entry.current = current;
 }
 
-void Logger::update_motors(float m1, float m2, float m3, float m4)
-{
-    log_entry.m1 = m1;
-    log_entry.m2 = m2;
-    log_entry.m3 = m3;
-    log_entry.m4 = m4;
-}
-
 void Logger::update_commands(float throttle, float roll, float pitch, float yaw, float hover)
 {
     log_entry.cmd_throttle = throttle;
@@ -165,6 +157,14 @@ void Logger::update_commands(float throttle, float roll, float pitch, float yaw,
     log_entry.cmd_pitch = pitch;
     log_entry.cmd_yaw = yaw;
     log_entry.cmd_hover = hover;
+}
+
+void Logger::update_motors(float m1, float m2, float m3, float m4)
+{
+    log_entry.m1 = m1;
+    log_entry.m2 = m2;
+    log_entry.m3 = m3;
+    log_entry.m4 = m4;
 }
 
 void Logger::update_flying(uint8_t flying)
@@ -185,4 +185,9 @@ void Logger::update_radio_failsafe(uint8_t radio_failsafe)
 void Logger::update_motor_emergency(uint8_t motor_emergency)
 {
     log_entry.is_motor_emergency = motor_emergency;
+}
+
+void Logger::update_batt_failsafe(uint8_t batt_failsafe)
+{
+    log_entry.is_batt_failsafe = batt_failsafe;
 }

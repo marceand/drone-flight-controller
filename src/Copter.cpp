@@ -15,6 +15,7 @@ void Copter::init(void)
     check_esc_calibration(); // need to call after power on otherwise ESCs calibration time window is missed
     _inertialSensor.init();
     _barometer.init();
+    _logger.init();
     _attitudeEstimator.set_parameters();
     _attitudeController.set_parameters();
     _verticalEstimator.set_parameters();
@@ -24,7 +25,6 @@ void Copter::init(void)
     check_motors_startup();
     //   check_motors_mapping();
     //  arm_esc_at_minimum();
-    _logger.init();
 }
 
 void Copter::read_rc_channels()
@@ -180,6 +180,7 @@ void Copter::run_battery_monitor()
 {
     _battMonitor.monitor();
     _logger.update_voltage_current(_battMonitor.voltage(), _battMonitor.current());
+    _logger.update_batt_failsafe(_battMonitor.is_batt_failsafe());
     // Serial.print("\t");
     // Serial.print("voltage:");
     // Serial.print(_battMonitor.voltage());

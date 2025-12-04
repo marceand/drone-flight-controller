@@ -1,4 +1,25 @@
 #include "AttitudeController.h"
+#include "../Logger/Logger.h"
+
+#define ROLL_ANGLE_KP 2.0f
+#define ROLL_ANGLE_KI 0.0f
+#define ROLL_ANGLE_KD 0.0f
+
+#define PITCH_ANGLE_KP 2.0f
+#define PITCH_ANGLE_KI 0.0f
+#define PITCH_ANGLE_KD 0.0f
+
+#define ROLL_RATE_KP 0.62f
+#define ROLL_RATE_KI 1.8f
+#define ROLL_RATE_KD 0.02f
+
+#define PITCH_RATE_KP 0.62f
+#define PITCH_RATE_KI 1.8f
+#define PITCH_RATE_KD 0.02f
+
+#define YAW_RATE_KP 0.9f
+#define YAW_RATE_KI 0.7f
+#define YAW_RATE_KD 0.0f
 
 void AttitudeController::reset()
 {
@@ -11,6 +32,19 @@ void AttitudeController::reset()
 
 void AttitudeController::set_parameters()
 {
+
+    _angleRollPID.setParameters(ROLL_ANGLE_KP, ROLL_ANGLE_KI, ROLL_ANGLE_KD, 0.004, 400, 400);
+    _anglePitchPID.setParameters(PITCH_ANGLE_KP, PITCH_ANGLE_KI, PITCH_ANGLE_KD, 0.004, 400, 400);
+    _rateRollPID.setParameters(ROLL_RATE_KP, ROLL_RATE_KI, ROLL_RATE_KD, 0.004, 400, 400);
+    _ratePitchPID.setParameters(PITCH_RATE_KP, PITCH_RATE_KI, PITCH_RATE_KD, 0.004, 400, 400);
+    _rateYawPID.setParameters(YAW_RATE_KP, YAW_RATE_KI, YAW_RATE_KD, 0.004, 400, 400); // cancel yawing
+
+    Logger::get_singleton().update_roll_angle_pid_gains(ROLL_ANGLE_KP, ROLL_ANGLE_KI, ROLL_ANGLE_KD);
+    Logger::get_singleton().update_pitch_angle_pid_gains(PITCH_ANGLE_KP, PITCH_ANGLE_KI, PITCH_ANGLE_KD);
+    Logger::get_singleton().update_roll_rate_pid_gains(ROLL_RATE_KP, ROLL_RATE_KI, ROLL_RATE_KD);
+    Logger::get_singleton().update_pitch_rate_pid_gains(PITCH_RATE_KP, PITCH_RATE_KI, PITCH_RATE_KD);
+    Logger::get_singleton().update_yaw_rate_pid_gains(YAW_RATE_KP, YAW_RATE_KI, YAW_RATE_KD);
+
     // Test 1: it vibrate or jerk because of saturation
     //  first test, the drone do sudden jerk or oscillate
     //  no yaw now, the yaw pid is working
@@ -20,11 +54,12 @@ void AttitudeController::set_parameters()
     // _ratePitchPID.setParameters(0.6, 3.5, 0.03, 0.004, 400, 400);
     // _rateYawPID.setParameters(2.5, 11.3, 0, 0.004, 400, 400); // cancel yawing
 
-    _angleRollPID.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
-    _anglePitchPID.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
-    _rateRollPID.setParameters(0.62, 1.8, 0.02, 0.004, 400, 400);
-    _ratePitchPID.setParameters(0.62, 1.8, 0.02, 0.004, 400, 400);
-    _rateYawPID.setParameters(0.9, 0.7, 0, 0.004, 400, 400); // cancel yawing
+    // this work
+    // _angleRollPID.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
+    // _anglePitchPID.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
+    // _rateRollPID.setParameters(0.62, 1.8, 0.02, 0.004, 400, 400);
+    // _ratePitchPID.setParameters(0.62, 1.8, 0.02, 0.004, 400, 400);
+    // _rateYawPID.setParameters(0.9, 0.7, 0, 0.004, 400, 400); // cancel yawing
 
     // Test 2: it is not stable, it drift a lot
     // _angleRollPID.setParameters(2.0, 0.0, 0.0, 0.004, 400, 400);
