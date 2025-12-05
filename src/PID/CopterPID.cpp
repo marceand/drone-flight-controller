@@ -37,7 +37,7 @@ void CopterPID::reset()
 float CopterPID::computePID(float desired, float measured)
 {
     float error = desired - measured;
-    float output = computeProportional(error) + computeIntegral(error, _integrator_enabled) + computerDerivative(error);
+    float output = computeProportional(error) + computeIntegral(error) + computerDerivative(error);
     _lastError = error;
 
     return constrainOutput(output, -_limitOutput, _limitOutput);
