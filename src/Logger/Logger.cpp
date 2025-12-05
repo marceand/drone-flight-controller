@@ -167,6 +167,48 @@ void Logger::update_motors(float m1, float m2, float m3, float m4)
     log_entry.m4 = m4;
 }
 
+void Logger::update_roll_angle_pid_gains(float kp, float ki, float kd)
+{
+    log_entry.roll_angle_kp = kp;
+    log_entry.roll_angle_ki = ki;
+    log_entry.roll_angle_kd = kd;
+}
+
+void Logger::update_pitch_angle_pid_gains(float kp, float ki, float kd)
+{
+    log_entry.pitch_angle_kp = kp;
+    log_entry.pitch_angle_ki = ki;
+    log_entry.pitch_angle_kd = kd;
+}
+
+void Logger::update_roll_rate_pid_gains(float kp, float ki, float kd)
+{
+    log_entry.roll_rate_kp = kp;
+    log_entry.roll_rate_ki = ki;
+    log_entry.roll_rate_kd = kd;
+}
+
+void Logger::update_pitch_rate_pid_gains(float kp, float ki, float kd)
+{
+    log_entry.pitch_rate_kp = kp;
+    log_entry.pitch_rate_ki = ki;
+    log_entry.pitch_rate_kd = kd;
+}
+
+void Logger::update_yaw_rate_pid_gains(float kp, float ki, float kd)
+{
+    log_entry.yaw_rate_kp = kp;
+    log_entry.yaw_rate_ki = ki;
+    log_entry.yaw_rate_kd = kd;
+}
+
+void Logger::update_vertical_velocity_pid_gains(float kp, float ki, float kd)
+{
+    log_entry.vertical_velocity_kp = kp;
+    log_entry.vertical_velocity_ki = ki;
+    log_entry.vertical_velocity_kd = kd;
+}
+
 void Logger::update_flying(uint8_t flying)
 {
     log_entry.is_flying = flying;
