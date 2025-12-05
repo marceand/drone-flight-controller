@@ -17,8 +17,14 @@
 #define PITCH_RATE_KI 1.8f
 #define PITCH_RATE_KD 0.02f
 
+// #define YAW_RATE_KP 0.9f
+// #define YAW_RATE_KI 0.7f
+// #define YAW_RATE_KD 0.0f
+// #define YAW_RATE_KP 1.25f
+// #define YAW_RATE_KI 0.7f
+// #define YAW_RATE_KD 0.0f
 #define YAW_RATE_KP 0.9f
-#define YAW_RATE_KI 0.7f
+#define YAW_RATE_KI 1.25f
 #define YAW_RATE_KD 0.0f
 
 void AttitudeController::reset()
