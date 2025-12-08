@@ -68,7 +68,7 @@ public:
     }
     float get_desired_vertical_velocity()
     {
-        return EXPO_VERTICAL_VELOCITY * compute_input_expo(get_throttle_in_pwm(), EXPO_VERTICAL_VELOCITY);
+        return MAXIMUM_VERTICAL_VELOCITY * compute_input_expo(get_throttle_in_pwm(), EXPO_VERTICAL_VELOCITY);
     }
     bool is_motor_emergency()
     {
