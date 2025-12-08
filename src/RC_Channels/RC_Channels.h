@@ -25,9 +25,12 @@
 #define MIN_SBUS 172
 #define MAX_SBUS 1811
 
-#define DESIRED_GYRO_FACTOR 0.15f
-#define DESIRED_ANGLE_FACTOR 0.10f
-#define DESIRED_VELOCITY_FACTOR 0.3f
+#define MAXIMUM_ANGLE_RATE 75.0f        // degree/s
+#define MAXIMUM_ANGLE 50.0f             // degree
+#define MAXIMUM_VERTICAL_VELOCITY 150.f // cm/s
+#define EXPO_ANGLE_RATE 0.3f
+#define EXPO_ANGLE 0.3f
+#define EXPO_VERTICAL_VELOCITY 0.3f
 
 class RC_Channels
 {
@@ -43,14 +46,38 @@ public:
     uint16_t get_throttle_in_pwm() { return channels[RC_CHANNEL_3].pwm; }
     uint16_t get_yaw_in_pwm() { return channels[RC_CHANNEL_4].pwm; }
     float get_mid_throttle() { return RC_MID_CHANNEL_VALUE; }
-    float get_desired_roll_rate() { return compute_expo_desired_rate(get_roll_in_pwm()); }
-    float get_desired_pitch_rate() { return compute_expo_desired_rate(get_pitch_in_pwm()); }
-    float get_desired_yaw_rate() { return -1.0 * compute_expo_desired_rate(get_yaw_in_pwm()); }
-    float get_desired_roll_angle() { return compute_desired_angle(get_roll_in_pwm()); }
-    float get_desired_pitch_angle() { return compute_desired_angle(get_pitch_in_pwm()); }
-    float get_desired_vertical_velocity() { return compute_desired_velocity(get_throttle_in_pwm()); }
-    bool is_motor_emergency() { return check_motor_emergency(channels[RC_CHANNEL_8].pwm); }
-    bool is_radio_failsafe() { return _radio_failsafe; }
+    float get_desired_roll_rate()
+    {
+        return MAXIMUM_ANGLE_RATE * compute_input_expo(get_roll_in_pwm(), EXPO_ANGLE_RATE);
+    }
+    float get_desired_pitch_rate()
+    {
+        return MAXIMUM_ANGLE_RATE * compute_input_expo(get_pitch_in_pwm(), EXPO_ANGLE_RATE);
+    }
+    float get_desired_yaw_rate()
+    {
+        return -1.0 * MAXIMUM_ANGLE_RATE * compute_input_expo(get_yaw_in_pwm(), EXPO_ANGLE_RATE);
+    }
+    float get_desired_roll_angle()
+    {
+        return MAXIMUM_ANGLE * compute_input_expo(get_roll_in_pwm(), EXPO_ANGLE);
+    }
+    float get_desired_pitch_angle()
+    {
+        return MAXIMUM_ANGLE * compute_input_expo(get_pitch_in_pwm(), EXPO_ANGLE);
+    }
+    float get_desired_vertical_velocity()
+    {
+        return EXPO_VERTICAL_VELOCITY * compute_input_expo(get_throttle_in_pwm(), EXPO_VERTICAL_VELOCITY);
+    }
+    bool is_motor_emergency()
+    {
+        return check_motor_emergency(channels[RC_CHANNEL_8].pwm);
+    }
+    bool is_radio_failsafe()
+    {
+        return _radio_failsafe;
+    }
     bool has_received_radio_reading()
     {
         return _has_received_radio_reading;
@@ -75,9 +102,6 @@ private:
     bool _has_received_radio_reading = false;
     uint32_t _last_radio_reading_ms;
     uint16_t map_sbus_to_pwm(uint16_t sbus_value);
-    float compute_desired_rate(uint16_t input_in_pwm);
-    float compute_expo_desired_rate(uint16_t input_in_pwm);
-    float compute_desired_angle(uint16_t input_in_pwm);
-    float compute_desired_velocity(uint16_t input_in_pwm);
+    float compute_input_expo(uint16_t input_in_pwm, float expo);
     bool check_motor_emergency(uint16_t pwm);
 };
