@@ -43,20 +43,22 @@ void Copter::read_rc_channels()
     }
 
     // Serial.print("Time:");
-    // Serial.print(micros());
-    // Serial.print("\t");
-    // Serial.print("Throtle:");
-    // Serial.print(_rc.get_throttle_in_pwm());
-    // Serial.print("\t");
-    // Serial.print("Yaw:");
-    // Serial.print(_rc.get_yaw_in_pwm());
-    // Serial.print("\t");
-    // Serial.print("Roll:");
-    // Serial.print(_rc.get_roll_in_pwm());
-    // Serial.print("\t");
-    // Serial.print("Pitch:");
-    // Serial.println(_rc.get_pitch_in_pwm());
-    // Serial.print("\t");
+    // Serial.println(micros());
+    //  Serial.print("Time:");
+    //  Serial.print(micros());
+    //  Serial.print("\t");
+    //  Serial.print("Throtle:");
+    //  Serial.print(_rc.get_throttle_in_pwm());
+    //  Serial.print("\t");
+    //  Serial.print("Yaw:");
+    //  Serial.print(_rc.get_yaw_in_pwm());
+    //  Serial.print("\t");
+    //  Serial.print("Roll:");
+    //  Serial.print(_rc.get_roll_in_pwm());
+    //  Serial.print("\t");
+    //  Serial.print("Pitch:");
+    //  Serial.println(_rc.get_pitch_in_pwm());
+    //  Serial.print("\t");
 
     // Serial.print("VerticalVelocity:");
     // Serial.print(_rc.get_desired_vertical_velocity());
