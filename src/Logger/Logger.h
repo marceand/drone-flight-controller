@@ -3,8 +3,7 @@
 #include <Arduino.h>
 #include <SdFat.h>
 
-#define LOG_BUFFER_SIZE 512 // Ring buffer entries
-#define FLUSH_BATCH_SIZE 32 // Entries written per flush
+#define RING_BUF_CAPACITY 400 * 512
 
 class Logger
 {
@@ -18,8 +17,22 @@ public:
     Logger(const Logger &) = delete;
     Logger &operator=(const Logger &) = delete;
 
+    struct LogGains
+    {
+        uint16_t sync; // 0xA55A
+        uint8_t type = 0;
+        float roll_angle_kp = 0.0f, roll_angle_ki = 0.0f, roll_angle_kd = 0.0f;
+        float pitch_angle_kp = 0.0f, pitch_angle_ki = 0.0f, pitch_angle_kd = 0.0f;
+        float roll_rate_kp = 0.0f, roll_rate_ki = 0.0f, roll_rate_kd = 0.0f;
+        float pitch_rate_kp = 0.0f, pitch_rate_ki = 0.0f, pitch_rate_kd = 0.0f;
+        float yaw_rate_kp = 0.0f, yaw_rate_ki = 0.0f, yaw_rate_kd = 0.0f;
+        float vertical_velocity_kp = 0.0f, vertical_velocity_ki = 0.0f, vertical_velocity_kd = 0.0f;
+    };
+
     struct LogEntry
     {
+        uint16_t sync; // 0xA55A
+        uint8_t type = 1;
         uint32_t time_us = 0;
         uint16_t rc_throttle = 0, rc_roll = 0, rc_pitch = 0, rc_yaw = 0;
         float desired_roll_angle = 0.0f, desired_pitch_angle = 0.0f;
@@ -33,12 +46,6 @@ public:
         float voltage = 0.0f, current = 0.0f;
         float cmd_throttle = 0.0f, cmd_roll = 0.0f, cmd_pitch = 0.0f, cmd_yaw = 0.0f, cmd_hover = 0.0f;
         float m1 = 0.0f, m2 = 0.0f, m3 = 0.0f, m4 = 0.0f;
-        float roll_angle_kp = 0.0f, roll_angle_ki = 0.0f, roll_angle_kd = 0.0f;
-        float pitch_angle_kp = 0.0f, pitch_angle_ki = 0.0f, pitch_angle_kd = 0.0f;
-        float roll_rate_kp = 0.0f, roll_rate_ki = 0.0f, roll_rate_kd = 0.0f;
-        float pitch_rate_kp = 0.0f, pitch_rate_ki = 0.0f, pitch_rate_kd = 0.0f;
-        float yaw_rate_kp = 0.0f, yaw_rate_ki = 0.0f, yaw_rate_kd = 0.0f;
-        float vertical_velocity_kp = 0.0f, vertical_velocity_ki = 0.0f, vertical_velocity_kd = 0.0f;
         uint8_t is_flying = 0, is_armed = 0, is_radio_failsafe = 0, is_motor_emergency = 0, is_batt_failsafe = 0;
     };
 
@@ -72,13 +79,10 @@ private:
     Logger()
     {
     }
-    bool push_log(const LogEntry &entry);
     static Logger *_singleton;
     SdFat sd;
     FsFile logFile;
+    RingBuf<FsFile, 10> ringBuffer;
     bool is_sd_card_inserted = false;
     LogEntry log_entry;
-    LogEntry logBuffer[LOG_BUFFER_SIZE];
-    volatile uint16_t head = 0;
-    volatile uint16_t tail = 0;
 };

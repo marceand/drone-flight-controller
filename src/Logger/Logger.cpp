@@ -1,21 +1,25 @@
 #include "Logger.h"
+
 #define MAX_FILENAME 32
+#define LOG_FILE_SIZE
+#define SECTOR_SIZE 512
 
 void Logger::init()
 {
     // Serial.println(sizeof(LogEntry));
     is_sd_card_inserted = false;
 
-    if (!sd.begin(SdioConfig(DMA_SDIO)))
+    if (!sd.begin(SdioConfig(FIFO_SDIO)))
     {
         return;
     }
 
+    // Create a file name of the format flight_log_000.bin
     char filename[MAX_FILENAME];
     uint8_t index = 0;
     for (; index < 255; index++)
     {
-        snprintf(filename, sizeof(filename), "flight%03u.bin", index);
+        snprintf(filename, sizeof(filename), "flight_log_%03u.bin", index);
         if (!sd.exists(filename))
         {
             break;
@@ -27,25 +31,24 @@ void Logger::init()
         return;
     }
 
-    logFile = sd.open(filename, O_WRITE | O_CREAT | O_TRUNC);
-    if (!logFile)
+    bool is_file_opened = logFile.open(filename, O_WRITE | O_CREAT | O_TRUNC);
+    if (!is_file_opened)
     {
         return;
     }
 
-    is_sd_card_inserted = true;
-}
-
-bool Logger::push_log(const LogEntry &entry)
-{
-    uint16_t next = (head + 1) % LOG_BUFFER_SIZE;
-    if (next == tail)
+    // File must be pre-allocated to avoid huge
+    // delays searching for free clusters.
+    bool is_file_preallocated = logFile.preAllocate(LOG_FILE_SIZE);
+    if (!is_file_preallocated)
     {
-        return false; // buffer full
+        logFile.close();
+        return;
     }
-    logBuffer[head] = entry;
-    head = next;
-    return true;
+
+    ringBuffer.begin(&logFile);
+
+    is_sd_card_inserted = true;
 }
 
 void Logger::update_logging()
@@ -59,7 +62,7 @@ void Logger::update_logging()
     LogEntry entry = log_entry;
     entry.time_us = micros();
 
-    push_log(entry);
+    ringBuffer.write(&entry, sizeof(entry));
 }
 
 void Logger::flush_log_to_sd()
@@ -70,25 +73,19 @@ void Logger::flush_log_to_sd()
         return;
     }
 
-    LogEntry batch[FLUSH_BATCH_SIZE];
-    size_t count = 0;
-
-    while (tail != head && count < FLUSH_BATCH_SIZE)
+    size_t size_used = ringBuffer.bytesUsed();
+    // Check if pre-allocated file is full
+    if ((size_used + logFile.curPosition()) > (LOG_FILE_SIZE - 20))
     {
-        batch[count++] = logBuffer[tail];
-        tail = (tail + 1) % LOG_BUFFER_SIZE;
+        // File is full
+        return;
     }
 
-    if (count > 0)
+    // If file not busy then allow writing one sector (512 bytes) before possible busy wait.
+    if (size_used >= SECTOR_SIZE && !logFile.isBusy())
     {
-        logFile.write((uint8_t *)batch, count * sizeof(LogEntry));
-    }
-
-    static uint8_t flushCounter = 0;
-    if (++flushCounter >= 50)
-    { // flush ~1 s
-        logFile.flush();
-        flushCounter = 0;
+        // Write one sector (one sector is 512  bytes) from RingBuf to file.
+        ringBuffer.writeOut(SECTOR_SIZE);
     }
 }
 
