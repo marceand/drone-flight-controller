@@ -92,6 +92,6 @@ private:
     void run_notifier();
     // void check_disarming();
     void update_notifier();
-    void update_logging();
-    void flush_log_to_sd();
+    void insert_log_entry_to_buffer();
+    void write_logs_to_sd();
 };

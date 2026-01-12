@@ -1,8 +1,9 @@
 #include "Logger.h"
 
 #define MAX_FILENAME 32
-#define LOG_FILE_SIZE
-#define SECTOR_SIZE 512
+
+// Size to log 128 byte lines at 250Hz for ten minutes.
+#define LOG_FILE_SIZE 128 * 250 * 600 // 19.2 megabytes.
 
 void Logger::init()
 {
@@ -51,7 +52,18 @@ void Logger::init()
     is_sd_card_inserted = true;
 }
 
-void Logger::update_logging()
+void Logger::insert_log_pid_gains_to_buffer()
+{
+    if (!is_sd_card_inserted)
+    {
+        return;
+    }
+
+    LogPIDGains gains_entry = log_pid_gains;
+    ringBuffer.write(&gains_entry, sizeof(gains_entry));
+}
+
+void Logger::insert_log_entry_to_buffer()
 {
 
     if (!is_sd_card_inserted)
@@ -65,7 +77,7 @@ void Logger::update_logging()
     ringBuffer.write(&entry, sizeof(entry));
 }
 
-void Logger::flush_log_to_sd()
+void Logger::write_logs_to_sd()
 {
 
     if (!is_sd_card_inserted)
@@ -73,16 +85,16 @@ void Logger::flush_log_to_sd()
         return;
     }
 
-    size_t size_used = ringBuffer.bytesUsed();
+    size_t buffer_used_size = ringBuffer.bytesUsed();
     // Check if pre-allocated file is full
-    if ((size_used + logFile.curPosition()) > (LOG_FILE_SIZE - 20))
+    if ((buffer_used_size + logFile.curPosition()) > (LOG_FILE_SIZE - 20))
     {
         // File is full
         return;
     }
 
     // If file not busy then allow writing one sector (512 bytes) before possible busy wait.
-    if (size_used >= SECTOR_SIZE && !logFile.isBusy())
+    if (buffer_used_size >= SECTOR_SIZE && !logFile.isBusy())
     {
         // Write one sector (one sector is 512  bytes) from RingBuf to file.
         ringBuffer.writeOut(SECTOR_SIZE);
@@ -166,44 +178,44 @@ void Logger::update_motors(float m1, float m2, float m3, float m4)
 
 void Logger::update_roll_angle_pid_gains(float kp, float ki, float kd)
 {
-    log_entry.roll_angle_kp = kp;
-    log_entry.roll_angle_ki = ki;
-    log_entry.roll_angle_kd = kd;
+    log_pid_gains.roll_angle_kp = kp;
+    log_pid_gains.roll_angle_ki = ki;
+    log_pid_gains.roll_angle_kd = kd;
 }
 
 void Logger::update_pitch_angle_pid_gains(float kp, float ki, float kd)
 {
-    log_entry.pitch_angle_kp = kp;
-    log_entry.pitch_angle_ki = ki;
-    log_entry.pitch_angle_kd = kd;
+    log_pid_gains.pitch_angle_kp = kp;
+    log_pid_gains.pitch_angle_ki = ki;
+    log_pid_gains.pitch_angle_kd = kd;
 }
 
 void Logger::update_roll_rate_pid_gains(float kp, float ki, float kd)
 {
-    log_entry.roll_rate_kp = kp;
-    log_entry.roll_rate_ki = ki;
-    log_entry.roll_rate_kd = kd;
+    log_pid_gains.roll_rate_kp = kp;
+    log_pid_gains.roll_rate_ki = ki;
+    log_pid_gains.roll_rate_kd = kd;
 }
 
 void Logger::update_pitch_rate_pid_gains(float kp, float ki, float kd)
 {
-    log_entry.pitch_rate_kp = kp;
-    log_entry.pitch_rate_ki = ki;
-    log_entry.pitch_rate_kd = kd;
+    log_pid_gains.pitch_rate_kp = kp;
+    log_pid_gains.pitch_rate_ki = ki;
+    log_pid_gains.pitch_rate_kd = kd;
 }
 
 void Logger::update_yaw_rate_pid_gains(float kp, float ki, float kd)
 {
-    log_entry.yaw_rate_kp = kp;
-    log_entry.yaw_rate_ki = ki;
-    log_entry.yaw_rate_kd = kd;
+    log_pid_gains.yaw_rate_kp = kp;
+    log_pid_gains.yaw_rate_ki = ki;
+    log_pid_gains.yaw_rate_kd = kd;
 }
 
 void Logger::update_vertical_velocity_pid_gains(float kp, float ki, float kd)
 {
-    log_entry.vertical_velocity_kp = kp;
-    log_entry.vertical_velocity_ki = ki;
-    log_entry.vertical_velocity_kd = kd;
+    log_pid_gains.vertical_velocity_kp = kp;
+    log_pid_gains.vertical_velocity_ki = ki;
+    log_pid_gains.vertical_velocity_kd = kd;
 }
 
 void Logger::update_flying(uint8_t flying)

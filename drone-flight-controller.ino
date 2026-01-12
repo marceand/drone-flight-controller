@@ -77,8 +77,8 @@ Copter::Task Copter::tasks[] = {
     {"run_batt_monitor", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::run_battery_monitor)},
     {"check_motors_arming", HZ_TO_US(10), 0, Functor<Copter>(&copter, &Copter::check_motors_arming)},
     {"run_tone_alarm", HZ_TO_US(50), 0, Functor<Copter>(&copter, &Copter::run_notifier)},
-    {"update_logging", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::update_logging)},
-    {"flush_logging", HZ_TO_US(50), 0, Functor<Copter>(&copter, &Copter::flush_log_to_sd)}};
+    {"insert_log_entry", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::insert_log_entry_to_buffer)},
+    {"write_logs_to_sd", HZ_TO_US(250), 0, Functor<Copter>(&copter, &Copter::write_logs_to_sd)}};
 
 const int Copter::NUM_TASKS = sizeof(tasks) / sizeof(Task);
 

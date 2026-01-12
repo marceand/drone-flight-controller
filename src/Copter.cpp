@@ -21,6 +21,7 @@ void Copter::init(void)
     _verticalEstimator.set_parameters();
     _verticalVelocityController.set_parameters();
     _battMonitor.init();
+    _logger.insert_log_pid_gains_to_buffer();
 
     check_motors_startup();
     //   check_motors_mapping();
@@ -376,12 +377,12 @@ void Copter::update_notifier()
     }
 }
 
-void Copter::update_logging()
+void Copter::insert_log_entry_to_buffer()
 {
-    _logger.update_logging();
+    _logger.insert_log_entry_to_buffer();
 }
 
-void Copter::flush_log_to_sd()
+void Copter::write_logs_to_sd()
 {
-    _logger.flush_log_to_sd();
+    _logger.write_logs_to_sd();
 }
