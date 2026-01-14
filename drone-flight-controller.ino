@@ -108,8 +108,21 @@ void loop()
         Copter::Task &task = Copter::tasks[i];
         if (now - task.last_run_us >= task.interval_us && task.function.valid())
         {
+            // uint32_t read_time = micros();
             task.function();
             task.last_run_us = now;
+
+            // uint32_t diff = micros() - read_time;
+            // Serial.print(task.name);
+            // Serial.print(": ");
+            // Serial.println(diff);
         }
+    }
+
+    uint32_t diff = micros() - now;
+    if (diff > 2446)
+    {
+        Serial.print("Big loop time us: ");
+        Serial.println(diff);
     }
 }

@@ -23,14 +23,23 @@ void Copter::init(void)
     _battMonitor.init();
     _logger.insert_log_pid_gains_to_buffer();
 
-    check_motors_startup();
+    // check_motors_startup();
     //   check_motors_mapping();
     //  arm_esc_at_minimum();
 }
 
 void Copter::read_rc_channels()
 {
+    // uint32_t read_time = micros();
     _rc.read();
+    // uint32_t diff = micros() - read_time;
+
+    // if (diff > 5)
+    // {
+    //     Serial.print("rc read big time us: ");
+    //     Serial.println(diff);
+    // }
+
     _attitudeController.set_desired_angles(_rc.get_desired_roll_angle(), _rc.get_desired_pitch_angle());
     _attitudeController.set_desired_rates(_rc.get_desired_roll_rate(), _rc.get_desired_pitch_rate(), _rc.get_desired_yaw_rate());
     _verticalVelocityController.set_desired_vertical_velocity(_rc.get_desired_vertical_velocity());
@@ -86,7 +95,15 @@ void Copter::read_rc_channels()
 
 void Copter::read_inertial_sensor()
 {
+    // uint32_t read_time = micros();
     _inertialSensor.read();
+    // uint32_t diff = micros() - read_time;
+
+    // if (diff > 1554)
+    // {
+    //     Serial.print("gyro/accel read big time us: ");
+    //     Serial.println(diff);
+    // }
     _attitudeController.set_measured_rates(_inertialSensor.getCalibGyroX(),
                                            _inertialSensor.getCalibGyroY(),
                                            _inertialSensor.getCalibGyroZ());
@@ -108,7 +125,15 @@ void Copter::read_inertial_sensor()
 
 void Copter::read_barometer()
 {
+    // uint32_t read_time = micros();
     _barometer.read();
+    // uint32_t diff = micros() - read_time;
+
+    // if (diff > 840)
+    // {
+    //     Serial.print("barometer read big time us: ");
+    //     Serial.println(diff);
+    // }
 }
 
 void Copter::check_takeoff()
@@ -136,6 +161,8 @@ void Copter::check_pid_reset()
 
 void Copter::run_main_controller()
 {
+    // uint32_t read_time = micros();
+
     _attitudeEstimator.update();
     _verticalEstimator.update();
 
@@ -170,13 +197,28 @@ void Copter::run_main_controller()
     _logger.update_vertical(_verticalEstimator.get_estimated_vertical_velocity(),
                             _verticalEstimator.get_estimated_altitude_in_cm());
     _logger.update_commands(throttle_command, roll_command, pitch_command, yaw_command, hover_command);
+
+    // uint32_t diff = micros() - read_time;
+
+    // if (diff > 4)
+    // {
+    //     Serial.print("main controller big time us: ");
+    //     Serial.println(diff);
+    // }
 }
 
 void Copter::run_motors()
 {
+    // uint32_t read_time = micros();
     _motors.update_outputs();
     _motors.write_to_motors();
     _motors.write_logs();
+    // uint32_t diff = micros() - read_time;
+    // if (diff > 2)
+    // {
+    //     Serial.print("run motor big time us: ");
+    //     Serial.println(diff);
+    // }
 }
 
 void Copter::run_battery_monitor()

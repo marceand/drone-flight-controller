@@ -74,7 +74,17 @@ void Logger::insert_log_entry_to_buffer()
     LogEntry entry = log_entry;
     entry.time_us = micros();
 
-    ringBuffer.write(&entry, sizeof(entry));
+    size_t count = ringBuffer.write(&entry, sizeof(entry));
+
+    if (ringBuffer.getWriteError())
+    {
+        // Serial.println("WriteError");
+    }
+
+    if (count == 0)
+    {
+        Serial.println("Log buffer full!");
+    }
 }
 
 void Logger::write_logs_to_sd()
@@ -94,18 +104,28 @@ void Logger::write_logs_to_sd()
     }
 
     // If file not busy then allow writing one sector (512 bytes) before possible busy wait.
-    if (buffer_used_size >= SECTOR_SIZE && !logFile.isBusy())
+
+    bool isBusy = logFile.isBusy();
+    if (isBusy)
+    {
+        Serial.println("SD busy");
+    }
+
+    if (buffer_used_size >= SECTOR_SIZE && !isBusy)
     {
         // Write one sector (one sector is 512  bytes) from RingBuf to file.
 
-        uint32_t sd_write_time = micros();
-        ringBuffer.writeOut(SECTOR_SIZE);
-        uint32_t diff = micros() - sd_write_time;
-        if (diff > 5)
+        // uint32_t sd_write_time = micros();
+        if (512 != ringBuffer.writeOut(SECTOR_SIZE))
         {
-            Serial.print("Big delay here: ");
-            Serial.println(diff);
+            Serial.println("writeOut failed");
         }
+        // uint32_t diff = micros() - sd_write_time;
+        // if (diff > 5)
+        // {
+        //     Serial.print("Big delay here: ");
+        //     Serial.println(diff);
+        // }
     }
 }
 
