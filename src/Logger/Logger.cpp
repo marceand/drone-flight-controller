@@ -97,15 +97,7 @@ void Logger::write_logs_to_sd()
     if (buffer_used_size >= SECTOR_SIZE && !logFile.isBusy())
     {
         // Write one sector (one sector is 512  bytes) from RingBuf to file.
-
-        uint32_t sd_write_time = micros();
         ringBuffer.writeOut(SECTOR_SIZE);
-        uint32_t diff = micros() - sd_write_time;
-        if (diff > 5)
-        {
-            Serial.print("Big delay here: ");
-            Serial.println(diff);
-        }
     }
 }
 
