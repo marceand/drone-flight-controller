@@ -7,7 +7,7 @@
 #define SECTOR_SIZE 512
 
 // Space to hold 32 ms of data for 250 byte lines at 250 sps.
-#define RING_BUF_CAPACITY 2 * SECTOR_SIZE
+#define RING_BUF_CAPACITY 5 * SECTOR_SIZE
 #define LOG_SYNC 0xA55A
 #define LOG_TYPE_PID_GAINS 1
 #define LOG_TYPE_ENTRY 2

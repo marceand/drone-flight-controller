@@ -66,6 +66,8 @@ void Logger::insert_log_pid_gains_to_buffer()
 void Logger::insert_log_entry_to_buffer()
 {
 
+    static uint8_t full_count = 0;
+
     if (!is_sd_card_inserted)
     {
         return;
@@ -76,14 +78,26 @@ void Logger::insert_log_entry_to_buffer()
 
     size_t count = ringBuffer.write(&entry, sizeof(entry));
 
-    if (ringBuffer.getWriteError())
-    {
-        // Serial.println("WriteError");
-    }
+    // if (ringBuffer.getWriteError())
+    // {
+    // Serial.println("WriteError");
+    // }
 
     if (count == 0)
     {
-        Serial.println("Log buffer full!");
+
+        full_count++;
+        Serial.println("Log buffer full count: ");
+        Serial.println(full_count);
+    }
+    else
+    {
+        if (full_count > 0)
+        {
+            full_count--;
+            Serial.println("Log empty count: ");
+            Serial.println(full_count);
+        }
     }
 }
 
@@ -109,6 +123,13 @@ void Logger::write_logs_to_sd()
     if (isBusy)
     {
         Serial.println("SD busy");
+
+        if (buffer_used_size >= SECTOR_SIZE)
+        {
+            Serial.println("log not written");
+            Serial.print("In Busy Buffer free size: ");
+            Serial.println(ringBuffer.bytesFree());
+        }
     }
 
     if (buffer_used_size >= SECTOR_SIZE && !isBusy)
@@ -120,6 +141,9 @@ void Logger::write_logs_to_sd()
         {
             Serial.println("writeOut failed");
         }
+
+        Serial.print("Written Buffer free size: ");
+        Serial.println(ringBuffer.bytesFree());
         // uint32_t diff = micros() - sd_write_time;
         // if (diff > 5)
         // {
