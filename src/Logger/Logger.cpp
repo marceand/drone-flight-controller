@@ -74,6 +74,7 @@ void Logger::insert_log_entry_to_buffer()
     LogEntry entry = log_entry;
     entry.time_us = micros();
 
+    // if ring buffer is full, entry is not copy
     ringBuffer.write(&entry, sizeof(entry));
 }
 
