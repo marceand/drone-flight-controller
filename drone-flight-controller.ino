@@ -119,10 +119,10 @@ void loop()
         }
     }
 
-    uint32_t diff = micros() - now;
-    if (diff > 2446)
-    {
-        Serial.print("Big loop time us: ");
-        Serial.println(diff);
-    }
+    // uint32_t diff = micros() - now;
+    // if (diff > 2446)
+    // {
+    //     Serial.print("Big loop time us: ");
+    //     Serial.println(diff);
+    // }
 }

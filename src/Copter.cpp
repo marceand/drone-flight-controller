@@ -21,11 +21,11 @@ void Copter::init(void)
     _verticalEstimator.set_parameters();
     _verticalVelocityController.set_parameters();
     _battMonitor.init();
-    _logger.insert_log_pid_gains_to_buffer();
+    //_logger.insert_log_pid_gains_to_buffer();
 
     // check_motors_startup();
-    //   check_motors_mapping();
-    //  arm_esc_at_minimum();
+    // check_motors_mapping();
+    // arm_esc_at_minimum();
 }
 
 void Copter::read_rc_channels()
