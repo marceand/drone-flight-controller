@@ -189,11 +189,15 @@ private:
     Logger()
     {
     }
+
     static Logger *_singleton;
     SdFat sd;
     FsFile logFile;
     RingBuf<FsFile, RING_BUF_CAPACITY> ringBuffer;
     bool is_sd_card_inserted = false;
+    uint32_t session_id = 0;
     LogPIDGains log_pid_gains;
     LogEntry log_entry;
+
+    void generate_session_id();
 };

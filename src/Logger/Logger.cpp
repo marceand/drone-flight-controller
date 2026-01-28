@@ -1,4 +1,5 @@
 #include "Logger.h"
+#include <Entropy.h>
 
 #define MAX_FILENAME 32
 
@@ -7,6 +8,9 @@
 
 void Logger::init()
 {
+    Entropy.Initialize();
+    generate_session_id();
+
     // Serial.println(sizeof(LogPIDGains));
     // Serial.println(sizeof(LogEntry));
 
@@ -65,6 +69,18 @@ void Logger::init()
     ringBuffer.begin(&logFile);
 
     is_sd_card_inserted = true;
+}
+
+void Logger::generate_session_id()
+{
+    session_id = Entropy.random(0xFFFFFFFF); // Teensy built-in
+    Serial.print("session-id: ");
+    Serial.println(session_id);
+
+    // if (session_id == 0)
+    // {
+    //     session_id = 1; // avoid zero if you want
+    // }
 }
 
 void Logger::insert_log_pid_gains_to_buffer()

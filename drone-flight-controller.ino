@@ -20,6 +20,8 @@
 #include "src/Notify/LEDIndicator.h"
 #include "src/Notify/StatusNotifier.h"
 #include "src/Logger/Logger.h"
+#include <Entropy.h>
+
 
 #define WIRE_CLK_FREQ 400000 // 400Khz
 #define SERIAL_BAUD_RATE 57600
@@ -95,7 +97,6 @@ void setup()
     delay(250);
 
     copter.init();
-
     // rcCheck();
 }
 
