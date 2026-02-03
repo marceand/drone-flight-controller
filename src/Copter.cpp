@@ -15,15 +15,15 @@ void Copter::init(void)
     check_esc_calibration(); // need to call after power on otherwise ESCs calibration time window is missed
     _inertialSensor.init();
     _barometer.init();
-    _logger.init();
+    _logger.init(_storage.get_session_id());
     _attitudeEstimator.set_parameters();
     _attitudeController.set_parameters();
     _verticalEstimator.set_parameters();
     _verticalVelocityController.set_parameters();
     _battMonitor.init();
-    //_logger.insert_log_pid_gains_to_buffer();
+    _logger.insert_parameters_to_buffer();
 
-    // check_motors_startup();
+    check_motors_startup();
     // check_motors_mapping();
     // arm_esc_at_minimum();
 }

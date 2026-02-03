@@ -10,12 +10,14 @@ public:
     void init();
     bool check_for_esc_calibration();
     void set_check_esc_calibration(bool check_for_calibration);
+    uint32_t get_session_id();
 
 private:
     struct Config
     {
         uint8_t initialized;
         bool check_esc_calibration;
+        uint32_t boot_count;
     };
 
     Config _config;
@@ -23,4 +25,5 @@ private:
     void setDefaults();
     void load();
     void save();
+    void update_boot_count();
 };
