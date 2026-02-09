@@ -11,6 +11,7 @@
 #define LOG_SYNC 0xA55A
 #define LOG_TYPE_PARAMETERS 1
 #define LOG_TYPE_ENTRY 2
+#define DEFAULT_SESSION_ID 0xFFFFFFFF
 
 class Logger
 {
@@ -28,7 +29,7 @@ public:
     {
         uint16_t sync = LOG_SYNC;
         uint8_t type = LOG_TYPE_PARAMETERS;
-        uint32_t session_id = 0xFFFFFFFF;
+        uint32_t session_id = DEFAULT_SESSION_ID;
         float roll_angle_kp = 0.0f;
         float roll_angle_ki = 0.0f;
         float roll_angle_kd = 0.0f;
@@ -53,7 +54,7 @@ public:
     {
         uint16_t sync = LOG_SYNC;
         uint8_t type = LOG_TYPE_ENTRY;
-        uint32_t session_id = 0xFFFFFFFF;
+        uint32_t session_id = DEFAULT_SESSION_ID;
         uint32_t time_us = 0;
         uint16_t rc_throttle = 0;
         uint16_t rc_roll = 0;
@@ -92,73 +93,6 @@ public:
         uint8_t is_motor_emergency = 0;
         uint8_t is_batt_failsafe = 0;
     };
-
-    // struct __attribute__((packed)) LogPIDGains
-    // {
-    //     uint16_t sync = 0xA55A;
-    //     uint8_t type = 1;
-    //     float roll_angle_kp = 0.1f;
-    //     float roll_angle_ki = 0.2f;
-    //     float roll_angle_kd = 0.3f;
-    //     float pitch_angle_kp = 0.4f;
-    //     float pitch_angle_ki = 0.5f;
-    //     float pitch_angle_kd = 0.6f;
-    //     float roll_rate_kp = 0.7f;
-    //     float roll_rate_ki = 0.8f;
-    //     float roll_rate_kd = 0.9f;
-    //     float pitch_rate_kp = 0.10f;
-    //     float pitch_rate_ki = 0.11f;
-    //     float pitch_rate_kd = 0.12f;
-    //     float yaw_rate_kp = 0.13f;
-    //     float yaw_rate_ki = 0.14f;
-    //     float yaw_rate_kd = 0.15f;
-    //     float vertical_velocity_kp = 0.16f;
-    //     float vertical_velocity_ki = 0.17f;
-    //     float vertical_velocity_kd = 0.18f;
-    // };
-
-    // struct __attribute__((packed)) LogEntry
-    // {
-    //     uint16_t sync = 0xA55A;
-    //     uint8_t type = 2;
-    //     uint32_t time_us = 0;
-    //     uint16_t rc_throttle = 1500;
-    //     uint16_t rc_roll = 1500;
-    //     uint16_t rc_pitch = 1500;
-    //     uint16_t rc_yaw = 1500;
-    //     float desired_roll_angle = 0.1f;
-    //     float desired_pitch_angle = 0.2f;
-    //     float desired_roll_rate = 0.3f;
-    //     float desired_pitch_rate = 0.4f;
-    //     float desired_yaw_rate = 0.5f;
-    //     float desired_vertical_velocity = 0.6f;
-    //     float gyro_x = 0.7f;
-    //     float gyro_y = 0.8f;
-    //     float gyro_z = 0.9f;
-    //     float acc_x = 0.10f;
-    //     float acc_y = 0.11f;
-    //     float acc_z = 0.12f;
-    //     float estimated_roll_angle = 0.13f;
-    //     float estimated_pitch_angle = 0.14f;
-    //     float vertical_velocity = 0.15f;
-    //     float altitude = 0.16f;
-    //     float voltage = 0.17f;
-    //     float current = 0.18f;
-    //     float cmd_throttle = 0.19f;
-    //     float cmd_roll = 0.20f;
-    //     float cmd_pitch = 0.21f;
-    //     float cmd_yaw = 0.22f;
-    //     float cmd_hover = 0.23f;
-    //     float m1 = 0.24f;
-    //     float m2 = 0.25f;
-    //     float m3 = 0.26f;
-    //     float m4 = 0.17f;
-    //     uint8_t is_flying = 1;
-    //     uint8_t is_armed = 1;
-    //     uint8_t is_radio_failsafe = 1;
-    //     uint8_t is_motor_emergency = 1;
-    //     uint8_t is_batt_failsafe = 1;
-    // };
 
     void init(uint32_t id);
     void insert_parameters_to_buffer();

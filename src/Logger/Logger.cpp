@@ -8,28 +8,6 @@
 
 void Logger::init(uint32_t id)
 {
-    // Entropy.Initialize();
-    // generate_session_id();
-
-    // 79
-    // 132
-
-    // Serial.println(sizeof(LogParameters));
-    // Serial.println(sizeof(LogEntry));
-
-    // LogEntry e = log_entry; // some example data
-    // uint8_t *ptr = (uint8_t *)&e;
-
-    // Serial.print("LogEntry size: ");
-    // Serial.println(sizeof(e));
-
-    // for (size_t i = 0; i < sizeof(e); i++)
-    // {
-    //     Serial.print(ptr[i], HEX);
-    //     Serial.print(" ");
-    // }
-    // Serial.println();
-
     set_session_id(id);
 
     is_sd_card_inserted = false;
@@ -39,9 +17,9 @@ void Logger::init(uint32_t id)
         return;
     }
 
-    // Create a file name of the format flight_log_000.bin
+    // Create a file name of the format flight_log_001.bin
     char filename[MAX_FILENAME];
-    uint8_t index = 0;
+    uint8_t index = 1;
     for (; index < 255; index++)
     {
         snprintf(filename, sizeof(filename), "flight_log_%03u.bin", index);
@@ -95,9 +73,6 @@ void Logger::insert_parameters_to_buffer()
 
 void Logger::insert_log_entry_to_buffer()
 {
-
-    // static uint8_t full_count = 0;
-
     if (!is_sd_card_inserted)
     {
         return;
@@ -105,41 +80,7 @@ void Logger::insert_log_entry_to_buffer()
 
     LogEntry entry = log_entry;
     entry.time_us = micros();
-
-    // LogEntry entry;
-
-    // Make a safe, atomic copy of the struct
-    // noInterrupts();
-    // entry = log_entry;
-    // interrupts();
-
-    // Add the timestamp after the atomic copy
-    // entry.time_us = micros();
-
     ringBuffer.write(&entry, sizeof(entry));
-
-    // if (ringBuffer.getWriteError())
-    // {
-    // Serial.println("WriteError");
-    // }
-
-    // size_t count = ringBuffer.write(&entry, sizeof(entry));
-    // if (count == 0)
-    // {
-
-    //     full_count++;
-    //     Serial.println("Log buffer full count: ");
-    //     Serial.println(full_count);
-    // }
-    // else
-    // {
-    //     if (full_count > 0)
-    //     {
-    //         full_count--;
-    //         Serial.println("Log empty count: ");
-    //         Serial.println(full_count);
-    //     }
-    // }
 }
 
 void Logger::write_logs_to_sd()
@@ -159,39 +100,10 @@ void Logger::write_logs_to_sd()
     }
 
     // If file not busy then allow writing one sector (512 bytes) before possible busy wait.
-
-    // bool isBusy = logFile.isBusy();
-    // if (isBusy)
-    // {
-    //     Serial.println("SD busy");
-
-    // if (buffer_used_size >= SECTOR_SIZE)
-    // {
-    //     Serial.println("log not written");
-    //     Serial.print("In Busy Buffer free size: ");
-    //     Serial.println(ringBuffer.bytesFree());
-    // }
-    // }
-
     if (buffer_used_size >= SECTOR_SIZE && !logFile.isBusy())
     {
         // Write one sector (one sector is 512  bytes) from RingBuf to file.
-
-        // uint32_t sd_write_time = micros();
         ringBuffer.writeOut(SECTOR_SIZE);
-        // if (512 != ringBuffer.writeOut(SECTOR_SIZE))
-        // {
-        //     Serial.println("writeOut failed");
-        // }
-
-        // Serial.print("Written Buffer free size: ");
-        // Serial.println(ringBuffer.bytesFree());
-        // uint32_t diff = micros() - sd_write_time;
-        // if (diff > 5)
-        // {
-        //     Serial.print("Big delay here: ");
-        //     Serial.println(diff);
-        // }
     }
 }
 

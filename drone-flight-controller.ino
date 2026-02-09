@@ -20,7 +20,6 @@
 #include "src/Notify/LEDIndicator.h"
 #include "src/Notify/StatusNotifier.h"
 #include "src/Logger/Logger.h"
-#include <Entropy.h>
 
 
 #define WIRE_CLK_FREQ 400000 // 400Khz
@@ -97,7 +96,6 @@ void setup()
     delay(250);
 
     copter.init();
-    // rcCheck();
 }
 
 void loop()
@@ -109,21 +107,8 @@ void loop()
         Copter::Task &task = Copter::tasks[i];
         if (now - task.last_run_us >= task.interval_us && task.function.valid())
         {
-            // uint32_t read_time = micros();
             task.function();
             task.last_run_us = now;
-
-            // uint32_t diff = micros() - read_time;
-            // Serial.print(task.name);
-            // Serial.print(": ");
-            // Serial.println(diff);
         }
     }
-
-    // uint32_t diff = micros() - now;
-    // if (diff > 2446)
-    // {
-    //     Serial.print("Big loop time us: ");
-    //     Serial.println(diff);
-    // }
 }
