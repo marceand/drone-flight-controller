@@ -90,7 +90,6 @@ private:
     void check_motors_arming();
     bool is_pre_arm_check_pass();
     void run_notifier();
-    // void check_disarming();
     void update_notifier();
     void insert_log_entry_to_buffer();
     void write_logs_to_sd();

@@ -20,6 +20,7 @@ void BatteryMonitor::monitor()
 {
     _voltage = _batteryReader.voltage();
     _current = _batteryReader.current();
+
     _current_consumed = _current * (1000.0f / 3600.0f) * 0.004f + _current_consumed;
     _batt_remaining_percentage = ((_batt_capacity_initial - _current_consumed) / _batt_capacity_default) * 100.0f;
 

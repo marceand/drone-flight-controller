@@ -1,11 +1,13 @@
 #include "AttitudeController.h"
 #include "../Logger/Logger.h"
 
-#define ROLL_ANGLE_KP 2.0f
+#define ROLL_ANGLE_KP 1.2f
+// #define ROLL_ANGLE_KP 2.0f
 #define ROLL_ANGLE_KI 0.0f
 #define ROLL_ANGLE_KD 0.0f
 
-#define PITCH_ANGLE_KP 2.0f
+#define PITCH_ANGLE_KP 1.2f
+// #define PITCH_ANGLE_KP 2.0f
 #define PITCH_ANGLE_KI 0.0f
 #define PITCH_ANGLE_KD 0.0f
 

@@ -21,6 +21,7 @@
 #include "src/Notify/StatusNotifier.h"
 #include "src/Logger/Logger.h"
 
+
 #define WIRE_CLK_FREQ 400000 // 400Khz
 #define SERIAL_BAUD_RATE 57600
 #define HZ_TO_US(hz) (1000000UL / (hz))
@@ -95,8 +96,6 @@ void setup()
     delay(250);
 
     copter.init();
-
-    // rcCheck();
 }
 
 void loop()

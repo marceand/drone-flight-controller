@@ -9,8 +9,9 @@
 // Space to hold 96 ms of data for 128 byte lines at 250 sps.
 #define RING_BUF_CAPACITY 6 * SECTOR_SIZE // 3, 072  bytes
 #define LOG_SYNC 0xA55A
-#define LOG_TYPE_PID_GAINS 1
+#define LOG_TYPE_PARAMETERS 1
 #define LOG_TYPE_ENTRY 2
+#define DEFAULT_SESSION_ID 0xFFFFFFFF
 
 class Logger
 {
@@ -24,10 +25,11 @@ public:
     Logger(const Logger &) = delete;
     Logger &operator=(const Logger &) = delete;
 
-    struct __attribute__((packed)) LogPIDGains
+    struct __attribute__((packed)) LogParameters
     {
         uint16_t sync = LOG_SYNC;
-        uint8_t type = LOG_TYPE_PID_GAINS;
+        uint8_t type = LOG_TYPE_PARAMETERS;
+        uint32_t session_id = DEFAULT_SESSION_ID;
         float roll_angle_kp = 0.0f;
         float roll_angle_ki = 0.0f;
         float roll_angle_kd = 0.0f;
@@ -52,6 +54,7 @@ public:
     {
         uint16_t sync = LOG_SYNC;
         uint8_t type = LOG_TYPE_ENTRY;
+        uint32_t session_id = DEFAULT_SESSION_ID;
         uint32_t time_us = 0;
         uint16_t rc_throttle = 0;
         uint16_t rc_roll = 0;
@@ -91,8 +94,8 @@ public:
         uint8_t is_batt_failsafe = 0;
     };
 
-    void init();
-    void insert_log_pid_gains_to_buffer();
+    void init(uint32_t id);
+    void insert_parameters_to_buffer();
     void insert_log_entry_to_buffer();
     void write_logs_to_sd();
     void update_rc_inputs(uint16_t rc_throttle, uint16_t rc_roll, uint16_t rc_pitch, uint16_t rc_yaw);
@@ -122,11 +125,14 @@ private:
     Logger()
     {
     }
+
     static Logger *_singleton;
     SdFat sd;
     FsFile logFile;
     RingBuf<FsFile, RING_BUF_CAPACITY> ringBuffer;
     bool is_sd_card_inserted = false;
-    LogPIDGains log_pid_gains;
+    LogParameters log_parameters;
     LogEntry log_entry;
+
+    void set_session_id(uint32_t id);
 };
