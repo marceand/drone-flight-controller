@@ -166,8 +166,8 @@ void Copter::run_main_controller()
     _attitudeEstimator.update();
     _verticalEstimator.update();
 
-    //_attitudeController.update_angle_control(_attitudeEstimator.get_estimated_roll(), _attitudeEstimator.get_estimated_pitch());
-    _attitudeController.update_rate_control();
+    _attitudeController.update_angle_control(_attitudeEstimator.get_estimated_roll(), _attitudeEstimator.get_estimated_pitch());
+    //_attitudeController.update_rate_control();
     _verticalVelocityController.update(_verticalEstimator.get_estimated_vertical_velocity());
 
     // Serial.print("Roll:");
