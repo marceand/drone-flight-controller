@@ -3,8 +3,8 @@
 
 #define MAX_FILENAME 32
 
-// Size to log 128 byte lines at 250Hz for ten minutes.
-#define LOG_FILE_SIZE 128 * 250 * 600 // 19.2 megabytes.
+// Size to log 132 byte lines at 250Hz for ten minutes.
+#define LOG_FILE_SIZE 132 * 250 * 600 // 19.8 megabytes.
 
 void Logger::init(uint32_t id) {
 
