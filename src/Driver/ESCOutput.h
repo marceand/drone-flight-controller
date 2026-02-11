@@ -7,7 +7,6 @@
 #define SCALE_TO_12_BIT 1.024f
 #define NUM_ESC_CHANNELS 4
 #include <cstdint>
-#include <PWMServo.h>
 
 class ESCOutput
 {
@@ -25,15 +24,9 @@ public:
 
 private:
     bool is_initalized = false;
-    PWMServo M1;
-    PWMServo M2;
-    PWMServo M3;
-    PWMServo M4;
     ESCChannel escChannels[NUM_ESC_CHANNELS] = {
         {ESC_1_PIN, 1000.0f, 1000.0f},
         {ESC_2_PIN, 1000.0f, 1000.0f},
         {ESC_3_PIN, 1000.0f, 1000.0f},
         {ESC_4_PIN, 1000.0f, 1000.0f}};
-
-    int us_to_deg(int us);
 };

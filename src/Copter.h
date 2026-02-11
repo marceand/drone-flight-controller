@@ -4,7 +4,7 @@
 #include "InertialSensor/InertialSensor.h"
 #include "BatteryMonitor/BatteryMonitor.h"
 #include "Motors/Motors.h"
-#include "HAL/EepromStorage.h"
+#include "Driver/EepromStorage.h"
 #include "Barometer/Barometer_BMP280.h"
 #include "Attitude/AttitudeEstimator.h"
 #include "Attitude/AttitudeController.h"

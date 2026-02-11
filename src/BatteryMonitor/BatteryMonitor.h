@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../HAL/BatteryReader.h"
+#include "../Driver/BatteryReader.h"
 
 class BatteryMonitor
 {

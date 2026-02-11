@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include "../HAL/LEDDriver.h"
+#include "../Driver/LEDDriver.h"
 
 class LEDIndicator
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../HAL/ESCOutput.h"
+#include "../Driver/ESCOutput.h"
 
 #define NUM_MOTORS 4
 

@@ -1,5 +1,4 @@
 #include "Logger.h"
-#include <Entropy.h>
 
 #define MAX_FILENAME 32
 

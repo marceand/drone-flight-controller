@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdint>
-#include "../HAL/BuzzerDriver.h"
+#include "../Driver/BuzzerDriver.h"
 #include <Arduino.h>
 #include <IntervalTimer.h>
 
