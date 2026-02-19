@@ -304,8 +304,7 @@ void Copter::check_motors_arming()
 
 bool Copter::is_pre_arm_check_pass()
 {
-    return true;
-    // return _battMonitor.is_batt_failsafe();
+    return !_battMonitor.is_batt_failsafe();
 }
 
 void Copter::run_notifier()
