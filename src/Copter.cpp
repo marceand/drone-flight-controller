@@ -110,8 +110,8 @@ void Copter::run_main_controller()
     float pitch_command = _attitudeController.get_pitch_command();
     float yaw_command = _attitudeController.get_yaw_command();
     float hover_command = _verticalVelocityController.get_hover_command();
-    // float throttle_command = _rc.get_mid_throttle() + hover_command;
-    float throttle_command = _rc.get_throttle_in_pwm();
+    float throttle_command = _rc.get_mid_throttle() + hover_command;
+    // float throttle_command = _rc.get_throttle_in_pwm();
 
     _motors.set_command_inputs(throttle_command, roll_command, pitch_command, yaw_command);
 

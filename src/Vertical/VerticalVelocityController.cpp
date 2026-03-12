@@ -5,6 +5,11 @@
 #define VERTICAL_VELOCITY_KI 0.0015f
 #define VERTICAL_VELOCITY_KD 0.01f
 
+// low responding
+// #define VERTICAL_VELOCITY_KP 2.5f
+// #define VERTICAL_VELOCITY_KI 0.0010f
+// #define VERTICAL_VELOCITY_KD 0.01f
+
 void VerticalVelocityController::set_parameters()
 {
     _velocityPID.setParameters(VERTICAL_VELOCITY_KP, VERTICAL_VELOCITY_KI, VERTICAL_VELOCITY_KD, 0.004, 400, 400);

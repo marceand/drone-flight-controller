@@ -83,8 +83,6 @@ Copter::Task Copter::tasks[] = {
 
 const int Copter::NUM_TASKS = sizeof(tasks) / sizeof(Task);
 
-unsigned long loopTimer = micros();
-
 void setup()
 {
     Serial.begin(SERIAL_BAUD_RATE);
