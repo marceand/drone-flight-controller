@@ -38,10 +38,10 @@ void Motors::set_command_inputs(float throttle_command, float roll_command, floa
 
 void Motors::compute_mixer_outputs()
 {
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < NUM_MOTORS; i++)
     {
         float sum = 0.0f;
-        for (int j = 0; j < 4; j++)
+        for (int j = 0; j < NUM_MOTORS; j++)
         {
             sum += _mixer[i][j] * _command_inputs[j];
         }

@@ -37,7 +37,7 @@ private:
     float _command_inputs[NUM_MOTORS] = {0.0f};
     float _mixed_motor_outputs[NUM_MOTORS] = {0.0f};
     float _motor_outputs[NUM_MOTORS] = {1000.0f};
-    float _mixer[4][4] = {
+    float _mixer[NUM_MOTORS][NUM_MOTORS] = {
         {1, -1, -1, -1}, // Motor 1
         {1, -1, 1, 1},   // Motor 2
         {1, 1, 1, -1},   // Motor 3
