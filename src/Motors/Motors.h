@@ -34,7 +34,7 @@ public:
 private:
     ESCOutput &_escOutput;
     SpoolState _spoolState = SpoolState::SHUT_DOWN;
-    float _command_inputs[NUM_MOTORS] = {0.0f};
+    float _command_inputs[4] = {0.0f};
     float _mixed_motor_outputs[NUM_MOTORS] = {0.0f};
     float _motor_outputs[NUM_MOTORS] = {1000.0f};
     float _mixer[NUM_MOTORS][NUM_MOTORS] = {
